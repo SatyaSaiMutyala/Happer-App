@@ -1,0 +1,384 @@
+{
+  "appTitle": "Happer",
+  "app_name": "Happer",
+  "shareSlogan": "Share your style and win fashion items",
+  
+  "noDataFound": "No data found.",
+  "justNow": "Just now",
+  "minutesAgo": "{minutes} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{hours} hours ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{days} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "weekAgo": "{weeks} week ago",
+  "@weekAgo": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "weeksAgo": "{weeks} weeks ago",
+  "@weeksAgo": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "monthAgo": "{months} month ago",
+  "@monthAgo": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "monthsAgo": "{months} months ago",
+  "@monthsAgo": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "yearAgo": "{years} year ago",
+  "@yearAgo": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "yearsAgo": "{years} years ago",
+  "@yearsAgo": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "shopTheStyle": "SHOP THE STYLE",
+  "unknown": "Unknown",
+  "retry": "Retry",
+  "errorOccurred": "An error occurred. Please try again later.",
+  "failedToUpdateLike": "Failed to update like status",
+  "noCreatorFound": "No creator found for \"{query}\"",
+  "@noCreatorFound": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchResults": "Search results for: \"{query}\"",
+  "@searchResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+
+  "connexion": "Login",
+  "inscription": "Sign up",
+  "continuerAvecFacebook": "Continue with Facebook",
+  "seConnecter": "Log in",
+  "login": "Login",
+  "nomUtilisateur": "Email address",
+  "emailAdress": "Email address",
+  "motDePasse": "Password",
+  "password": "Password",
+  "forgetPassword": "Forgot your password ?",
+  "signUp": "Sign up",
+  "sInscrire": "Sign up",
+  "adresseMail": "Email address",
+  "nomUtilisateurSignUp": "UserName",
+  "usernmae": "User name",
+  "sexe": "Sex",
+  "homme": "Male",
+  "femme": "Female",
+  "confirmerMotDePasse": "Confirm password",
+  "confirmPassword": "Confirm password",
+  "codeParainage": "Code",
+  "compris": "Got it",
+  "sauter": "Skip",
+  "relaunch": "RELAUNCH",
+  "readMore": "READ MORE",
+  "followTutorial": "Follow the tutorial?",
+
+  "inspirationDuJour": "Daily inspiration",
+  "inspiration": "Inspiration of the day",
+  "historique": "Historic",
+  "cerclesPrives": "Products",
+  "monDressing": "My dressing",
+  "monCompte": "My account",
+  "myAccount": "My account",
+  "product_title": "My Orders",
+  "productsComing": "Products are coming. Please wait.",
+  "myFashionItem": "My fashion items",
+  "wonItems": "Won items",
+  "wishlist": "Wishlist",
+
+  "detailsProduit": "Products",
+  "description": "Description",
+  "prix": "Price",
+  "prixReel": "Real price",
+  "realPrice": "Real price",
+  "discountPrice": "Discount price",
+  "iWantIt": "I WANT IT",
+  "productInformation": "Product Information",
+  "latestBidder": "Latest Bidder",
+  "dernieresHappeuses": "Last Happeuses",
+  "first": "1st",
+  "second": "2nd",
+  "third": "3rd",
+  "fourth": "4th",
+  "fifth": "5th",
+
+  "credit": "Credit",
+  "credits": "Credits",
+  "coins": "Coins",
+  "youHave": "You have",
+  "coin": "coin",
+  "freeCoins": "Free Coins",
+  "oneCredit": "+1 coin",
+  "thirtyCoin": "+50 coins",
+  "twoHundredCredit": "+200 coins",
+  "perAd": "/ad",
+  "perDay": "/day",
+  "perGuest": "per guest",
+  "perWeek": "/week",
+  "getCreditPerDay": "Your coins every day by removing ads",
+  "gagnerUnCredit": "Watch a video and win a credit.",
+  "ad": "Ads",
+  "withoutAds": "without ads",
+  "maxPubPerDay": "200 ads maximum /day",
+  "supprimerPub": "Would like to remove the advertising for 9.99€",
+
+  "getHapperPremium": "GET HAPPER PREMIUM",
+  "popular": "Popular",
+  "becomePremium": "Become Premium",
+  "becomePremiumButton": "BECOME PREMIUM",
+  "plus": "PLUS",
+  "gold": "GOLD",
+  "diamond": "DIAMOND",
+  "get": "Get",
+  "coinsEveryDay": "Coins Every Day",
+  "remove": "Remove",
+  "ofAds": "of Ads",
+  "dealerAtDisposal": "Dealer at your disposal",
+  "notificationEndOfReserve": "Notification end of reserve",
+  "threeFreeDays": "3 Free Days.\\nThen",
+  "freeTrail": "Free\\nTrial",
+  "month": "month",
+  "year": "year",
+  "saveEco": "Save",
+  "onThePrice": "on the price",
+  "startWithoutPay": "Start without paying",
+  "forPremiumMembers": "For Premium members only",
+  "suscribeToAccessDealer": "Please purchase a subscription to use your Croupier",
+  "oneCreditLeft": "You have 1 credit left",
+  "getHapperPlus": "Enjoy HAPPER PLUS your credit without ads !",
+  "seeOffers": "See offers",
+  "threeCreditLeft": "You have 3 credits left",
+  "showAds": "Show ads for more credits",
+  "goToAds": "See",
+
+  "takeAPicture": "Take a picture",
+  "selectFromLibrary": "Select from Library",
+  "prendreUnePhoto": "Take a photo",
+  "chargerUnePhoto": "Upload a photo",
+  "cameraNonTrouve": "Camera not found",
+  "impossibleRecupererCamera": "Unable to retrieve the camera.",
+  "shareThisPicture": "Share this picture",
+  "cropPicture": "Crop picture",
+  "categorizeThisPicture": "Categorize this picture",
+  "toolTipResizeImage": "To remain anonymous, please do not frame your face",
+  "toolTipCategorizeImage": "Select your style category",
+  "cameraFragmentTitle": "SHARE YOUR STYLE",
+  "selfieUpload": "Selfie Upload",
+  "contribuer": "Contribute",
+  "partager": "Share",
+  "vosPlusBeauxStyles": "your best Styles",
+  "partageDuSelfie": "Sharing the selfie",
+  "votreSelfieAttente": "Your selfie is now waiting for a rating",
+  "selfieNotValidated": "Your selfie was not validated",
+  "pictureShared": "Picture Shared",
+  "shareStyleText": "I've found this clothing style you'll love on the Happer fashion app. Join me now!",
+  "shareStyleWithFriends": "Share this style with people you know",
+  "myStyles": "My Pictures",
+  "sharedStyles": "Shared Styles",
+  "favoriteStyle": "Favorite Styles",
+  "like": "Like",
+  "textToolTipCAMERA": "Share your style for more credits",
+
+  "prenom": "First Name",
+  "firstName": "FIrst Name",
+  "nom": "Name",
+  "lastName": "Last Name",
+  "adresse": "Address",
+  "address": "Address",
+  "codePostal": "Zip code",
+  "postalCode": "Post Code",
+  "ville": "City",
+  "city": "City",
+  "adresseEmail": "E-mail",
+  "dateDeNaissance": "Date of birth",
+  "dateOfBirth": "Date Of Birth",
+  "modifier": "Edit",
+  "deconnexion": "Log out",
+  "logout": "Logout",
+  "deleteMyAccount": "Delete my account",
+  "cancel": "Cancel",
+  "delete": "Delete",
+
+  "invitFriend": "INVITE YOUR FRIENDS",
+  "sponsorship": "Invite friends",
+  "sponsorShipText": "Sponsorship",
+  "sponsorshipTitle": "1 SPONSORSHIP = 50 CREDITS",
+  "earnCreditSponsorShip": "Earn 30 credits for each friend you refer",
+  "yourCode": "Your code",
+  "textShare": "Share your code with a friend. When she uses it during her registration, you will both get 30 credits",
+  "messageSponshipAddFriend": "Join me on the Happer fashion app that offers free items every day! Referral code: ",
+  "invite3Friends": "Invite 3 friends to unlock more credits",
+  "invitFriends": "Invit friends",
+  "invitMyFriends": "INVIT MY FRIENDS",
+  "getCredits": "GET YOUR CREDITS",
+  "friendsToInvite": "friends to invite to unlock more credits",
+  "friendToInvite": "friend to invite to unlock more credits",
+  "onlyOneFriendToSponsor": "Only 1 more friend to sponsor for more credits",
+  "onlyTwoFriendsToSponsor": "Only 2 more friends to sponsor for more credits",
+  "moreCreditMoreChanceToWin": "More credits = More chance to win",
+
+  "dealerIsWaiting": "Your Dealer is waiting for you !",
+  "dontMissYourChance": "Don't miss your chance to win.",
+  "dealerAtYourPlace": "Dealer for Happ at your place !",
+  "infosTitleTooltipCroupier": "This feature allows you to Happer automatically.",
+  "infosContentTooltipCroupier": "Available to PREMIUM members",
+  "dealerUnavailable": "Currently Unavailable",
+  "dealerCurrentlyUnavailable": "Dealer Unavailable",
+  "dealerAvailableSoon": "Your dealer will be available soon",
+  "credtiDealerIsHighThanYourCredit": "The number of credits for the dealer is higher than your credits!",
+
+  "next": "Next",
+  "validate": "Validate",
+  "terminer": "Finish",
+  "followUp": "Follow up",
+  "moreOption": "More options",
+  "moreInformations": "MORE INFORMATION",
+  "goToHapper": "Go to Happer",
+  "d": "D",
+  "titleInfoStartDate": "Reserve period not reached",
+  "contentInfoStartDate": "Minimum date and time before you can win the item",
+  "dateHeureMiseEnJeuArticle": "Date and time the item was put into play",
+  "expireOn": "Expires on",
+  "informationResetCreditAllDays": "Remember to use your credits before 00:00\\nEvery day, they are reset to 0.",
+
+  "obtenezAuMoins": "Get at least",
+  "oneEtoile": "1 star",
+  "twoEtoiles": "2 stars",
+  "threeEtoiles": "3 stars",
+  "fourEtoiles": "4 stars",
+  "fiveEtoiles": "5 stars",
+  "pourDevenir": "To become a",
+  "membreDuCercleSilver": "Member Of The Silver Circle",
+  "membreDuCercleGold": "Member Of The Gold Circle",
+  "membreDuCerclePlatines": "Member Of The Platines Circle",
+  "membreDuCercleRuby": "Member Of The Ruby Circle",
+  "membreDuCercleSapphire": "Member Of The Sapphire Circle",
+
+  "succes": "Success",
+  "congratulations": "Congratulations !",
+  "votreCompteModifieAvecSucces": "Your account has been successfully modified!",
+  "codeActivated": "Your code has been activated",
+  "passwordEditedOk": "Your password has been successfully changed!",
+  "plusFiveCoins": "+5 Coins !",
+  "erreure": "Error",
+  "error": "Error",
+  "anErrorOccured": "An error has occured",
+  "uneErreurEstSurvenue": "A mistake has occurred. Please try again later.",
+  "echecDeConnexion": "Connection failure",
+  "echecInscription": "Failure to register",
+  "deleteAuthorization": "Please reset your Apple account access permissions to the application and try again",
+  "invalidEmail": "Please enter a valid email address!",
+  "invalidPassword": "The password must contain at least 8 characters, one lower case, one upper case and one number",
+  "adresseMailDejaExistante": "Existing email address",
+  "motDePasseDifferents": "Different passwords",
+  "differentPassword": "Different Passwords",
+  "passwordMustBeTheSame": "Passwords must match",
+  "mailOuMotDePasseIncorrect": "Incorrect email or password",
+  "ancienMotDePasseIncorrect": "Your old password is invalid",
+  "facebookDeletePasswordImpossible": "Logging in with a Facebook or Apple account does not allow you to change your password",
+  "vousNavezPasAssezDeCredits": "You don't have enough credits to Happer!",
+  "onDiraitQueVousNavezPlusDeCredit": "Looks like you're out of credit!",
+  "impossibleHapper": "Impossible to Happer, you are not part of this circle !",
+  "vousAvezDejaGagneUnProduit": "You have already won a product this month !",
+  "produitsEnPause": "The products are on pause, please try again later.",
+  "produitRemporterParAutreUtilisateur": "The product was won by another user!",
+  "expiredCode": "Expired code",
+  "codeUnknown": "Sorry, this code does not seem to be valid. Please make sure it was written correctly.",
+  "codeAlreadyUsed": "Sorry, it seems that this code has already been used.",
+  "modificationImpossible": "Unable to modify",
+  "impossibleModification": "Modification impossible",
+
+  "information": "Information",
+  "votreSignalementPrisEnCompte": "Your report has been taken into consideration.",
+  "aucunNouveauSelfieANoter": "No new Selfie to note",
+  "validateYourEmail": "Credits are pending, validate your e-mail.",
+  "confirmation": "Confirmation",
+  "voulezVousVraimentSignalerCeSelfie": "Do you really want to report this selfie ? ",
+  "oui": "Yes",
+  "non": "No",
+  "noThanks": "NO THANKS",
+  "textToolTipVIDEO": "The explanatory video is still available here",
+  "tooltipBackProducts": "Return to the articles",
+  "tooltipIWantIt": "You can buy the article directly",
+  "youHaveThreeCoins": "You have 2 coins",
+  "youCanShowAd": "You can view ads for more coins",
+
+  "dailyLogin": "Welcome login",
+  "exceptOf": "except of ",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfUse": "Terms of Use",
+  "enterCodeAndNewPassword": "Enter the code received by email and your new password",
+  "lang": "en",
+  "superGreat": "Great !",
+  "restezAttentif": "Stay tuned !",
+  "marque": "Brand",
+  "demanderDesHappies": "Ask for Happies",
+  "bear": "ta mere",
+
+  "notifications": "Notifications",
+  "notificationSettings": "Notification Settings",
+  "wishlistNotifications": "Wishlist Notifications",
+  "creditsNotifications": "Credits Notifications",
+  "pushNotifications": "Push Notifications",
+  "wishlistNotificationsDesc": "Receive notifications about your wishlist items",
+  "creditsNotificationsDesc": "Receive notifications about your credits",
+  "pushNotificationsDesc": "Receive general push notifications",
+  "save": "Save",
+  "settingsSaved": "Settings saved successfully",
+  "failedToSaveSettings": "Failed to save settings",
+  "returnAndRefund": "Return and refund",
+  "sponsorshipCode": "Code"
+}

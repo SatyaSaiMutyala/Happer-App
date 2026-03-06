@@ -1,0 +1,91 @@
+name: happer_app
+description: "A new Flutter project."
+publish_to: "none"
+
+version: 5.03.26+21
+
+environment:
+  sdk: ^3.6.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  pinch_zoom: ^2.0.1
+  cupertino_icons: ^1.0.8
+  google_sign_in: ^6.2.1
+  share_plus: ^11.0.0
+  shimmer: ^3.0.0
+  flutter_svg: ^2.0.17
+  shared_preferences: ^2.0.15
+  jwt_decoder: ^2.0.1
+  flutter_staggered_grid_view: ^0.7.0
+  country_picker: ^2.0.27
+  web_socket_channel: ^3.0.3
+  cached_network_image: ^3.4.1
+  http: ^1.2.0
+  http_parser: ^4.0.2
+  path_provider: ^2.1.2
+  image_picker: ^1.0.7
+  camera: ^0.11.1         # For camera functionality
+  image_cropper: ^9.1.0     # Updated to the latest versions
+  provider: ^6.0.5          # For state management
+  permission_handler: ^12.0.0+1  # For permission handling
+  flutter_image_compress: ^2.4.0
+  intl: ^0.20.2             # For date formatting
+  flutter_stripe: ^11.5.0   # For Stripe payment integration
+  url_launcher: ^6.3.1      # For launching URLs and emails
+  slide_countdown: ^2.0.2   # For sliding countdown timer
+  webview_flutter: ^4.10.0  # For in-app PDF and web content viewing
+  custom_progress_button: ^2.0.1   # For custom progress button
+  firebase_core: ^3.13.1
+  firebase_messaging: ^15.2.6
+  flutter_local_notifications: ^19.2.1
+  firebase_auth: ^5.5.4
+  sign_in_with_apple: ^7.0.1
+  crypto: ^3.0.3
+  uni_links: ^0.5.1
+  awesome_dialog: ^3.3.0
+  font_awesome_flutter: ^10.9.1
+  gal: ^2.3.2
+
+ 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/happer_word_logo.png
+  android: true
+  ios: true
+  web: false
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/HapperLogobg.png"
+  # Adaptive icon configuration for consistent round corners on all Android devices
+  adaptive_icon_background: "#FFFFFF"  # White background (change to your brand color if needed)
+  adaptive_icon_foreground: "assets/images/HapperLogobg.png"  # Foreground layer
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/images/
+    - assets/images/happer_logo.png
+    - assets/images/happer_word_logo.png
+    - assets/images/google_logo.png
+    - assets/images/myimages.png
+    - assets/images/likedimages.png
+    - assets/images/wonproducts.png
+    - assets/images/wishlist.png
+  config:
+    enable-lldb-debugging: false

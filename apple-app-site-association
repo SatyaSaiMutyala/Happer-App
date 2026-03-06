@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "KY8Y97H337.fr.happer.app"
+        ],
+        "paths": [
+          "*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "KY8Y97H337.fr.happer.app"
+    ]
+  }
+}

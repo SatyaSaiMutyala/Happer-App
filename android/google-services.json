@@ -1,0 +1,134 @@
+{
+  "project_info": {
+    "project_number": "287519573282",
+    "project_id": "happer-b272b",
+    "storage_bucket": "happer-b272b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287519573282:android:2e81a2871437c869c2917b",
+        "android_client_info": {
+          "package_name": "com.example.happer_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "287519573282-ereeovt3tp411982960kqdp4j4j3lutt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcGn6Q3ozuRz8fkTfvtPtIOB29Bk221Zk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "287519573282-ereeovt3tp411982960kqdp4j4j3lutt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "287519573282-76qj7fd1hukgmelpon2g59e0hbksh9qc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.happerApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287519573282:android:19578a2d440fb0e1c2917b",
+        "android_client_info": {
+          "package_name": "com.fr.happer.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "287519573282-hankgto22o0hpqqr9nv5j20lgjjhtohd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fr.happer.app",
+            "certificate_hash": "e9c2a172ed5d326641916d123b4758b824acd88a"
+          }
+        },
+        {
+          "client_id": "287519573282-ereeovt3tp411982960kqdp4j4j3lutt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcGn6Q3ozuRz8fkTfvtPtIOB29Bk221Zk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "287519573282-ereeovt3tp411982960kqdp4j4j3lutt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "287519573282-76qj7fd1hukgmelpon2g59e0hbksh9qc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.happerApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287519573282:android:52150c3ea165c90ec2917b",
+        "android_client_info": {
+          "package_name": "fr.happer.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "287519573282-0i8b975qraj1act139sh4i9gj8u8g0ts.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fr.happer.app",
+            "certificate_hash": "e9c2a172ed5d326641916d123b4758b824acd88a"
+          }
+        },
+        {
+          "client_id": "287519573282-ereeovt3tp411982960kqdp4j4j3lutt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcGn6Q3ozuRz8fkTfvtPtIOB29Bk221Zk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "287519573282-ereeovt3tp411982960kqdp4j4j3lutt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "287519573282-76qj7fd1hukgmelpon2g59e0hbksh9qc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.happerApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
