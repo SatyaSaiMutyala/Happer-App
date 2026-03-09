@@ -2,7 +2,7 @@ name: happer_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 5.03.26+21
+version: 18.1.1+24
 
 environment:
   sdk: ^3.6.1

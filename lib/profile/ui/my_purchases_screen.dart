@@ -211,30 +211,11 @@ Row(
 
               const SizedBox(height: 10),
 
-              // Real Price
+              // Price
               Row(
                 children: [
                   const Text('Prix réel',
-                      style: TextStyle(fontSize: 13, color: Colors.grey)),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${((item.price ?? 0) * 1.15).toStringAsFixed(2)}€',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                      decoration: TextDecoration.lineThrough,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-
-              // Promo Price
-              Row(
-                children: [
-                  const Text('Prix PROMO',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 8),
                   Text(
                     '${(item.price ?? 0).toStringAsFixed(2)}€',

@@ -571,7 +571,7 @@ class _ImageGridScreenState extends State<ImageGridScreen> {
         'https://newapi.happer.fr/store/profile/$encodedId';
 
     final shareText =
-        'Check out $userName’s Happer profile!\n\nView it here 👇\n$deepLink';
+        "J’ai découvert la boutique de mode de $userName sur Happer et j’adore son style ✨\nJe te partage son profil ! $deepLink";
 
     try {
       final RenderBox? box = context.findRenderObject() as RenderBox?;

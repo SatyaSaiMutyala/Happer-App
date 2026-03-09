@@ -69,7 +69,7 @@ class _AddressScreenState extends State<AddressScreen> {
   String? _publishableKey;
 
   bool _isButtonEnabled = false;
-  bool _agreedToTerms = false;
+
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -1027,50 +1027,10 @@ debugPrint('============================');
         Divider(color: Colors.grey[300], height: 1),
         SizedBox(height: 8),
         _buildSummaryRow('Total TTC', '${_cartData?.total?.toStringAsFixed(2) ?? '0.00'} €', isBold: true),
-        SizedBox(height: 12),
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _agreedToTerms = !_agreedToTerms;
-            });
-          },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 22,
-                height: 22,
-                child: Checkbox(
-                  value: _agreedToTerms,
-                  onChanged: (value) {
-                    setState(() {
-                      _agreedToTerms = value ?? false;
-                    });
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  side: BorderSide(color: Colors.grey[400]!),
-                  activeColor: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  "J'accepte les conditions générales de vente",
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontFamily: 'Lato',
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        
         SizedBox(height: 16),
         ElevatedButton(
-          onPressed: (_isProcessingPayment || !_agreedToTerms)
+          onPressed: _isProcessingPayment
               ? null
               : () {
                   if (_formKey.currentState?.validate() ?? false) {
@@ -1081,7 +1041,7 @@ debugPrint('============================');
                 },
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
-            backgroundColor: _agreedToTerms ? Colors.black : Colors.grey.shade300,
+            backgroundColor: Colors.black,
             disabledBackgroundColor: Colors.grey.shade300,
             disabledForegroundColor: Colors.grey,
             minimumSize: Size(double.infinity, 50),

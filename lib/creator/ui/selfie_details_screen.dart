@@ -687,9 +687,91 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                       ],
                     ),
                   ),
+                  // "Look composé avec" brand names
+                  if (_selfie!.itemsId != null &&
+                      _selfie!.itemsId!.any((item) =>
+                          item.exactMatch == true &&
+                          item.item?.brandId?.name != null))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: RichText(
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 13,
+                            height: 1.4,
+                            letterSpacing: 0.0,
+                            color: Color(0xFF8D8D8D),
+                          ),
+                          children: [
+                            const TextSpan(text: 'Look composé avec '),
+                            TextSpan(
+                              text: () {
+                                final seenBrands = <String>{};
+                                final brandNames = <String>[];
+                                for (final item in _selfie!.itemsId!) {
+                                  if (item.exactMatch == true &&
+                                      item.item?.brandId?.name != null &&
+                                      seenBrands.add(item.item!.brandId!.name!)) {
+                                    brandNames.add(item.item!.brandId!.name!);
+                                  }
+                                }
+                                return brandNames.join(' - ');
+                              }(),
+                              style: const TextStyle(
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                height: 1.4,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: const Divider(thickness: 1),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: const Divider(thickness: 0.5, color: Color(0xFFD0D0D0)),
+                  ),
+
+                  // "Prix Exclusif Happer" and "Livraison Offerte" right-aligned
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16, top: 4, bottom: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: const [
+                          Text(
+                            'Prix Exclusif Happer',
+                            style: TextStyle(
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                              height: 1.4,
+                              letterSpacing: 0.0,
+                              color: Color(0xFF8D8D8D),
+                            ),
+                          ),
+                          Text(
+                            'Livraison Offerte',
+                            style: TextStyle(
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                              height: 1.4,
+                              letterSpacing: 0.0,
+                              color: Color(0xFF8D8D8D),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   // Display the exact match product with horizontal scrollable images
@@ -897,7 +979,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                             ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            '${_truncateWithEllipsis(item.item?.name)} ${(item.item?.price ?? 0).toStringAsFixed(0)}€',
+                                            '${_truncateWithEllipsis(item.item?.name)} ${(() { final p = item.item?.price ?? 0; final promo = item.item?.promoPercent ?? 0; return promo > 0 ? (p - (p * promo / 100)).round() : p; })()}€',
                                             style: const TextStyle(
                                               fontFamily: 'Lato',
                                               fontWeight: FontWeight.w400,
@@ -1077,7 +1159,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                             ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            '${_truncateWithEllipsis(item.item?.name)} ${(item.item?.price ?? 0).toStringAsFixed(0)}€',
+                                            '${_truncateWithEllipsis(item.item?.name)} ${(() { final p = item.item?.price ?? 0; final promo = item.item?.promoPercent ?? 0; return promo > 0 ? (p - (p * promo / 100)).round() : p; })()}€',
                                             style: const TextStyle(
                                               fontFamily: 'Lato',
                                               fontWeight: FontWeight.w400,
@@ -1097,6 +1179,69 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                           ),
                         ),
                       ],
+                    ),
+
+                  const SizedBox(height: 16),
+
+                  // "AJOUTER LE LOOK AU PANIER" button
+                  if (_selfie!.itemsId != null &&
+                      _selfie!.itemsId!.any((item) => item.exactMatch == true))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: () {
+                        final exactItems = _selfie!.itemsId!
+                            .where((item) => item.exactMatch == true)
+                            .toList();
+                        final totalPrice = exactItems.fold<int>(
+                          0,
+                          (sum, item) {
+                            final price = item.item?.price ?? 0;
+                            final promo = item.item?.promoPercent ?? 0;
+                            if (promo > 0) {
+                              return sum + (price - (price * promo / 100)).round();
+                            }
+                            return sum + price;
+                          },
+                        );
+                        return GestureDetector(
+                          onTap: () {
+                            // TODO: Add all exact match items to cart
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.shopping_bag_outlined,
+                                      color: Colors.white,
+                                      size: 23,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'AJOUTER LE LOOK AU PANIER',
+                                      style: const TextStyle(
+                                        fontFamily: 'Lato',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }(),
                     ),
 
                   const SizedBox(height: 16),

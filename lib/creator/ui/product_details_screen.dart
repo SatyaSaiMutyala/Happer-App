@@ -271,13 +271,35 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       if ((itemDetails?.description ?? '').isNotEmpty)
                         ExpandableDescription(text: itemDetails?.description!),
                       SizedBox(height: 10),
-                      Text(
-                        '${itemDetails?.price.toStringAsFixed(0) ?? '0'}€', // Use itemDetails to display the price
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                      if ((itemDetails?.promoPercent ?? 0) > 0)
+                        Row(
+                          children: [
+                            Text(
+                              '${((itemDetails!.price) - (itemDetails!.price * (itemDetails!.promoPercent) / 100)).round()}€',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${itemDetails!.price.toStringAsFixed(0)}€',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFFB0B0B0),
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          '${itemDetails?.price.toStringAsFixed(0) ?? '0'}€',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
-                      ),
                       SizedBox(height: 20),
                       // Color Selection Section
                       if (itemDetails?.colorOfProduct != null)
@@ -325,7 +347,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             color: Color(0xFF8D8D8D),
                           ),
                         ),
-                      Divider(),
+                      const Divider(thickness: 0.5, color: Color(0xFFD0D0D0)),
+                      // "Prix Exclusif Happer" and "Livraison Offerte" right-aligned
+                   
                       if (_creatorName != null && _creatorName!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12),
