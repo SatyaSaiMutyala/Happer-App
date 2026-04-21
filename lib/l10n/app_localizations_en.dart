@@ -928,4 +928,432 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sponsorshipCode => 'Code';
+
+  @override
+  String get cartTitle => 'CART';
+
+  @override
+  String get termsAndConditions => 'GENERAL TERMS OF SALE';
+
+  @override
+  String get changePasswordTitle => 'CHANGE PASSWORD';
+
+  @override
+  String get forgotPasswordTitle => 'FORGOT PASSWORD';
+
+  @override
+  String get resetPasswordTitle => 'RESET PASSWORD';
+
+  @override
+  String get gameContestTitle => 'Game Contest';
+
+  @override
+  String get mesCommandesTitle => 'My Orders';
+
+  @override
+  String get mesLooksTitle => 'My Looks';
+
+  @override
+  String get mesFavorisTitle => 'My Favorites';
+
+  @override
+  String get sharePhotoTitle => 'SHARE PHOTO';
+
+  @override
+  String get deleteNotificationTitle => 'Delete Notification';
+
+  @override
+  String get deleteNotificationConfirm =>
+      'Are you sure you want to delete this notification?';
+
+  @override
+  String get editProfilePhoto => 'Edit profile photo';
+
+  @override
+  String get chooseFromGallery => 'Choose from gallery';
+
+  @override
+  String get myAddressTitle => 'My Address';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get cartEmpty => 'Your cart is empty';
+
+  @override
+  String get noNotifications => 'No notifications';
+
+  @override
+  String get noNotificationsSubtitle =>
+      'You\'re all caught up! Check back later for updates.';
+
+  @override
+  String get noImagesFound => 'No images yet';
+
+  @override
+  String get noImagesFoundSubtitle =>
+      'Your looks will appear here once you add them.';
+
+  @override
+  String get profilePhotoUpdated => 'Profile photo updated successfully';
+
+  @override
+  String get profilePhotoUpdateFailed => 'Failed to update profile photo';
+
+  @override
+  String get passwordUpdatedSuccess => 'Password updated successfully';
+
+  @override
+  String get enterCurrentPassword => 'Enter your current password';
+
+  @override
+  String get codeCreditTitle => 'CODE CREDIT';
+
+  @override
+  String get monCompteTitleLabel => 'MY ACCOUNT';
+
+  @override
+  String get loginToSeeContent => 'Please log in to see more content';
+
+  @override
+  String get loginToTakeSelfie => 'Please login to take a selfie';
+
+  @override
+  String get loginToCheckout => 'Please login to proceed to checkout';
+
+  @override
+  String get itemRemovedFromCart => 'Item removed from cart';
+
+  @override
+  String get selfieUploadSuccess => 'Selfie uploaded successfully!';
+
+  @override
+  String get selfieUploadFailed => 'Failed to upload selfie';
+
+  @override
+  String get happerProductsTitle => 'HAPPER PRODUCTS';
+
+  @override
+  String get pleaseEnterCode => 'Please enter a code';
+
+  @override
+  String get codeVerifiedSuccess => 'Code verified successfully';
+
+  @override
+  String get loginFailed => 'Login failed. Please try again.';
+
+  @override
+  String get registrationFailed => 'Registration failed. Please try again.';
+
+  @override
+  String get wishlistTitle => 'WISHLIST';
+
+  @override
+  String get cameraPermissionRequired => 'Camera permission is required';
+
+  @override
+  String get googleLoginFailed => 'Google login failed. Please try again.';
+
+  @override
+  String get appleLoginFailed => 'Apple login failed. Please try again.';
+
+  @override
+  String get noProductAvailable => 'No product available';
+
+  @override
+  String get addItemsToCart => 'Please add items to your cart first';
+
+  @override
+  String get wonProductsTitle => 'WON PRODUCTS';
+
+  @override
+  String get returnAndRefundTitle => 'RETURN AND REFUND';
+
+  @override
+  String get signInTitle => 'Sign In';
+
+  @override
+  String get welcomeBack => 'Welcome back, we missed you.';
+
+  @override
+  String get passwordHint => 'Password';
+
+  @override
+  String get forgotPasswordLink => 'Forgot Password?';
+
+  @override
+  String get loginFailedCredentials =>
+      'Login failed. Please check your credentials.';
+
+  @override
+  String get orSignInWith => 'Or sign in with';
+
+  @override
+  String get noAccountQuestion => 'Don\'t have an account?';
+
+  @override
+  String get signUpLink => 'Sign Up';
+
+  @override
+  String get errorLabel => 'Error';
+
+  @override
+  String get signupSubtitle =>
+      'Fill in the fields below or sign up with your social media account.';
+
+  @override
+  String get firstNameHint => 'First Name';
+
+  @override
+  String get lastNameHint => 'Last Name';
+
+  @override
+  String get confirmPasswordHint => 'Confirm Password';
+
+  @override
+  String get sponsorCodeHint => 'Sponsorship Code (Optional)';
+
+  @override
+  String get iAcceptAllThe => 'I accept all the ';
+
+  @override
+  String get conditionsGenerales => 'Terms & Conditions';
+
+  @override
+  String get acceptTermsToContinue =>
+      'Please accept the Terms and Conditions to continue.';
+
+  @override
+  String get signUpButton => 'SIGN UP';
+
+  @override
+  String get orSignUpWith => 'Or sign up with';
+
+  @override
+  String get resetPasswordHeading => 'Reset Password';
+
+  @override
+  String get resetPasswordInstructions =>
+      'Enter the code received by email and your new password';
+
+  @override
+  String get enterCodeHint => 'Enter the code';
+
+  @override
+  String get newPasswordHint => 'New password';
+
+  @override
+  String get confirmPasswordField => 'Confirm password';
+
+  @override
+  String get confirmButton => 'CONFIRM';
+
+  @override
+  String get resetPasswordFailed => 'Failed to reset password.';
+
+  @override
+  String get registerTagline =>
+      'Join a community of fashion enthusiasts, discover incredible looks and share your style.';
+
+  @override
+  String get getStartedButton => 'Get Started';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get continueAsGuest => 'Continue as guest';
+
+  @override
+  String get guestLoginFailed =>
+      'Failed to continue as guest. Please try again.';
+
+  @override
+  String get productsAddedCount => 'Products Added';
+
+  @override
+  String get cartEmptyDescription => 'Add items to your cart to see them here';
+
+  @override
+  String get confirmLabel => 'Confirm';
+
+  @override
+  String get confirmRemoveFromCart =>
+      'Are you sure you want to remove this item from your cart?';
+
+  @override
+  String get happerSpecialPrice => 'Happer Special Price';
+
+  @override
+  String get subtotalLabel => 'Subtotal incl. VAT';
+
+  @override
+  String get happerBenefits => 'Happer Benefits';
+
+  @override
+  String get shippingLabel => 'Shipping';
+
+  @override
+  String get freeLabel => 'Free';
+
+  @override
+  String get totalLabel => 'Total incl. VAT';
+
+  @override
+  String get iAcceptThe => 'I accept the ';
+
+  @override
+  String get cgvLabel => 'General Terms of Sale';
+
+  @override
+  String get continueButton => 'CONTINUE →';
+
+  @override
+  String get paymentFailed => 'Payment failed';
+
+  @override
+  String get noTokenError => 'Error: No token found. Please log in again.';
+
+  @override
+  String get itemRemoveFailed => 'Failed to remove item from cart';
+
+  @override
+  String get itemRemoveError => 'Error removing item from cart';
+
+  @override
+  String get deleteNotificationFailed => 'Failed to delete notification';
+
+  @override
+  String get authErrorLogin => 'Authentication error. Please login again.';
+
+  @override
+  String get shareButton => 'SHARE';
+
+  @override
+  String get productsNotAvailable =>
+      'Products are not available for your user type';
+
+  @override
+  String get selectExtraProducts => 'Select Extra Products';
+
+  @override
+  String get tryAgainButton => 'Try Again';
+
+  @override
+  String get pleaseLoginFirst => 'Please Login First';
+
+  @override
+  String get authErrorLoginAgain =>
+      'Authentication error. Please log in again.';
+
+  @override
+  String get deleteImageTitle => 'Delete Image';
+
+  @override
+  String get deleteImageConfirm =>
+      'Are you sure you want to delete this image?';
+
+  @override
+  String get imageDeletedSuccess => 'Image deleted successfully';
+
+  @override
+  String get imageDeleteFailed => 'Failed to delete image';
+
+  @override
+  String get addedToFavorites => 'Added to favorites';
+
+  @override
+  String get removedFromFavorites => 'Removed from favorites';
+
+  @override
+  String get failedUpdateFavorite => 'Failed to update favorite status';
+
+  @override
+  String get noProductsInCategory => 'No products found in this category';
+
+  @override
+  String get itemAddedToCart => 'Item added to cart successfully';
+
+  @override
+  String get failedAddToCart => 'Failed to add item to cart';
+
+  @override
+  String get failedFetchSearchResults => 'Failed to fetch search results';
+
+  @override
+  String get addedToWishlist => 'Added to wishlist';
+
+  @override
+  String get removedFromWishlist => 'Removed from wishlist';
+
+  @override
+  String get failedUpdateWishlist => 'Failed to update wishlist';
+
+  @override
+  String get viewWishlist => 'VIEW WISHLIST';
+
+  @override
+  String get errorTakingPhoto => 'Error taking photo';
+
+  @override
+  String get errorSelectingPhoto => 'Error selecting photo';
+
+  @override
+  String get noDataAvailable => 'No data available';
+
+  @override
+  String get actualPrice => 'Actual price';
+
+  @override
+  String get promoPrice => 'Promo Price';
+
+  @override
+  String get deliveryDetailsButton => 'DELIVERY DETAILS';
+
+  @override
+  String get noPurchasesFound => 'No purchases found.';
+
+  @override
+  String get couldNotOpenLink => 'Could not open the link';
+
+  @override
+  String get myOrdersTitle => 'MY ORDERS';
+
+  @override
+  String get myAddressAppBar => 'MY ADDRESS';
+
+  @override
+  String get errorLoadingCredits => 'Error loading credits';
+
+  @override
+  String get failedLoadNotificationSettings =>
+      'Failed to load notification settings';
+
+  @override
+  String get failedUpdateSettings => 'Failed to update';
+
+  @override
+  String get userIdNotFound => 'User ID not found';
+
+  @override
+  String get pleaseEnterTheCode => 'Please enter the code';
+
+  @override
+  String get verificationCodeLabel => 'Verification Code';
+
+  @override
+  String get failedLoadWonProducts => 'Failed to load won products';
+
+  @override
+  String get couldNotLoadInvoice => 'Could not load invoice';
+
+  @override
+  String get anErrorOccurred => 'An error occurred';
+
+  @override
+  String get emailCopiedToClipboard => 'Email copied to clipboard';
+
+  @override
+  String get couldNotOpenImageDetails => 'Could not open image details';
 }

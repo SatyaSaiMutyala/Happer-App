@@ -937,4 +937,452 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sponsorshipCode => 'Code';
+
+  @override
+  String get cartTitle => 'PANIER';
+
+  @override
+  String get termsAndConditions => 'CONDITIONS GÉNÉRALES DE VENTE';
+
+  @override
+  String get changePasswordTitle => 'CHANGER MOT DE PASSE';
+
+  @override
+  String get forgotPasswordTitle => 'MOT DE PASSE OUBLIÉ';
+
+  @override
+  String get resetPasswordTitle => 'RÉINITIALISER MOT DE PASSE';
+
+  @override
+  String get gameContestTitle => 'Jeu Concours';
+
+  @override
+  String get mesCommandesTitle => 'Mes Commandes';
+
+  @override
+  String get mesLooksTitle => 'Mes Looks';
+
+  @override
+  String get mesFavorisTitle => 'Mes Favoris';
+
+  @override
+  String get sharePhotoTitle => 'PARTAGER LA PHOTO';
+
+  @override
+  String get deleteNotificationTitle => 'Supprimer la notification';
+
+  @override
+  String get deleteNotificationConfirm =>
+      'Êtes-vous sûr de vouloir supprimer cette notification ?';
+
+  @override
+  String get editProfilePhoto => 'Modifier la photo de profil';
+
+  @override
+  String get chooseFromGallery => 'Choisir dans la galerie';
+
+  @override
+  String get myAddressTitle => 'Mon Adresse';
+
+  @override
+  String get languageLabel => 'Langue';
+
+  @override
+  String get cartEmpty => 'Votre panier est vide';
+
+  @override
+  String get noNotifications => 'Pas de notifications';
+
+  @override
+  String get noNotificationsSubtitle =>
+      'Tout est à jour ! Revenez plus tard pour des mises à jour.';
+
+  @override
+  String get noImagesFound => 'Aucune image pour l\'instant';
+
+  @override
+  String get noImagesFoundSubtitle =>
+      'Vos looks apparaîtront ici une fois que vous les aurez ajoutés.';
+
+  @override
+  String get profilePhotoUpdated => 'Photo de profil mise à jour avec succès';
+
+  @override
+  String get profilePhotoUpdateFailed =>
+      'Échec de la mise à jour de la photo de profil';
+
+  @override
+  String get passwordUpdatedSuccess => 'Mot de passe mis à jour avec succès';
+
+  @override
+  String get enterCurrentPassword => 'Entrez votre mot de passe actuel';
+
+  @override
+  String get codeCreditTitle => 'CODE CRÉDIT';
+
+  @override
+  String get monCompteTitleLabel => 'MON COMPTE';
+
+  @override
+  String get loginToSeeContent =>
+      'Veuillez vous connecter pour voir plus de contenu';
+
+  @override
+  String get loginToTakeSelfie =>
+      'Veuillez vous connecter pour prendre un selfie';
+
+  @override
+  String get loginToCheckout =>
+      'Veuillez vous connecter pour procéder au paiement';
+
+  @override
+  String get itemRemovedFromCart => 'Article retiré du panier';
+
+  @override
+  String get selfieUploadSuccess => 'Selfie téléchargé avec succès !';
+
+  @override
+  String get selfieUploadFailed => 'Échec du téléchargement du selfie';
+
+  @override
+  String get happerProductsTitle => 'PRODUITS HAPPER';
+
+  @override
+  String get pleaseEnterCode => 'Veuillez saisir un code';
+
+  @override
+  String get codeVerifiedSuccess => 'Code vérifié avec succès';
+
+  @override
+  String get loginFailed => 'Échec de la connexion. Veuillez réessayer.';
+
+  @override
+  String get registrationFailed =>
+      'Échec de l\'inscription. Veuillez réessayer.';
+
+  @override
+  String get wishlistTitle => 'WISHLIST';
+
+  @override
+  String get cameraPermissionRequired =>
+      'L\'autorisation de la caméra est requise';
+
+  @override
+  String get googleLoginFailed =>
+      'Échec de la connexion Google. Veuillez réessayer.';
+
+  @override
+  String get appleLoginFailed =>
+      'Échec de la connexion Apple. Veuillez réessayer.';
+
+  @override
+  String get noProductAvailable => 'Aucun produit disponible';
+
+  @override
+  String get addItemsToCart =>
+      'Veuillez d\'abord ajouter des articles au panier';
+
+  @override
+  String get wonProductsTitle => 'PRODUITS GAGNÉS';
+
+  @override
+  String get returnAndRefundTitle => 'RETOUR ET REMBOURSEMENT';
+
+  @override
+  String get signInTitle => 'Se connecter';
+
+  @override
+  String get welcomeBack => 'Ravi de te revoir. Tu nous as manqué.';
+
+  @override
+  String get passwordHint => 'Mot de passe';
+
+  @override
+  String get forgotPasswordLink => 'Mot De Passe Oublié ?';
+
+  @override
+  String get loginFailedCredentials =>
+      'Connexion échouée. Veuillez vérifier vos identifiants.';
+
+  @override
+  String get orSignInWith => 'Ou se connecter avec';
+
+  @override
+  String get noAccountQuestion => 'Vous n\'avez pas de compte ?';
+
+  @override
+  String get signUpLink => 'S\'inscrire';
+
+  @override
+  String get errorLabel => 'Erreur';
+
+  @override
+  String get signupSubtitle =>
+      'Remplissez les champs ci-dessous ou inscrivez-vous avec votre compte de réseau social.';
+
+  @override
+  String get firstNameHint => 'Prénom';
+
+  @override
+  String get lastNameHint => 'Nom';
+
+  @override
+  String get confirmPasswordHint => 'Confirmer Mot De Passe';
+
+  @override
+  String get sponsorCodeHint => 'Code Parrainage (Optionnel)';
+
+  @override
+  String get iAcceptAllThe => 'J\'accepte toutes les ';
+
+  @override
+  String get conditionsGenerales => 'Conditions Générales';
+
+  @override
+  String get acceptTermsToContinue =>
+      'Veuillez accepter les Conditions Générales pour continuer.';
+
+  @override
+  String get signUpButton => 'S\'INSCRIRE';
+
+  @override
+  String get orSignUpWith => 'Ou inscrivez-vous avec';
+
+  @override
+  String get resetPasswordHeading => 'Réinitialiser le mot de passe';
+
+  @override
+  String get resetPasswordInstructions =>
+      'Saisissez le code reçu par e-mail et votre nouveau mot de passe';
+
+  @override
+  String get enterCodeHint => 'Saisissez le code';
+
+  @override
+  String get newPasswordHint => 'Nouveau mot de passe';
+
+  @override
+  String get confirmPasswordField => 'Confirmez le mot de passe';
+
+  @override
+  String get confirmButton => 'CONFIRMER';
+
+  @override
+  String get resetPasswordFailed =>
+      'Échec de la réinitialisation du mot de passe.';
+
+  @override
+  String get registerTagline =>
+      'Rejoignez une communauté de passionnés de mode, découvrez des looks incroyables et partagez votre style.';
+
+  @override
+  String get getStartedButton => 'Commencer';
+
+  @override
+  String get alreadyHaveAccount => 'Vous avez déjà un compte ?';
+
+  @override
+  String get continueAsGuest => 'Continuer en tant qu\'invité';
+
+  @override
+  String get guestLoginFailed =>
+      'Impossible de continuer en tant qu\'invité. Veuillez réessayer.';
+
+  @override
+  String get productsAddedCount => 'Produits Ajoutés';
+
+  @override
+  String get cartEmptyDescription =>
+      'Ajoutez des articles à votre panier pour les voir ici';
+
+  @override
+  String get confirmLabel => 'Confirmer';
+
+  @override
+  String get confirmRemoveFromCart =>
+      'Êtes-vous sûr de vouloir retirer cet article de votre panier ?';
+
+  @override
+  String get happerSpecialPrice => 'Prix Spécial Happer';
+
+  @override
+  String get subtotalLabel => 'Sous-total TTC';
+
+  @override
+  String get happerBenefits => 'Avantages Happer';
+
+  @override
+  String get shippingLabel => 'Frais de Livraison';
+
+  @override
+  String get freeLabel => 'Gratuit';
+
+  @override
+  String get totalLabel => 'Total TTC';
+
+  @override
+  String get iAcceptThe => 'J\'accepte les ';
+
+  @override
+  String get cgvLabel => 'Conditions générales de vente';
+
+  @override
+  String get continueButton => 'CONTINUER →';
+
+  @override
+  String get paymentFailed => 'Paiement échoué';
+
+  @override
+  String get noTokenError =>
+      'Erreur : Aucun jeton trouvé. Veuillez vous reconnecter.';
+
+  @override
+  String get itemRemoveFailed => 'Échec de la suppression de l\'article';
+
+  @override
+  String get itemRemoveError => 'Erreur lors de la suppression de l\'article';
+
+  @override
+  String get deleteNotificationFailed =>
+      'Impossible de supprimer la notification';
+
+  @override
+  String get authErrorLogin =>
+      'Erreur d\'authentification. Veuillez vous reconnecter.';
+
+  @override
+  String get shareButton => 'PARTAGER';
+
+  @override
+  String get productsNotAvailable =>
+      'Les produits ne sont pas disponibles pour votre type d\'utilisateur';
+
+  @override
+  String get selectExtraProducts => 'Sélectionnez des produits supplémentaires';
+
+  @override
+  String get tryAgainButton => 'Réessayer';
+
+  @override
+  String get pleaseLoginFirst => 'Veuillez vous connecter d\'abord';
+
+  @override
+  String get authErrorLoginAgain =>
+      'Erreur d\'authentification. Veuillez vous reconnecter.';
+
+  @override
+  String get deleteImageTitle => 'Supprimer l\'image';
+
+  @override
+  String get deleteImageConfirm =>
+      'Êtes-vous sûr de vouloir supprimer cette image ?';
+
+  @override
+  String get imageDeletedSuccess => 'Image supprimée avec succès';
+
+  @override
+  String get imageDeleteFailed => 'Impossible de supprimer l\'image';
+
+  @override
+  String get addedToFavorites => 'Ajouté aux favoris';
+
+  @override
+  String get removedFromFavorites => 'Retiré des favoris';
+
+  @override
+  String get failedUpdateFavorite =>
+      'Impossible de mettre à jour le statut favori';
+
+  @override
+  String get noProductsInCategory =>
+      'Aucun produit trouvé dans cette catégorie';
+
+  @override
+  String get itemAddedToCart => 'Article ajouté au panier avec succès';
+
+  @override
+  String get failedAddToCart => 'Impossible d\'ajouter l\'article au panier';
+
+  @override
+  String get failedFetchSearchResults =>
+      'Impossible de récupérer les résultats de recherche';
+
+  @override
+  String get addedToWishlist => 'Ajouté à la liste de souhaits';
+
+  @override
+  String get removedFromWishlist => 'Retiré de la liste de souhaits';
+
+  @override
+  String get failedUpdateWishlist =>
+      'Impossible de mettre à jour la liste de souhaits';
+
+  @override
+  String get viewWishlist => 'VOIR LA LISTE DE SOUHAITS';
+
+  @override
+  String get errorTakingPhoto => 'Erreur lors de la prise de photo';
+
+  @override
+  String get errorSelectingPhoto => 'Erreur lors de la sélection de la photo';
+
+  @override
+  String get noDataAvailable => 'Aucune donnée disponible';
+
+  @override
+  String get actualPrice => 'Prix réel';
+
+  @override
+  String get promoPrice => 'Prix Promo';
+
+  @override
+  String get deliveryDetailsButton => 'DÉTAILS DE LIVRAISON';
+
+  @override
+  String get noPurchasesFound => 'Aucun achat trouvé.';
+
+  @override
+  String get couldNotOpenLink => 'Impossible d\'ouvrir le lien';
+
+  @override
+  String get myOrdersTitle => 'MES COMMANDES';
+
+  @override
+  String get myAddressAppBar => 'MON ADRESSE';
+
+  @override
+  String get errorLoadingCredits => 'Erreur lors du chargement des crédits';
+
+  @override
+  String get failedLoadNotificationSettings =>
+      'Impossible de charger les paramètres de notification';
+
+  @override
+  String get failedUpdateSettings => 'Impossible de mettre à jour';
+
+  @override
+  String get userIdNotFound => 'ID utilisateur non trouvé';
+
+  @override
+  String get pleaseEnterTheCode => 'Veuillez saisir le code';
+
+  @override
+  String get verificationCodeLabel => 'Code de vérification';
+
+  @override
+  String get failedLoadWonProducts =>
+      'Impossible de charger les produits gagnés';
+
+  @override
+  String get couldNotLoadInvoice => 'Impossible de charger la facture';
+
+  @override
+  String get anErrorOccurred => 'Une erreur s\'est produite';
+
+  @override
+  String get emailCopiedToClipboard => 'E-mail copié dans le presse-papiers';
+
+  @override
+  String get couldNotOpenImageDetails =>
+      'Impossible d\'ouvrir les détails de l\'image';
 }

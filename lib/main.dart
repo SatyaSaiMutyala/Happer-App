@@ -2,22 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/app/routes/app_pages.dart';
+import 'package:happer_app/core/controllers/locale_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:happer_app/app_manager.dart';
-import 'package:happer_app/camera/providers/user_provider.dart';
-import 'package:happer_app/providers/cart_provider.dart';
-import 'package:happer_app/creator/ui/selfie_details_screen.dart';
-import 'package:happer_app/dashboard/screens/dashboard_screen.dart';
+import 'package:happer_app/features/product/providers/user_provider.dart';
+import 'package:happer_app/shared/providers/cart_provider.dart';
+import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
+import 'package:happer_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:happer_app/firebase_options.dart';
-import 'package:happer_app/profile/ui/image_grid_screen.dart';
-import 'package:happer_app/profile/ui/profile_screen.dart';
-import 'package:happer_app/register_screen.dart';
-import 'package:happer_app/services/websocket_notification_service.dart';
-import 'package:happer_app/utils/snackbar.dart';
-import 'package:happer_app/webservices/profile_api.dart';
+import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
+import 'package:happer_app/features/profile/screens/profile_screen.dart';
+import 'package:happer_app/features/auth/screens/register_screen.dart';
+// import 'package:happer_app/core/services/websocket_notification_service.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/core/network/profile_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -161,8 +164,8 @@ void main() async {
     // Notification service initialization moved to dashboard screen
   } catch (e) {}
 
-  // Initialize WebSocket-based notification service
-  await WebSocketNotificationService().initialize();
+  // WebSocket notification service disabled — host is not available
+  // await WebSocketNotificationService().initialize();
 
   // Initialize Stripe with retry mechanism
   try {
@@ -193,6 +196,7 @@ void main() async {
   final isGuestLogin = prefs.getBool('is_guest_login') ?? false;
   AppManager.isLoginAsGuest = isGuestLogin;
   final isLoggedIn = token != null;
+  final savedLocale = prefs.getString('app_locale') ?? 'fr';
 
   // If user is already logged in, initialize Stripe properly with stored key
   if (isLoggedIn) {
@@ -203,7 +207,7 @@ void main() async {
   _handleIncomingLinks();
 
   FlutterNativeSplash.remove();
-  runApp(MyApp(isLoggedIn: isLoggedIn, token: token));
+  runApp(MyApp(isLoggedIn: isLoggedIn, token: token, initialLocaleCode: savedLocale));
 }
 
 // Function to initialize Stripe with the correct publishable key
@@ -288,8 +292,9 @@ class MyApp extends StatefulWidget {
       GlobalKey<NavigatorState>();
   final bool isLoggedIn;
   final String? token;
+  final String initialLocaleCode;
 
-  const MyApp({super.key, this.isLoggedIn = false, this.token});
+  const MyApp({super.key, this.isLoggedIn = false, this.token, this.initialLocaleCode = 'fr'});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -302,7 +307,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _initDeepLinkHandling(); // ✅ start listening to links
+    Get.put(LocaleController(initialCode: widget.initialLocaleCode));
+    _initDeepLinkHandling();
   }
 
   Future<void> _initDeepLinkHandling() async {
@@ -354,10 +360,11 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
-      child: MaterialApp(
+      child: GetMaterialApp(
         navigatorKey: MyApp.navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'Happer',
+        locale: Locale(widget.initialLocaleCode),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         localeResolutionCallback: (locale, supportedLocales) {
@@ -371,8 +378,10 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.blue,
           scaffoldBackgroundColor: Colors.white,
+          fontFamily: 'Lato',
         ),
         scaffoldMessengerKey: rootScaffoldMessengerKey,
+        getPages: AppPages.routes,
         home: widget.isLoggedIn ? const DashboardScreen() : RegisterScreen(),
       ),
     );

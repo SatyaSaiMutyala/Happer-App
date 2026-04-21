@@ -1831,6 +1831,834 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Code'**
   String get sponsorshipCode;
+
+  /// No description provided for @cartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CART'**
+  String get cartTitle;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'GENERAL TERMS OF SALE'**
+  String get termsAndConditions;
+
+  /// No description provided for @changePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CHANGE PASSWORD'**
+  String get changePasswordTitle;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'FORGOT PASSWORD'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RESET PASSWORD'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @gameContestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Contest'**
+  String get gameContestTitle;
+
+  /// No description provided for @mesCommandesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get mesCommandesTitle;
+
+  /// No description provided for @mesLooksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Looks'**
+  String get mesLooksTitle;
+
+  /// No description provided for @mesFavorisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Favorites'**
+  String get mesFavorisTitle;
+
+  /// No description provided for @sharePhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SHARE PHOTO'**
+  String get sharePhotoTitle;
+
+  /// No description provided for @deleteNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Notification'**
+  String get deleteNotificationTitle;
+
+  /// No description provided for @deleteNotificationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this notification?'**
+  String get deleteNotificationConfirm;
+
+  /// No description provided for @editProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile photo'**
+  String get editProfilePhoto;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @myAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Address'**
+  String get myAddressTitle;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @cartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmpty;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get noNotifications;
+
+  /// No description provided for @noNotificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up! Check back later for updates.'**
+  String get noNotificationsSubtitle;
+
+  /// No description provided for @noImagesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No images yet'**
+  String get noImagesFound;
+
+  /// No description provided for @noImagesFoundSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your looks will appear here once you add them.'**
+  String get noImagesFoundSubtitle;
+
+  /// No description provided for @profilePhotoUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo updated successfully'**
+  String get profilePhotoUpdated;
+
+  /// No description provided for @profilePhotoUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile photo'**
+  String get profilePhotoUpdateFailed;
+
+  /// No description provided for @passwordUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully'**
+  String get passwordUpdatedSuccess;
+
+  /// No description provided for @enterCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get enterCurrentPassword;
+
+  /// No description provided for @codeCreditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CODE CREDIT'**
+  String get codeCreditTitle;
+
+  /// No description provided for @monCompteTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'MY ACCOUNT'**
+  String get monCompteTitleLabel;
+
+  /// No description provided for @loginToSeeContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in to see more content'**
+  String get loginToSeeContent;
+
+  /// No description provided for @loginToTakeSelfie.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to take a selfie'**
+  String get loginToTakeSelfie;
+
+  /// No description provided for @loginToCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to proceed to checkout'**
+  String get loginToCheckout;
+
+  /// No description provided for @itemRemovedFromCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Item removed from cart'**
+  String get itemRemovedFromCart;
+
+  /// No description provided for @selfieUploadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Selfie uploaded successfully!'**
+  String get selfieUploadSuccess;
+
+  /// No description provided for @selfieUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to upload selfie'**
+  String get selfieUploadFailed;
+
+  /// No description provided for @happerProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HAPPER PRODUCTS'**
+  String get happerProductsTitle;
+
+  /// No description provided for @pleaseEnterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a code'**
+  String get pleaseEnterCode;
+
+  /// No description provided for @codeVerifiedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Code verified successfully'**
+  String get codeVerifiedSuccess;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please try again.'**
+  String get loginFailed;
+
+  /// No description provided for @registrationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed. Please try again.'**
+  String get registrationFailed;
+
+  /// No description provided for @wishlistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WISHLIST'**
+  String get wishlistTitle;
+
+  /// No description provided for @cameraPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission is required'**
+  String get cameraPermissionRequired;
+
+  /// No description provided for @googleLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google login failed. Please try again.'**
+  String get googleLoginFailed;
+
+  /// No description provided for @appleLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple login failed. Please try again.'**
+  String get appleLoginFailed;
+
+  /// No description provided for @noProductAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No product available'**
+  String get noProductAvailable;
+
+  /// No description provided for @addItemsToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add items to your cart first'**
+  String get addItemsToCart;
+
+  /// No description provided for @wonProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WON PRODUCTS'**
+  String get wonProductsTitle;
+
+  /// No description provided for @returnAndRefundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RETURN AND REFUND'**
+  String get returnAndRefundTitle;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signInTitle;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, we missed you.'**
+  String get welcomeBack;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordHint;
+
+  /// No description provided for @forgotPasswordLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get forgotPasswordLink;
+
+  /// No description provided for @loginFailedCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please check your credentials.'**
+  String get loginFailedCredentials;
+
+  /// No description provided for @orSignInWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Or sign in with'**
+  String get orSignInWith;
+
+  /// No description provided for @noAccountQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get noAccountQuestion;
+
+  /// No description provided for @signUpLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUpLink;
+
+  /// No description provided for @errorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get errorLabel;
+
+  /// No description provided for @signupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the fields below or sign up with your social media account.'**
+  String get signupSubtitle;
+
+  /// No description provided for @firstNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get firstNameHint;
+
+  /// No description provided for @lastNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get lastNameHint;
+
+  /// No description provided for @confirmPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPasswordHint;
+
+  /// No description provided for @sponsorCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsorship Code (Optional)'**
+  String get sponsorCodeHint;
+
+  /// No description provided for @iAcceptAllThe.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept all the '**
+  String get iAcceptAllThe;
+
+  /// No description provided for @conditionsGenerales.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get conditionsGenerales;
+
+  /// No description provided for @acceptTermsToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please accept the Terms and Conditions to continue.'**
+  String get acceptTermsToContinue;
+
+  /// No description provided for @signUpButton.
+  ///
+  /// In en, this message translates to:
+  /// **'SIGN UP'**
+  String get signUpButton;
+
+  /// No description provided for @orSignUpWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Or sign up with'**
+  String get orSignUpWith;
+
+  /// No description provided for @resetPasswordHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordHeading;
+
+  /// No description provided for @resetPasswordInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code received by email and your new password'**
+  String get resetPasswordInstructions;
+
+  /// No description provided for @enterCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get enterCodeHint;
+
+  /// No description provided for @newPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPasswordHint;
+
+  /// No description provided for @confirmPasswordField.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPasswordField;
+
+  /// No description provided for @confirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CONFIRM'**
+  String get confirmButton;
+
+  /// No description provided for @resetPasswordFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reset password.'**
+  String get resetPasswordFailed;
+
+  /// No description provided for @registerTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a community of fashion enthusiasts, discover incredible looks and share your style.'**
+  String get registerTagline;
+
+  /// No description provided for @getStartedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStartedButton;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @guestLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to continue as guest. Please try again.'**
+  String get guestLoginFailed;
+
+  /// No description provided for @productsAddedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Products Added'**
+  String get productsAddedCount;
+
+  /// No description provided for @cartEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add items to your cart to see them here'**
+  String get cartEmptyDescription;
+
+  /// No description provided for @confirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmLabel;
+
+  /// No description provided for @confirmRemoveFromCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this item from your cart?'**
+  String get confirmRemoveFromCart;
+
+  /// No description provided for @happerSpecialPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Happer Special Price'**
+  String get happerSpecialPrice;
+
+  /// No description provided for @subtotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal incl. VAT'**
+  String get subtotalLabel;
+
+  /// No description provided for @happerBenefits.
+  ///
+  /// In en, this message translates to:
+  /// **'Happer Benefits'**
+  String get happerBenefits;
+
+  /// No description provided for @shippingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping'**
+  String get shippingLabel;
+
+  /// No description provided for @freeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get freeLabel;
+
+  /// No description provided for @totalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total incl. VAT'**
+  String get totalLabel;
+
+  /// No description provided for @iAcceptThe.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the '**
+  String get iAcceptThe;
+
+  /// No description provided for @cgvLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'General Terms of Sale'**
+  String get cgvLabel;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE →'**
+  String get continueButton;
+
+  /// No description provided for @paymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed'**
+  String get paymentFailed;
+
+  /// No description provided for @noTokenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: No token found. Please log in again.'**
+  String get noTokenError;
+
+  /// No description provided for @itemRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove item from cart'**
+  String get itemRemoveFailed;
+
+  /// No description provided for @itemRemoveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error removing item from cart'**
+  String get itemRemoveError;
+
+  /// No description provided for @deleteNotificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete notification'**
+  String get deleteNotificationFailed;
+
+  /// No description provided for @authErrorLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication error. Please login again.'**
+  String get authErrorLogin;
+
+  /// No description provided for @shareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'SHARE'**
+  String get shareButton;
+
+  /// No description provided for @productsNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Products are not available for your user type'**
+  String get productsNotAvailable;
+
+  /// No description provided for @selectExtraProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Extra Products'**
+  String get selectExtraProducts;
+
+  /// No description provided for @tryAgainButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgainButton;
+
+  /// No description provided for @pleaseLoginFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please Login First'**
+  String get pleaseLoginFirst;
+
+  /// No description provided for @authErrorLoginAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication error. Please log in again.'**
+  String get authErrorLoginAgain;
+
+  /// No description provided for @deleteImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Image'**
+  String get deleteImageTitle;
+
+  /// No description provided for @deleteImageConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this image?'**
+  String get deleteImageConfirm;
+
+  /// No description provided for @imageDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Image deleted successfully'**
+  String get imageDeletedSuccess;
+
+  /// No description provided for @imageDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete image'**
+  String get imageDeleteFailed;
+
+  /// No description provided for @addedToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites'**
+  String get addedToFavorites;
+
+  /// No description provided for @removedFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get removedFromFavorites;
+
+  /// No description provided for @failedUpdateFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update favorite status'**
+  String get failedUpdateFavorite;
+
+  /// No description provided for @noProductsInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No products found in this category'**
+  String get noProductsInCategory;
+
+  /// No description provided for @itemAddedToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Item added to cart successfully'**
+  String get itemAddedToCart;
+
+  /// No description provided for @failedAddToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add item to cart'**
+  String get failedAddToCart;
+
+  /// No description provided for @failedFetchSearchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to fetch search results'**
+  String get failedFetchSearchResults;
+
+  /// No description provided for @addedToWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to wishlist'**
+  String get addedToWishlist;
+
+  /// No description provided for @removedFromWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from wishlist'**
+  String get removedFromWishlist;
+
+  /// No description provided for @failedUpdateWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update wishlist'**
+  String get failedUpdateWishlist;
+
+  /// No description provided for @viewWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'VIEW WISHLIST'**
+  String get viewWishlist;
+
+  /// No description provided for @errorTakingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Error taking photo'**
+  String get errorTakingPhoto;
+
+  /// No description provided for @errorSelectingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Error selecting photo'**
+  String get errorSelectingPhoto;
+
+  /// No description provided for @noDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get noDataAvailable;
+
+  /// No description provided for @actualPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual price'**
+  String get actualPrice;
+
+  /// No description provided for @promoPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo Price'**
+  String get promoPrice;
+
+  /// No description provided for @deliveryDetailsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'DELIVERY DETAILS'**
+  String get deliveryDetailsButton;
+
+  /// No description provided for @noPurchasesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchases found.'**
+  String get noPurchasesFound;
+
+  /// No description provided for @couldNotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link'**
+  String get couldNotOpenLink;
+
+  /// No description provided for @myOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MY ORDERS'**
+  String get myOrdersTitle;
+
+  /// No description provided for @myAddressAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'MY ADDRESS'**
+  String get myAddressAppBar;
+
+  /// No description provided for @errorLoadingCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading credits'**
+  String get errorLoadingCredits;
+
+  /// No description provided for @failedLoadNotificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load notification settings'**
+  String get failedLoadNotificationSettings;
+
+  /// No description provided for @failedUpdateSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update'**
+  String get failedUpdateSettings;
+
+  /// No description provided for @userIdNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID not found'**
+  String get userIdNotFound;
+
+  /// No description provided for @pleaseEnterTheCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the code'**
+  String get pleaseEnterTheCode;
+
+  /// No description provided for @verificationCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification Code'**
+  String get verificationCodeLabel;
+
+  /// No description provided for @failedLoadWonProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load won products'**
+  String get failedLoadWonProducts;
+
+  /// No description provided for @couldNotLoadInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load invoice'**
+  String get couldNotLoadInvoice;
+
+  /// No description provided for @anErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get anErrorOccurred;
+
+  /// No description provided for @emailCopiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Email copied to clipboard'**
+  String get emailCopiedToClipboard;
+
+  /// No description provided for @couldNotOpenImageDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open image details'**
+  String get couldNotOpenImageDetails;
 }
 
 class _AppLocalizationsDelegate
