@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get/get.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:happer_app/features/selfies/bindings/selfie_binding.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
-import 'package:happer_app/features/discover/api/discover_api.dart';
 import 'package:happer_app/features/discover/models/discover_model.dart';
 import 'package:happer_app/features/discover/screens/discover_detail_screen.dart';
+import 'package:happer_app/features/selfies/data/models/selfie_model.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
 class DiscoverTabScreen extends StatefulWidget {
@@ -19,45 +21,21 @@ class DiscoverTabScreen extends StatefulWidget {
 }
 
 class _DiscoverTabScreenState extends State<DiscoverTabScreen> {
-  List<DiscoverModel> _data = [];
-  bool _isLoading = true;
-  String? _errorMessage;
-  int _currentPage = 0;
+  late final SelfieController _controller;
   final ScrollController _scrollController = ScrollController();
-  bool _hasMoreData = true;
-  bool _isPaginating = false;
-  bool hasShownGuestLimitMessage = false;
-  bool _showScrollToTopButton = false;
   bool _hasShownGuestSnackBar = false;
-
 
   @override
   void initState() {
     super.initState();
-    _setupScrollController();
-
-    // ✅ Only fetch if list is empty to avoid reloading after coming back
-    if (_data.isEmpty) {
-      _fetchDiscoverSelfies();
+    if (!Get.isRegistered<SelfieController>()) {
+      SelfieBinding().dependencies();
     }
-
-    if (_data.isNotEmpty) {
-      // Restore scroll position if data already exists
-      SharedPreferences.getInstance().then((prefs) {
-        final savedOffset = prefs.getDouble('decouver_tab_scroll_offset') ?? 0.0;
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _scrollController.hasClients) {
-            _scrollController.jumpTo(savedOffset);
-          } else {
-            Future.delayed(const Duration(milliseconds: 300), () {
-              if (mounted && _scrollController.hasClients) {
-                _scrollController.jumpTo(savedOffset);
-              }
-            });
-          }
-        });
-      });
+    _controller = Get.find<SelfieController>();
+    _scrollController.addListener(_onScroll);
+    // Controller may already be alive from another tab — trigger load if not started.
+    if (_controller.discoverSelfies.isEmpty && !_controller.isDiscoverLoading.value) {
+      _controller.fetchDiscoverSelfies();
     }
   }
 
@@ -67,166 +45,67 @@ class _DiscoverTabScreenState extends State<DiscoverTabScreen> {
     super.dispose();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Retry fetching data if still empty (handles timing issues with token availability)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _data.isEmpty && !_isLoading) {
-        _fetchDiscoverSelfies();
-      }
-    });
-  }
+  void _onScroll() {
+    final offset = _scrollController.position.pixels;
+    final max = _scrollController.position.maxScrollExtent;
 
-  void _setupScrollController() {
-    _scrollController.addListener(() {
-      final scrollOffset = _scrollController.position.pixels;
-      final scrollContentSizeHeight = _scrollController.position.maxScrollExtent;
+    if (offset > 300 && !_controller.showScrollToTop.value) {
+      _controller.showScrollToTop.value = true;
+    } else if (offset <= 300 && _controller.showScrollToTop.value) {
+      _controller.showScrollToTop.value = false;
+    }
 
-      // Show/hide scroll to top button
-      if (scrollOffset > 300 && !_showScrollToTopButton) {
-        setState(() => _showScrollToTopButton = true);
-      } else if (scrollOffset <= 300 && _showScrollToTopButton) {
-        setState(() => _showScrollToTopButton = false);
-      }
-
-      // Handle pagination when scrolled near bottom
-      if (scrollOffset >= scrollContentSizeHeight - 600 &&
-          !_isPaginating &&
-          _hasMoreData &&
-          !_isLoading) {
-        if (AppManager.isLoginAsGuest && _data.length >= 10) {
-          if (!_hasShownGuestSnackBar) {
-            showAppSnackBar(AppLocalizations.of(context).loginToSeeContent,
-                isSuccess: false);
-            _hasShownGuestSnackBar = true;
-          }
-          return;
+    if (offset >= max - 600 && !_controller.isDiscoverLoadingMore.value && _controller.hasDiscoverMore.value) {
+      if (AppManager.isLoginAsGuest && _controller.discoverSelfies.length >= 10) {
+        if (!_hasShownGuestSnackBar) {
+          showAppSnackBar(AppLocalizations.of(context).loginToSeeContent, isSuccess: false);
+          _hasShownGuestSnackBar = true;
         }
-        _loadMoreData();
+        return;
       }
-    });
+      _controller.loadMoreDiscoverSelfies();
+    }
   }
-
 
   void _scrollToTop() {
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-    );
+    _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
   }
 
-  Future<void> _loadMoreData() async {
-    if (_isPaginating || !_hasMoreData) return; // Prevent redundant calls
-
-    if (AppManager.isLoginAsGuest && _data.length >= 10) {
-      if(!hasShownGuestLimitMessage){
-      showAppSnackBar(AppLocalizations.of(context).loginToSeeContent, isSuccess: false); 
-      hasShownGuestLimitMessage = true;
-      }
-      return;
-    }
-
-    setState(() {
-      _isPaginating = true;
+  DiscoverModel _toDiscoverModel(SelfieModel s) {
+    return DiscoverModel.fromJson({
+      '_id': s.id,
+      'state': s.state ?? '',
+      'created_at': s.createdAt ?? '',
+      'likes': [],
+      'users_type': s.user?.usersType ?? 0,
+      'items_id': [],
+      'picture': s.primaryImage,
+      'nb_like': s.nbLike,
+      'isLikedByMe': s.isLikedByMe,
+      'user': s.user != null
+          ? {
+              '_id': s.user!.id,
+              'username': s.user!.username,
+              'first_name': s.user!.firstName,
+              'last_name': s.user!.lastName,
+              'picture': s.user!.picture,
+            }
+          : null,
     });
-
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    if (token == null) {
-      setState(() {
-        _isPaginating = false;
-      });
-      return;
-    }
-
-    try {
-      final nextPage = _currentPage + 1;
-      final discoverData = await DiscoverApiService(
-        token: token,
-      ).fetchDiscoverSelfies(categoryId: '', page: nextPage, country: '');
-
-      if (discoverData.isEmpty) {
-        setState(() {
-          _hasMoreData = false; // Stop further pagination
-        });
-      } else {
-        setState(() {
-          _data.addAll(discoverData);
-          _currentPage = nextPage;
-        });
-      }
-    } catch (e) {
-      // Optional: Log or report error
-      print('Error loading more data: $e');
-    } finally {
-      setState(() {
-        _isPaginating = false; // Reset flag
-      });
-    }
-  }
-
-  Future<void> _fetchDiscoverSelfies() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _currentPage = 0;
-      _hasMoreData = true;
-      _isPaginating = false;
-      _hasShownGuestSnackBar = false;
-      hasShownGuestLimitMessage = false;
-      _data.clear();
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    if (token == null) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Authentication error. Please log in again.';
-      });
-      return;
-    }
-
-    try {
-      final discoverData = await DiscoverApiService(
-        token: token,
-      ).fetchDiscoverSelfies(categoryId: '', page: 0, country: '');
-
-      setState(() {
-        _data = discoverData;
-        _isLoading = false;
-        _hasMoreData = discoverData.isNotEmpty;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error loading data: $e';
-      });
-    }
   }
 
   Widget _buildShimmerCard() {
     return Card(
-      margin: EdgeInsets.symmetric(
-        horizontal: 2.5,
-        vertical: 2.5,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 2.5, vertical: 2.5),
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(1),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
       child: AspectRatio(
         aspectRatio: 0.7,
         child: Shimmer.fromColors(
           baseColor: Colors.grey.shade300,
           highlightColor: Colors.grey.shade100,
-          child: Container(
-            width: double.infinity,
-            color: Colors.white,
-          ),
+          child: Container(color: Colors.white),
         ),
       ),
     );
@@ -234,114 +113,152 @@ class _DiscoverTabScreenState extends State<DiscoverTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchDiscoverSelfies,
-              child: Text(AppLocalizations.of(context).tryAgainButton),
-            ),
-          ],
-        ),
-      );
-    }
+    return Obx(() {
+      final selfies = _controller.discoverSelfies;
+      final isLoading = _controller.isDiscoverLoading.value;
+      final isLoadingMore = _controller.isDiscoverLoadingMore.value;
+      final error = _controller.discoverError.value;
 
-    return Stack(
-      children: [
-        RefreshIndicator(
-          onRefresh: _fetchDiscoverSelfies,
-          child: _isLoading
-              ? MasonryGridView.count(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 4,
-                  crossAxisSpacing: 4,
-                  itemCount: 8,
-                  itemBuilder: (context, index) => _buildShimmerCard(),
-                )
-              : MasonryGridView.count(
-                  controller: _scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
-                  itemCount: _data.length + (_hasMoreData ? 2 : 0),
-                  itemBuilder: (context, index) {
-                    if (index >= _data.length) {
-                      return _buildShimmerCard();
+      if (isLoading) {
+        return MasonryGridView.count(
+          physics: const AlwaysScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
+          itemCount: 8,
+          itemBuilder: (_, __) => _buildShimmerCard(),
+        );
+      }
+
+      if (error != null) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.cloud_off_outlined, size: 64, color: Colors.black38),
+              const SizedBox(height: 16),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.black54, fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => _controller.fetchDiscoverSelfies(refresh: true),
+                child: Text(AppLocalizations.of(context).tryAgainButton),
+              ),
+            ],
+          ),
+        );
+      }
+
+      if (selfies.isEmpty) {
+        return RefreshIndicator(
+          onRefresh: () => _controller.fetchDiscoverSelfies(refresh: true),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+              const Icon(Icons.image_outlined, size: 64, color: Colors.black38),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context).noImagesFound,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context).noImagesFoundSubtitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, color: Colors.black38),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return Stack(
+        children: [
+          RefreshIndicator(
+            onRefresh: () {
+              _hasShownGuestSnackBar = false;
+              return _controller.fetchDiscoverSelfies(refresh: true);
+            },
+            child: MasonryGridView.count(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 0,
+              crossAxisSpacing: 0,
+              itemCount: selfies.length + (isLoadingMore ? 2 : 0),
+              itemBuilder: (context, index) {
+                if (index >= selfies.length) return _buildShimmerCard();
+
+                final selfie = selfies[index];
+                return GestureDetector(
+                  onTap: () {
+                    if (AppManager.isLoginAsGuest) {
+                      showAppSnackBar(
+                          AppLocalizations.of(context).pleaseLoginFirst,
+                          isSuccess: false);
+                      return;
                     }
-        
-                    final selfie = _data[index];
-        
-                    return GestureDetector(
-                      onTap: () {
-                        if(AppManager.isLoginAsGuest){
-                          showAppSnackBar(AppLocalizations.of(context).pleaseLoginFirst, isSuccess: false);
-                          return;
-                        }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DiscoverDetailScreen(
-                              selfieModel: selfie,
-                              isFromMyImages: false,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 2.5,
-                          vertical: 2.5,
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(1),
-                        ),
-                        child: AspectRatio(
-                          aspectRatio: 0.7,
-                          child: CachedNetworkImage(
-                            imageUrl: selfie.picture,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Container(
-                                height: 150,
-                                color: Colors.white,
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              height: 150,
-                              color: Colors.grey[300],
-                              child: const Center(
-                                child: Icon(Icons.broken_image, size: 50),
-                              ),
-                            ),
-                          ),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DiscoverDetailScreen(
+                          selfieModel: _toDiscoverModel(selfie),
+                          isFromMyImages: false,
                         ),
                       ),
                     );
                   },
-                ),
-        ),
-
-        if (_showScrollToTopButton)
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: FloatingActionButton(
-            backgroundColor: Colors.black.withOpacity(0.6),
-            mini: true,
-            onPressed: _scrollToTop,
-            child: const Icon(Icons.arrow_upward, color: Colors.white),
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 2.5, vertical: 2.5),
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(1)),
+                    child: AspectRatio(
+                      aspectRatio: 0.7,
+                      child: CachedNetworkImage(
+                        imageUrl: selfie.primaryImage,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(height: 150, color: Colors.white),
+                        ),
+                        errorWidget: (_, __, ___) => Container(
+                          height: 150,
+                          color: Colors.grey[300],
+                          child: const Center(
+                              child: Icon(Icons.broken_image, size: 50)),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    );
+          if (_controller.showScrollToTop.value)
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: FloatingActionButton(
+                backgroundColor: Colors.black.withValues(alpha: 0.6),
+                mini: true,
+                onPressed: _scrollToTop,
+                child: const Icon(Icons.arrow_upward, color: Colors.white),
+              ),
+            ),
+        ],
+      );
+    });
   }
 }

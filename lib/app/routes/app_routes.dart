@@ -4,7 +4,9 @@ abstract class AppRoutes {
   static const signup = '/signup';
   static const register = '/register';
   static const forgotPassword = '/forgot-password';
+  static const forgotPasswordOtp = '/forgot-password-otp';
   static const resetPassword = '/reset-password';
+  static const signupOtp = '/signup-otp';
 
   // Dashboard
   static const dashboard = '/dashboard';

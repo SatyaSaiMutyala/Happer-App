@@ -404,7 +404,7 @@ Future<bool> verifyEmailOtp(String verificationId, String otp) async {
         // Android: Web auth flow via our own backend callback
         // Apple POSTs to our backend, which redirects back to the app via intent deep-link
         const String appleServiceId = 'fr.happer.app.service';
-        const String appleRedirectUri = 'https://newapi.happer.fr/api/callbacks/sign_in_with_apple';
+        const String appleRedirectUri = 'https://api.dev.happer.fr/api/callbacks/sign_in_with_apple';
 
         credential = await SignInWithApple.getAppleIDCredential(
           scopes: [

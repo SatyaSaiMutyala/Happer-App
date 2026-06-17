@@ -6,11 +6,8 @@ import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:happer_app/features/dashboard/screens/game_product_details_screen.dart';
 import 'package:happer_app/shared/models/happer_product.dart';
-import 'package:happer_app/features/profile/api/wishlist_api.dart';
-import 'package:happer_app/core/network/product_api.dart';
-import 'package:happer_app/core/network/user_service.dart';
+import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:happer_app/core/network/websocket_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 
 class GameContestScreen extends StatefulWidget {
@@ -20,7 +17,6 @@ class GameContestScreen extends StatefulWidget {
 
 class _GameContestScreenState extends State<GameContestScreen> with TickerProviderStateMixin {
   late WebSocketService _webSocketService;
-  late UserService _userService;
   List<HapperProduct> _products = [];
   int _userCredits = 0;
   Map<String, DateTime> _timerEndDates = {};
@@ -148,8 +144,6 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
     _webSocketService = WebSocketService(
       'ws://happer-websocket-plp.azurewebsites.net',
     );
-    _userService = UserService();
-
     // Load iOS-compatible settings
     _loadCurrentUser();
     _loadPauseState();
@@ -169,71 +163,24 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
 
   // Load current user ID for "J'ai la main" logic (matches iOS)
   Future<void> _loadCurrentUser() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _currentUserId = prefs.getString('current_user_id') ?? '';
-      print("Current user ID loaded: $_currentUserId");
-    } catch (e) {
-      print("Error loading current user: $e");
-    }
+    _currentUserId = StorageService.getUserId() ?? '';
   }
 
   // Load pause product state (matches iOS pauseProduct)
   Future<void> _loadPauseState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _pauseProduct = prefs.getBool('pause_product') ?? false;
-      print("Pause product state loaded: $_pauseProduct");
-    } catch (e) {
-      print("Error loading pause state: $e");
-    }
+    _pauseProduct = false;
   }
 
   // Load time_to_rest (matches iOS timeToRest)
- Future<void> _loadTimeToRest() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final timeToRestStr = prefs.getString('time_to_rest');
-    final timeToRest = int.tryParse(timeToRestStr ?? '30') ?? 30;
+  Future<void> _loadTimeToRest() async {
     setState(() {
-      _timeToRest = timeToRest;
+      _timeToRest = 30;
     });
-    print("Time to rest loaded: $_timeToRest");
-  } catch (e) {
-    print("Error loading time to rest: $e");
   }
-}
 
-  // Load contest timer duration from SharedPreferences (time_to_rest)
+  // Load contest timer duration — use default
   Future<void> _loadContestTimerDuration() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final timeToRestStr = prefs.getString('time_to_rest');
-
-      if (timeToRestStr != null) {
-        final timeToRest = int.tryParse(timeToRestStr);
-        if (timeToRest != null && timeToRest > 0) {
-          setState(() {
-            _timeToRest > 0 ? _timeToRest : _contestTimerDuration;
-          });
-          print(
-            "Contest timer duration loaded from HapperVariables: ${_contestTimerDuration} seconds",
-          );
-        } else {
-          print(
-            "Invalid time_to_rest value: $timeToRestStr, using default: $_contestTimerDuration",
-          );
-        }
-      } else {
-        print(
-          "time_to_rest not found in SharedPreferences, using default: $_contestTimerDuration seconds",
-        );
-      }
-    } catch (e) {
-      print(
-        "Error loading contest timer duration: $e, using default: $_contestTimerDuration seconds",
-      );
-    }
+    // Use default _contestTimerDuration = 30
   }
 
   // Refresh the contest timer duration (can be called when HapperVariables are updated)
@@ -256,26 +203,12 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
       _isLoadingCredits = true;
     });
 
-    try {
-      // Fetch latest user credits
-      final credits = await _userService.fetchUserCredits();
-
-      if (mounted) {
-        setState(() {
-          _userCredits = credits;
-          _isLoadingCredits = false;
-        });
-      }
-    } catch (e) {
-      print('Error fetching user credits: $e');
-      if (mounted) {
-        setState(() {
-          _isLoadingCredits = false;
-        });
-      }
+    if (mounted) {
+      setState(() {
+        _userCredits = 0;
+        _isLoadingCredits = false;
+      });
     }
-
-    // Refresh contest timer duration from SharedPreferences
     await _refreshContestTimerDuration();
   }
 
@@ -512,27 +445,11 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
   }
 
   Future<void> _fetchCredits() async {
-    setState(() {
-      _isLoadingCredits = true;
-    });
-
-    try {
-      // Use the new UserService to fetch credits
-      final credits = await _userService.fetchUserCredits();
-
-      if (mounted) {
-        setState(() {
-          _userCredits = credits;
-          _isLoadingCredits = false;
-        });
-      }
-    } catch (e) {
-      print('Error fetching user credits: $e');
-      if (mounted) {
-        setState(() {
-          _isLoadingCredits = false;
-        });
-      }
+    if (mounted) {
+      setState(() {
+        _userCredits = 0;
+        _isLoadingCredits = false;
+      });
     }
   }
 
@@ -702,67 +619,14 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
     return false;
   }
 
-  // Handle wishlist action (matches iOS wishProductUser/unWishProductUser)
-Future<void> _handleWishlistAction(
-  HapperProduct product,
-  bool addToWishlist,
-) async {
-  try {
-    final productId = product.id;
-    final wishlistApi = WishlistApiService();
-
-    bool success;
-    if (addToWishlist) {
-      success = await wishlistApi.addToWishlist(productId);
-      if (success) {
-        setState(() {
-          _wishedProducts[productId] = true;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added to wishlist'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add to wishlist'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } else {
-      // If already wished, remove from wishlist
-      success = await wishlistApi.removeFromWishlist(productId);
-      if (success) {
-        setState(() {
-          _wishedProducts[productId] = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Removed from wishlist'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to remove from wishlist'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error updating wishlist'),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
-} // Show tooltip (matches iOS displayToolTip functionality)
+  Future<void> _handleWishlistAction(
+    HapperProduct product,
+    bool addToWishlist,
+  ) async {
+    setState(() {
+      _wishedProducts[product.id] = addToWishlist;
+    });
+  } // Show tooltip (matches iOS displayToolTip functionality)
   void _showTooltip(String title, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -895,96 +759,15 @@ Future<void> _handleWishlistAction(
   }
 
   // Loading indicator view
-  Widget _buildLoadingView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-          ),
-          SizedBox(height: 20),
-          Text(
-            "Connecting to server...",
-            style: TextStyle(
-              fontFamily: 'Lato',
-              fontSize: 16,
-              color: Colors.grey[700],
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            "Getting the latest products",
-            style: TextStyle(
-              fontFamily: 'Lato',
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildLoadingView() => const _GameLoadingView();
 
-  // Empty state view when no data is available
-  Widget _buildEmptyView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.shopping_bag_outlined, size: 70, color: Colors.grey[400]),
-          SizedBox(height: 16),
-          Text(
-            "No products available",
-            style: TextStyle(
-              fontFamily: 'Lato',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            "Check back later for new items",
-            style: TextStyle(
-              fontFamily: 'Lato',
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ),
-          SizedBox(height: 24),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () {
-              // Try to reconnect to WebSocket
-              setState(() {
-                _isLoading = true;
-              });
-              _webSocketService.connect();
-
-              // Add a timeout to hide loading indicator if connection fails
-              Future.delayed(Duration(seconds: 5), () {
-                if (mounted && _isLoading) {
-                  setState(() {
-                    _isLoading = false;
-                  });
-                }
-              });
-            },
-            icon: Icon(Icons.refresh),
-            label: Text("REFRESH"),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmptyView() => _GameEmptyView(onRefresh: () {
+        setState(() => _isLoading = true);
+        _webSocketService.connect();
+        Future.delayed(const Duration(seconds: 5), () {
+          if (mounted && _isLoading) setState(() => _isLoading = false);
+        });
+      });
 
   // Redesigned to match the screenshot exactly
   Widget _buildProductCard(HapperProduct product) {
@@ -1594,122 +1377,16 @@ Future<void> _handleWishlistAction(
                         });
 
                         try {
-                          print("Attempting to happ product: ${product.id}");
-
-                          // Call the ProductApi.happProduct method
-                          final result = await ProductApi.happProduct(product.id);
-
-                          if (result['success'] == true) {
-                            // Success - refresh user credits and show success message
-                            print(
-                              "Product happed successfully: ${result['message']}",
-                            );
-
-                            // Start progress animation
-                            if (!_progressValues.containsKey(productId)) {
-                              startProgressForProduct(productId);
-                            }
-
-                            // Refresh user credits to reflect the bid
-                            await _fetchCredits();
-
-                            // Check and show credit warnings (iOS logic)
-                            _checkAndShowCreditWarnings();
-                            
-                            // Force reconnect WebSocket to ensure updates continue
-                            _webSocketService.disconnect();
-                            Future.delayed(Duration(milliseconds: 500), () {
-                              if (mounted) {
-                                _connectWebSocket();
-                              }
-                            });
-
-                            // Show success message
+                          // Happ product — feature coming soon
+                          if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          (() {
-            final msg = result['message'];
-            if (msg is String && msg.trim().startsWith('{') && msg.trim().endsWith('}')) {
-              // Try to parse JSON string and extract 'result'
-              try {
-                final parsed = jsonDecode(msg);
-                if (parsed is Map && parsed.containsKey('result')) {
-                  return parsed['result'].toString();
-                }
-              } catch (_) {}
-            }
-            return msg?.toString() ?? 'Bid placed successfully';
-          })(),
-        ),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
-                          } else {
-                            // Handle API error
-                            print("Failed to happ product: ${result['message']}");
-                            
-                            // Force reconnect WebSocket to ensure updates continue
-                            _webSocketService.disconnect();
-                            Future.delayed(Duration(milliseconds: 500), () {
-                              if (mounted) {
-                                _connectWebSocket();
-                              }
-                            });
-                            
-                            // Check if this is a "server error occurred" with status 200 (already happed)
-                            final isAlreadyHapped = result['statusCode'] == 200 && 
-                                                  (result['message'] == 'Server error occurred' || 
-                                                   result['message']?.toString().contains('server error') == true);
-                            
-                            // Show appropriate message to user
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  isAlreadyHapped ? 'Already happed' : (result['message'] ?? 'Failed to place bid'),
-                                ),
-                                backgroundColor: isAlreadyHapped ? Colors.black87 : Colors.red,
-                                duration: Duration(seconds: 3),
+                              const SnackBar(
+                                content: Text('Fonctionnalité bientôt disponible'),
+                                duration: Duration(seconds: 2),
                               ),
                             );
                           }
-              } catch (e) {
-      print("Error during happ action: $e");
-
-      // Try to extract message from the error if possible
-      String displayMessage = 'An error occurred while placing bid';
-      bool isErrorAlreadyHapped = false;
-      
-      if (e is Map) {
-        if (e.containsKey('message')) {
-          displayMessage = e['message'].toString();
-        }
-        // Check if this is a "server error occurred" with status 200 (already happed)
-        isErrorAlreadyHapped = e['statusCode'] == 200 && 
-                         (e['message'] == 'Server error occurred' || 
-                          e['message']?.toString().contains('server error') == true);
-      } else if (e is Exception) {
-        displayMessage = e.toString();
-      }
-      
-      // Force reconnect WebSocket to ensure updates continue
-      _webSocketService.disconnect();
-      Future.delayed(Duration(milliseconds: 500), () {
-        if (mounted) {
-          _connectWebSocket();
-        }
-      });
-      
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isErrorAlreadyHapped ? 'Already happed' : displayMessage),
-          backgroundColor: isErrorAlreadyHapped ? Colors.black87 : Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }finally {
+                        } finally {
                   // Reset processing state
                   if (mounted) {
                     setState(() {
@@ -2020,7 +1697,87 @@ Future<void> _handleWishlistAction(
   }
 
   // Helper method to create a placeholder image - Redesigned
-  Widget _buildPlaceholderImage([String? message]) {
+  Widget _buildPlaceholderImage([String? message]) =>
+      _GamePlaceholderImage(message: message);
+
+  // WIN state helper methods - iOS ProductCollectionWinViewCell implementation
+}
+
+// ─── Game Contest Widget Components ─────────────────────────────────────────
+
+class _GameLoadingView extends StatelessWidget {
+  const _GameLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Connecting to server...',
+            style: TextStyle(fontFamily: 'Lato', fontSize: 16, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Getting the latest products',
+            style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GameEmptyView extends StatelessWidget {
+  final VoidCallback onRefresh;
+  const _GameEmptyView({required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_bag_outlined, size: 70, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'No products available',
+            style: TextStyle(fontFamily: 'Lato', fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Check back later for new items',
+            style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey[500]),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh),
+            label: const Text('REFRESH'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GamePlaceholderImage extends StatelessWidget {
+  final String? message;
+  const _GamePlaceholderImage({this.message});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 110,
       height: 110,
@@ -2033,21 +1790,13 @@ Future<void> _handleWishlistAction(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.image_not_supported_outlined,
-              size: 32,
-              color: Colors.grey[400],
-            ),
-            SizedBox(height: 5),
+            Icon(Icons.image_not_supported_outlined, size: 32, color: Colors.grey[400]),
+            const SizedBox(height: 5),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                message ?? "No Image",
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[500],
-                  fontFamily: 'Lato',
-                ),
+                message ?? 'No Image',
+                style: TextStyle(fontSize: 11, color: Colors.grey[500], fontFamily: 'Lato'),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -2058,6 +1807,4 @@ Future<void> _handleWishlistAction(
       ),
     );
   }
-
-  // WIN state helper methods - iOS ProductCollectionWinViewCell implementation
 }

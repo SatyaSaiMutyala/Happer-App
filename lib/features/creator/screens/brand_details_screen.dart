@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:happer_app/features/creator/api/cart_api.dart';
-import 'package:happer_app/features/creator/api/creator_api.dart';
-import 'package:happer_app/features/creator/models/items_model.dart';
-import 'package:happer_app/features/creator/screens/product_details_screen.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/features/creator/bindings/creator_binding.dart';
+import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
+import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
+import 'package:happer_app/shared/widgets/product_card.dart';
+import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/shared/controllers/cart_controller.dart';
+import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/shared/widgets/cart_icon_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BrandDetailsScreen extends StatefulWidget {
@@ -14,6 +18,7 @@ class BrandDetailsScreen extends StatefulWidget {
   final String brandName;
   final String brandDescription;
   final String brandLogo;
+  final String affiliateId;
 
   const BrandDetailsScreen({
     super.key,
@@ -21,6 +26,7 @@ class BrandDetailsScreen extends StatefulWidget {
     required this.brandName,
     required this.brandDescription,
     required this.brandLogo,
+    this.affiliateId = '',
   });
 
   @override
@@ -33,9 +39,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
   bool _hasMoreItems = true;
   int _currentPage = 1;
   final int _itemsPerPage = 10;
-  List<ItemsModel> _brandItems = [];
-  int cartItemCount = 0; // Track the number of items in the cart
-
+  List<Map<String, dynamic>> _brandItems = [];
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -63,87 +67,88 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
   }
 
   Future<void> _init() async {
-    await _fetchBrandItems();
+    // Cart must load first so ProductCard.initState can read cartItemsByVariant correctly
     await _fetchCartItemCount();
+    await _fetchBrandItems();
   }
 
-  // Method to fetch the cart count
   Future<void> _fetchCartItemCount() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      if (token == null || token.isEmpty) {
-        return;
-      }
-
-      final cartApi = CartApi(token: token);
-      final cartDetails = await cartApi.getCartDetails();
-
-      setState(() {
-        cartItemCount = cartDetails.data?.items?.length ?? 0;
-      });
-    } catch (e) {
-      print('Error fetching cart count: $e');
-    }
+    await Get.find<CartController>().fetchCartItemCount();
   }
 
   Future<void> _fetchBrandItems() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    final service = CreatorApiService(token: token);
-
     try {
-      final response = await service.fetchBrandAllItems(widget.brandId);
+      CreatorBinding().dependencies();
+      final repo = Get.find<CreatorRepository>();
+      final items = await repo.fetchBrandProducts(
+        widget.brandId,
+        page: _currentPage,
+        perPage: _itemsPerPage,
+      );
+      if (!mounted) return;
       setState(() {
-        _brandItems = response.items;
-        _isLoading = false;
-        _hasMoreItems = response.items.length >= _itemsPerPage;
-      });
-    } catch (error) {
-      print('Error fetching brand items: $error');
-      setState(() {
+        _brandItems = items;
+        _currentPage = 2;
+        _hasMoreItems = items.length >= _itemsPerPage;
         _isLoading = false;
       });
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<String?> _addProductToCart(String productId, String variantId) async {
+    try {
+      CartBinding().dependencies();
+      final repo = Get.find<CartRepository>();
+      final cartItemId = await repo.addToCart(
+        productId: productId,
+        variantId: variantId,
+        affiliateId: widget.affiliateId,
+        quantity: 1,
+      );
+      if (!mounted) return null;
+      Get.find<CartController>().fetchCartItemCount();
+      showAppSnackBar('Article ajouté au panier', isSuccess: true);
+      return cartItemId;
+    } catch (e) {
+      if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
+      return null;
+    }
+  }
+
+  Future<void> _removeProductFromCart(String cartItemId) async {
+    try {
+      CartBinding().dependencies();
+      final repo = Get.find<CartRepository>();
+      await repo.removeCartItem(cartItemId);
+      if (!mounted) return;
+      Get.find<CartController>().fetchCartItemCount();
+    } catch (e) {
+      if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
     }
   }
 
   Future<void> _loadMoreItems() async {
     if (_isLoadingMore || !_hasMoreItems) return;
-
-    setState(() {
-      _isLoadingMore = true;
-    });
-
+    setState(() => _isLoadingMore = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
-      final service = CreatorApiService(token: token);
-      final nextPage = _currentPage + 1;
-
-      final response = await service.fetchBrandAllItems(
+      CreatorBinding().dependencies();
+      final repo = Get.find<CreatorRepository>();
+      final items = await repo.fetchBrandProducts(
         widget.brandId,
-        page: nextPage,
-        limit: _itemsPerPage,
+        page: _currentPage,
+        perPage: _itemsPerPage,
       );
-
-      if (response.items.isNotEmpty) {
-        setState(() {
-          _brandItems.addAll(response.items);
-          _currentPage = nextPage;
-          _hasMoreItems = response.items.length >= _itemsPerPage;
-        });
-      } else {
-        setState(() {
-          _hasMoreItems = false;
-        });
-      }
-    } catch (error) {
-      print('Error loading more items: $error');
-    } finally {
+      if (!mounted) return;
       setState(() {
+        _brandItems.addAll(items);
+        _currentPage++;
+        _hasMoreItems = items.length >= _itemsPerPage;
         _isLoadingMore = false;
       });
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingMore = false);
     }
   }
 
@@ -166,13 +171,17 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Brand logo circle
-                    const CircleAvatar(radius: 40, backgroundColor: Colors.white),
+                    const CircleAvatar(
+                        radius: 40, backgroundColor: Colors.white),
                     const SizedBox(height: 16),
                     // Brand name
                     Container(height: 16, width: 140, color: Colors.white),
                     const SizedBox(height: 8),
                     // Description lines
-                    Container(height: 12, width: double.infinity, color: Colors.white),
+                    Container(
+                        height: 12,
+                        width: double.infinity,
+                        color: Colors.white),
                     const SizedBox(height: 6),
                     Container(height: 12, width: 200, color: Colors.white),
                     const SizedBox(height: 32),
@@ -183,11 +192,12 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                     GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
                         crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 0.68,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: 290,
                       ),
                       itemCount: 6,
                       itemBuilder: (context, index) {
@@ -201,7 +211,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                             children: [
                               // Image placeholder
                               Container(
-                                height: 180,
+                                height: 160,
                                 decoration: const BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.only(
@@ -215,7 +225,10 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(height: 14, width: 100, color: Colors.white),
+                                    Container(
+                                        height: 14,
+                                        width: 100,
+                                        color: Colors.white),
                                     const SizedBox(height: 4),
                                   ],
                                 ),
@@ -235,190 +248,48 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
     );
   }
 
-  Widget _buildProductCard(ItemsModel item) {
-    return GestureDetector(
-      onTap: () async {
-        final prefs = await SharedPreferences.getInstance();
-        final userId = prefs.getString('myId') ?? '';
+  Widget _buildProductCard(Map<String, dynamic> item) {
+    final productId = item['_id'] as String? ?? '';
+    final variants = item['variants'] as List<dynamic>? ?? [];
+    final variant = variants.isNotEmpty
+        ? variants.first as Map<String, dynamic>
+        : <String, dynamic>{};
+    final variantId = variant['_id'] as String? ?? '';
 
-        if (!context.mounted) return;
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailsScreen(
-              itemId: item.id,
-              userId: userId,
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Image
-            Expanded(
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      topRight: Radius.circular(8),
-                    ),
-                    child: CachedNetworkImage(
-                      imageUrl: item.pictures.isNotEmpty
-                          ? item.pictures.first
-                          : '',
-                      height: double.infinity,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey.shade300,
-                        highlightColor: Colors.grey.shade100,
-                        child: Container(
-                          width: double.infinity,
-                          color: Colors.white,
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: double.infinity,
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: Icon(Icons.broken_image, size: 40),
-                        ),
-                      ),
-                    ),
-                  ),
-                // Brand Logo overlay
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: widget.brandLogo,
-                        fit: BoxFit.contain,
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey.shade200,
-                        ),
-                        errorWidget: (context, url, error) => const Icon(
-                          Icons.store,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                ],
-              ),
-            ),
-            // Product Details
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  () {
-                    final p = item.price;
-                    final promo = item.promoPercent;
-                    if (promo > 0) {
-                      final discounted = (p - (p * promo / 100)).round();
-                      return RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '$discounted€ ',
-                              style: const TextStyle(
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '${p.toStringAsFixed(0)}€',
-                              style: const TextStyle(
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
-                                color: Colors.black,
-                                decoration: TextDecoration.lineThrough,
-                                decorationColor: Color(0xFF8D8D8D),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    return Text(
-                      '${p.toStringAsFixed(0)}€',
-                      style: const TextStyle(
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: Colors.black,
-                      ),
-                    );
-                  }(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      return ProductCard(
+        product: item,
+        cardWidth: constraints.maxWidth,
+        affiliateId: widget.affiliateId,
+        onAddToCart: productId.isEmpty || variantId.isEmpty
+            ? null
+            : () => _addProductToCart(productId, variantId),
+        onRemoveFromCart: _removeProductFromCart,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      extendBody: true,
       appBar: HapperAppBar(
         title: 'LA COLLECTION',
         actions: [
-          CartIconButton(
-            cartItemCount: cartItemCount,
-            onNavigateBack: _fetchCartItemCount,
+          Obx(() => CartIconButton(
+                cartItemCount: Get.find<CartController>().cartItemCount.value,
+                onNavigateBack: _fetchCartItemCount,
+              )),
+        ],
+      ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CartPreviewPill(),
+          SafeArea(
+            top: false,
+            child: const SizedBox(height: kBottomNavigationBarHeight),
           ),
         ],
       ),
@@ -448,7 +319,8 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                       ),
                       // Brand info overlapping gradient by 40px
                       Padding(
-                        padding: const EdgeInsets.only(top: 40, left: 16, right: 16),
+                        padding:
+                            const EdgeInsets.only(top: 40, left: 16, right: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -474,7 +346,8 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                                   placeholder: (context, url) => Container(
                                     color: Colors.grey.shade200,
                                   ),
-                                  errorWidget: (context, url, error) => const Icon(
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(
                                     Icons.image,
                                     size: 30,
                                     color: Colors.grey,
@@ -526,16 +399,19 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                 // Products Grid (lazily built — only visible items in memory)
                 if (_brandItems.isNotEmpty)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
                         crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 0.68,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: 290,
                       ),
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => _buildProductCard(_brandItems[index]),
+                        (context, index) =>
+                            _buildProductCard(_brandItems[index]),
                         childCount: _brandItems.length,
                       ),
                     ),
@@ -544,20 +420,23 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                 // Loading shimmer for pagination
                 if (_isLoadingMore)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
                         crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 0.68,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: 290,
                       ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) => Shimmer.fromColors(
                           baseColor: Colors.grey.shade300,
                           highlightColor: Colors.grey.shade100,
                           child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
@@ -619,7 +498,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                     ),
                   ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                const SliverToBoxAdapter(child: SizedBox(height: 120)),
               ],
             ),
     );

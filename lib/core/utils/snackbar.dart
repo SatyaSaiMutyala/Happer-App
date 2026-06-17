@@ -5,7 +5,7 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 void showAppSnackBar(String message, {bool isSuccess = true}) {
-  final backgroundColor = isSuccess ? Colors.black : Colors.black;
+  final backgroundColor = isSuccess ? const Color(0xFF1A1A1A) : const Color(0xFFD32F2F);
 
   rootScaffoldMessengerKey.currentState?.hideCurrentSnackBar();
   rootScaffoldMessengerKey.currentState?.showSnackBar(
@@ -27,9 +27,9 @@ void showAppSnackBar(String message, {bool isSuccess = true}) {
       ),
       backgroundColor: backgroundColor,
       behavior: SnackBarBehavior.floating,
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
     ),
   );
 }

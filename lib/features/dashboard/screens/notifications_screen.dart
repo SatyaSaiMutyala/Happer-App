@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/dashboard/models/notification_model.dart';
 import 'package:happer_app/features/dashboard/screens/notification_details_screen.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
 import 'package:happer_app/features/profile/screens/notification_settings_screen.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
@@ -14,12 +12,10 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final ProfileApiService _apiService = ProfileApiService();
   List<Map<String, dynamic>> _notifications = [];
   bool _isLoading = true;
   String? _errorMessage;
-  int _unreadCount = 0;
-  Set<String> _expandedNotifications = {};
+  final Set<String> _expandedNotifications = {};
 
   @override
   void initState() {
@@ -28,53 +24,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _fetchNotifications() async {
-    try {
-      final List<NotificationModel> notifications =
-          await _apiService.fetchNotifications();
-
-      final notificationList = notifications.map((notification) {
-        final uiModel = notification.toUiModel();
-        return {
-          'id': uiModel['id'],
-          'title': uiModel['title'],
-          'description': uiModel['description'],
-          'time': _formatTimeAgo(notification.createdAt.toIso8601String()),
-          'isRead': uiModel['isRead'],
-          'type': uiModel['type'],
-          'createdAt': notification.createdAt,
-          'parameters': notification.parameter,
-        };
-      }).toList();
-
-      notificationList.sort((a, b) => b['createdAt'].compareTo(a['createdAt']));
-
-      setState(() {
-        _notifications = notificationList;
-        _isLoading = false;
-        _updateUnreadCount();
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to load notifications: $e';
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _updateUnreadCount() {
-    _unreadCount = _notifications
-        .where((notification) => notification['isRead'] == false)
-        .length;
+    setState(() {
+      _notifications = [];
+      _isLoading = false;
+    });
   }
 
   void _markAsRead(String id) {
     setState(() {
       final index = _notifications.indexWhere((n) => n['id'] == id);
-      if (index != -1 && _notifications[index]['isRead'] == false) {
-        _notifications[index]['isRead'] = true;
-        _updateUnreadCount();
-        _apiService.markNotificationAsRead(id).catchError((error) {});
-      }
+      if (index != -1) _notifications[index]['isRead'] = true;
     });
   }
 
@@ -87,21 +46,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _markAsRead(id);
       }
     });
-  }
-
-  String _formatTimeAgo(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      final now = DateTime.now();
-      final difference = now.difference(date);
-      if (difference.inSeconds < 60) return '${difference.inSeconds}s ago';
-      if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
-      if (difference.inHours < 24) return '${difference.inHours}h ago';
-      if (difference.inDays < 30) return '${difference.inDays}d ago';
-      return '${(difference.inDays / 30).floor()}mo ago';
-    } catch (_) {
-      return 'Unknown';
-    }
   }
 
   bool isValidImageUrl(String? url) {
@@ -353,20 +297,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
   
-void _deleteNotification(String id) async {
+void _deleteNotification(String id) {
   setState(() {
     _notifications.removeWhere((n) => n['id'] == id);
-    _updateUnreadCount();
   });
-  try {
-    final accessToken = await _apiService.getToken();
-    if (accessToken != null) {
-      await _apiService.deleteNotification(id, accessToken);
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).deleteNotificationFailed)),
-    );
-  }
 }
 }

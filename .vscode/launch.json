@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug on iPhone 17 Pro",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "E503A4C3-A837-45C5-9E93-4AC0409743E0",
+      "flutterMode": "debug"
+    }
+  ]
+}

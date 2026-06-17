@@ -1841,13 +1841,13 @@ abstract class AppLocalizations {
   /// No description provided for @termsAndConditions.
   ///
   /// In en, this message translates to:
-  /// **'GENERAL TERMS OF SALE'**
+  /// **'General terms of sale'**
   String get termsAndConditions;
 
   /// No description provided for @changePasswordTitle.
   ///
   /// In en, this message translates to:
-  /// **'CHANGE PASSWORD'**
+  /// **'Change password'**
   String get changePasswordTitle;
 
   /// No description provided for @forgotPasswordTitle.
@@ -2659,6 +2659,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open image details'**
   String get couldNotOpenImageDetails;
+
+  /// No description provided for @myAddressesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MY ADDRESSES'**
+  String get myAddressesTitle;
+
+  /// No description provided for @addAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Add address'**
+  String get addAddress;
+
+  /// No description provided for @noAddressRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'No address registered'**
+  String get noAddressRegistered;
+
+  /// No description provided for @deleteAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete address'**
+  String get deleteAddressTitle;
+
+  /// No description provided for @deleteAddressConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to delete this address?'**
+  String get deleteAddressConfirm;
+
+  /// No description provided for @addressDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Address deleted'**
+  String get addressDeleted;
+
+  /// No description provided for @newAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW ADDRESS'**
+  String get newAddressTitle;
+
+  /// No description provided for @editAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EDIT ADDRESS'**
+  String get editAddressTitle;
+
+  /// No description provided for @addressLabelField.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (e.g. Home, Office)'**
+  String get addressLabelField;
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phoneLabel;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE'**
+  String get saveButton;
+
+  /// No description provided for @updateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'UPDATE'**
+  String get updateButton;
+
+  /// No description provided for @addressUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Address updated'**
+  String get addressUpdated;
+
+  /// No description provided for @addressAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Address added'**
+  String get addressAdded;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get fieldRequired;
+
+  /// No description provided for @myProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get myProfileTitle;
+
+  /// No description provided for @personalInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal information'**
+  String get personalInfoSection;
+
+  /// No description provided for @fullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fullNameLabel;
+
+  /// No description provided for @firstNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstNameLabel;
+
+  /// No description provided for @lastNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastNameLabel;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get usernameLabel;
+
+  /// No description provided for @memberSinceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since'**
+  String get memberSinceLabel;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @follow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get follow;
+
+  /// No description provided for @unfollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow'**
+  String get unfollow;
+
+  /// No description provided for @followers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get followers;
+
+  /// No description provided for @following.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get following;
+
+  /// No description provided for @posts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get posts;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load profile'**
+  String get profileLoadFailed;
+
+  /// No description provided for @linkProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link Products'**
+  String get linkProductsTitle;
+
+  /// No description provided for @selectAtLeastOneProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Please link at least one product to your selfie'**
+  String get selectAtLeastOneProduct;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get noFavoritesYet;
+
+  /// No description provided for @favoritesWillAppearHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks you like will appear here'**
+  String get favoritesWillAppearHere;
+
+  /// No description provided for @uploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading...'**
+  String get uploading;
+
+  /// No description provided for @pleaseWaitMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait a moment'**
+  String get pleaseWaitMoment;
+
+  /// No description provided for @loggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in...'**
+  String get loggingIn;
+
+  /// No description provided for @signingUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing up...'**
+  String get signingUp;
+
+  /// No description provided for @verifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying...'**
+  String get verifying;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a selfie'**
+  String get addPhoto;
+
+  /// No description provided for @loginToAddToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to add to cart'**
+  String get loginToAddToCart;
+
+  /// No description provided for @activateCreatorAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Creator'**
+  String get activateCreatorAccount;
+
+  /// No description provided for @dobLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dobLabel;
+
+  /// No description provided for @creatorAccountActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Creator account activated successfully!'**
+  String get creatorAccountActivated;
+
+  /// No description provided for @completeProfileBeforeAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete your profile before accepting: {fields}'**
+  String completeProfileBeforeAccept(String fields);
+
+  /// No description provided for @pleaseSelectShippingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a delivery address'**
+  String get pleaseSelectShippingAddress;
 }
 
 class _AppLocalizationsDelegate

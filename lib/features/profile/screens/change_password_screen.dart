@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -39,28 +38,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     });
 
     try {
-      final profileApiService = ProfileApiService();
-      
-      // Call the API to update password
-      final result = await profileApiService.changeYourPassword(
-        _currentPasswordController.text,
-        _newPasswordController.text,
-        _confirmPasswordController.text,
-      );
-      
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result['success'] == true) {
+      // Dummy: password change will be wired when API is integrated
+      setState(() => _isLoading = false);
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context).passwordUpdatedSuccess)),
         );
         Navigator.pop(context);
-      } else {
-        setState(() {
-          _errorMessage = result['message'] ?? 'Failed to update password';
-        });
       }
     } catch (e) {
       setState(() {

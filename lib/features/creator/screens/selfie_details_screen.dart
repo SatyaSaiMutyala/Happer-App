@@ -1,33 +1,36 @@
-import 'dart:convert';
+import 'package:happer_app/core/utils/deep_link_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:happer_app/app_manager.dart';
-import 'package:happer_app/features/creator/api/creator_api.dart';
+import 'package:happer_app/features/creator/bindings/creator_binding.dart';
+import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
 import 'package:happer_app/features/creator/models/creator_model.dart';
-import 'package:happer_app/features/creator/models/items_model.dart' hide BrandId;
-import 'package:happer_app/features/creator/screens/product_details_screen.dart';
 import 'package:happer_app/features/creator/screens/brand_details_screen.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
+import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
+import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
-import 'package:happer_app/features/creator/api/cart_api.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/shared/widgets/cart_icon_button.dart';
+import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
+import 'package:happer_app/shared/widgets/product_card.dart';
 
 class SelfieDetailsScreen extends StatefulWidget {
   final String selfieId;
   final int? initialLikes;
   final bool? isLikedByMe;
+  final CreatorModel? model;
 
   const SelfieDetailsScreen({
     Key? key,
     required this.selfieId,
     this.initialLikes,
     this.isLikedByMe,
+    this.model,
   }) : super(key: key);
 
   @override
@@ -36,15 +39,15 @@ class SelfieDetailsScreen extends StatefulWidget {
 
 class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     with SingleTickerProviderStateMixin {
-  late CreatorModel? _selfie;
+  CreatorModel? _selfie;
   late int _likes;
   late bool _isLiked;
   bool _isLoading = true;
   bool _isToggling = false;
-  Map<String, List<ItemsModel>> _brandItemsMap = {};
-  Map<String, BrandId> _brandInfoMap = {};
-  bool _isBrandItemsLoading = false;
-  int _cartItemCount = 0;
+  bool _isAddingLookToCart = false;
+  List<Map<String, dynamic>> _linkedProducts = [];
+  List<Map<String, dynamic>> _similarProducts = [];
+  List<Map<String, dynamic>> _brandCollections = [];
   bool _showHeart = false;
   late AnimationController _heartAnimationController;
   late Animation<double> _heartScaleAnimation;
@@ -60,164 +63,26 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-
     _heartScaleAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.2), weight: 30),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.0), weight: 30),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_heartAnimationController);
-
     _heartOpacityAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.0), weight: 50),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 30),
     ]).animate(_heartAnimationController);
-
     _heartAnimationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         setState(() => _showHeart = false);
       }
     });
 
+    _selfie = widget.model;
+    _isLoading = widget.model == null;
     _fetchSelfieDetails();
-    _fetchCartItemCount();
-  }
-
-  Future<void> _fetchCartItemCount() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      if (token == null || token.isEmpty) return;
-      final cartApi = CartApi(token: token);
-      final cartDetails = await cartApi.getCartDetails();
-      if (mounted) {
-        setState(() {
-          _cartItemCount = cartDetails.data?.items?.length ?? 0;
-        });
-      }
-    } catch (e) {}
-  }
-
-  Future<void> _fetchSelfieDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    print(
-        "Fetching selfie details for ID: ${widget.selfieId} with token: $token");
-    final service = CreatorApiService(token: token);
-
-    try {
-      final fetchedSelfie = await service.getSelfieById(widget.selfieId);
-      setState(() {
-        _selfie = fetchedSelfie;
-        _likes = fetchedSelfie.nbLike ?? _likes;
-        _isLiked = fetchedSelfie.isLikedByMe ?? _isLiked;
-        _isLoading = false;
-      });
-
-      // Fetch brand items after selfie details are loaded
-      _fetchBrandItems();
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
-      // Handle error (e.g., show a snackbar or log the error)
-    }
-  }
-
-  Future<void> _fetchBrandItems() async {
-    // Get all unique brands from exact match items
-    final seenIds = <String>{};
-    final uniqueBrands = <BrandId>[];
-    for (final item in _selfie?.itemsId ?? []) {
-      if (item.exactMatch == true &&
-          item.item?.brandId?.sId != null &&
-          seenIds.add(item.item!.brandId!.sId!)) {
-        uniqueBrands.add(item.item!.brandId!);
-      }
-    }
-
-    if (uniqueBrands.isEmpty) return;
-
-    setState(() {
-      _isBrandItemsLoading = true;
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    final service = CreatorApiService(token: token);
-
-    try {
-      for (final brand in uniqueBrands) {
-        final brandResponse =
-            await service.fetchBrandAllItems(brand.sId!, page: 1, limit: 10);
-        _brandItemsMap[brand.sId!] = brandResponse.items;
-        _brandInfoMap[brand.sId!] = brand;
-      }
-
-      setState(() {
-        _isBrandItemsLoading = false;
-      });
-    } catch (error) {
-      debugPrint('Error fetching brand items: $error');
-      setState(() {
-        _isBrandItemsLoading = false;
-      });
-    }
-  }
-
-  Future<void> _toggleFavorite() async {
-    if (_isToggling) return;
-    setState(() => _isToggling = true);
-
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
-    final service = CreatorApiService(token: token);
-
-    try {
-      if (_isLiked) {
-        await service.dislikeSelfie(_selfie!.sId ?? '');
-        setState(() {
-          _isLiked = false;
-          _likes = _likes > 0 ? _likes - 1 : 0;
-        });
-      } else {
-        await service.likeSelfie(_selfie!.sId ?? '');
-        setState(() {
-          _isLiked = true;
-          _likes++;
-        });
-      }
-      await _fetchSelfieDetails();
-      // Navigator.pop(context, true);
-    } catch (_) {}
-
-    setState(() => _isToggling = false);
-  }
-
-  String _getTimeDifference(String createdAt) {
-    final createdTime = DateTime.parse(createdAt);
-    final currentTime = DateTime.now();
-    final difference = currentTime.difference(createdTime);
-
-    if (difference.inMinutes < 1) {
-      return 'À l\'instant';
-    } else if (difference.inMinutes < 60) {
-      return 'il y a ${difference.inMinutes} min';
-    } else if (difference.inHours < 24) {
-      return 'il y a ${difference.inHours} h';
-    } else if (difference.inDays < 7) {
-      return 'il y a ${difference.inDays} j';
-    } else if (difference.inDays < 30) {
-      final weeks = (difference.inDays / 7).floor();
-      return 'il y a $weeks ${weeks == 1 ? 'semaine' : 'semaines'}';
-    } else if (difference.inDays < 365) {
-      final months = (difference.inDays / 30).floor();
-      return 'il y a $months mois';
-    } else {
-      final years = (difference.inDays / 365).floor();
-      return 'il y a $years ${years == 1 ? 'an' : 'ans'}';
-    }
   }
 
   @override
@@ -226,17 +91,439 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     super.dispose();
   }
 
-  void _onDoubleTap() {
-    if (AppManager.isLoginAsGuest) return;
+  // ─── Network helpers ──────────────────────────────────────────────────────
 
-    setState(() => _showHeart = true);
-    _heartAnimationController.forward(from: 0.0);
-
-    if (!_isLiked) {
-      _toggleFavorite();
+  Future<void> _fetchSelfieDetails() async {
+    try {
+      CreatorBinding().dependencies();
+      final repo = Get.find<CreatorRepository>();
+      final result = await repo.getSelfieDetail(widget.selfieId);
+      if (!mounted) return;
+      setState(() {
+        _selfie = result.selfie;
+        _linkedProducts = result.linkedProducts;
+        _similarProducts = result.similarProducts;
+        _brandCollections = result.brandCollections;
+        _likes = result.selfie.nbLike ?? widget.initialLikes ?? 0;
+        _isLiked = result.selfie.isLikedByMe ?? widget.isLikedByMe ?? false;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  Future<void> _toggleFavorite() async {
+    if (_isToggling) return;
+    final wasLiked = _isLiked;
+    setState(() {
+      _isToggling = true;
+      _isLiked = !wasLiked;
+      _likes = _isLiked ? _likes + 1 : (_likes > 0 ? _likes - 1 : 0);
+    });
+    try {
+      CreatorBinding().dependencies();
+      final repo = Get.find<CreatorRepository>();
+      if (wasLiked) {
+        await repo.unlikeSelfie(widget.selfieId);
+      } else {
+        await repo.likeSelfie(widget.selfieId);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLiked = wasLiked;
+          _likes = wasLiked ? _likes + 1 : (_likes > 0 ? _likes - 1 : 0);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isToggling = false);
+    }
+  }
+
+  Future<void> _addLookToCart() async {
+    if (_isAddingLookToCart || _linkedProducts.isEmpty) return;
+    setState(() => _isAddingLookToCart = true);
+    try {
+      CartBinding().dependencies();
+      final cartRepo = Get.find<CartRepository>();
+      final affiliateId = _selfie!.user?.sId ?? '';
+      int added = 0;
+      for (final product in _linkedProducts) {
+        final productId = product['_id'] as String? ?? '';
+        if (productId.isEmpty) continue;
+        final variants = product['variants'] as List<dynamic>? ?? [];
+        if (variants.isEmpty) continue;
+        final variant = variants.first as Map<String, dynamic>;
+        final variantId = variant['_id'] as String? ?? '';
+        if (variantId.isEmpty) continue;
+        try {
+          await cartRepo.addToCart(
+            productId: productId,
+            variantId: variantId,
+            affiliateId: affiliateId,
+            quantity: 1,
+          );
+          added++;
+        } catch (e) {
+          debugPrint('Failed to add product $productId to cart: $e');
+        }
+      }
+      if (!mounted) return;
+      Get.find<CartController>().fetchCartItemCount();
+      if (added > 0) {
+        showAppSnackBar(
+            '$added article${added > 1 ? 's' : ''} ajouté${added > 1 ? 's' : ''} au panier',
+            isSuccess: true);
+      } else {
+        showAppSnackBar('Impossible d\'ajouter les articles au panier',
+            isSuccess: false);
+      }
+    } catch (e) {
+      if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
+    } finally {
+      if (mounted) setState(() => _isAddingLookToCart = false);
+    }
+  }
+
+  Future<String?> _addProductToCart(
+      String productId, String variantId, String affiliateId) async {
+    try {
+      CartBinding().dependencies();
+      final cartRepo = Get.find<CartRepository>();
+      final cartItemId = await cartRepo.addToCart(
+        productId: productId,
+        variantId: variantId,
+        affiliateId: affiliateId,
+        quantity: 1,
+      );
+      if (!mounted) return null;
+      Get.find<CartController>().fetchCartItemCount();
+      showAppSnackBar('Article ajouté au panier', isSuccess: true);
+      return cartItemId;
+    } catch (e) {
+      if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
+      return null;
+    }
+  }
+
+  Future<void> _removeProductFromCart(String cartItemId) async {
+    try {
+      CartBinding().dependencies();
+      final cartRepo = Get.find<CartRepository>();
+      await cartRepo.removeCartItem(cartItemId);
+      if (!mounted) return;
+      Get.find<CartController>().fetchCartItemCount();
+    } catch (e) {
+      if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
+    }
+  }
+
+  // ─── Utilities ────────────────────────────────────────────────────────────
+
+  int get _lookTotalPrice => _linkedProducts.fold(0, (sum, p) {
+        final variants = p['variants'] as List<dynamic>? ?? [];
+        if (variants.isEmpty) return sum;
+        final v = variants.first as Map<String, dynamic>;
+        return sum + ((v['price'] as num?)?.toInt() ?? 0);
+      });
+
+  String _getTimeDifference(String createdAt) {
+    final diff = DateTime.now().difference(DateTime.parse(createdAt));
+    if (diff.inMinutes < 1) return 'À l\'instant';
+    if (diff.inMinutes < 60) return 'il y a ${diff.inMinutes} min';
+    if (diff.inHours < 24) return 'il y a ${diff.inHours} h';
+    if (diff.inDays < 7) return 'il y a ${diff.inDays} j';
+    if (diff.inDays < 30) {
+      final w = (diff.inDays / 7).floor();
+      return 'il y a $w ${w == 1 ? 'semaine' : 'semaines'}';
+    }
+    if (diff.inDays < 365) {
+      return 'il y a ${(diff.inDays / 30).floor()} mois';
+    }
+    final y = (diff.inDays / 365).floor();
+    return 'il y a $y ${y == 1 ? 'an' : 'ans'}';
+  }
+
+  void _onDoubleTap() {
+    if (AppManager.isLoginAsGuest) return;
+    setState(() => _showHeart = true);
+    _heartAnimationController.forward(from: 0.0);
+    if (!_isLiked) _toggleFavorite();
+  }
+
+  // ─── Shared image builders ────────────────────────────────────────────────
+
+  Widget _buildNetworkImage(String url,
+      {double height = 180, double width = 125}) {
+    if (url.isEmpty) {
+      return Container(
+        height: height,
+        width: width,
+        color: Colors.grey.shade200,
+        child: const Center(child: Icon(Icons.image, color: Colors.grey)),
+      );
+    }
+    if (url.startsWith('assets/')) {
+      return Image.asset(url, height: height, width: width, fit: BoxFit.cover);
+    }
+    return CachedNetworkImage(
+      imageUrl: url,
+      height: height,
+      width: width,
+      fit: BoxFit.cover,
+      placeholder: (_, __) => Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(height: height, width: width, color: Colors.white),
+      ),
+      errorWidget: (_, __, ___) => Container(
+        height: height,
+        width: width,
+        color: Colors.grey.shade200,
+        child: const Center(child: Icon(Icons.broken_image, size: 36)),
+      ),
+    );
+  }
+
+  ImageProvider _profileProvider(String path) {
+    if (path.startsWith('assets/')) return AssetImage(path);
+    return CachedNetworkImageProvider(path);
+  }
+
+  Widget _buildBrandLogoImg(String path) {
+    if (path.startsWith('assets/')) {
+      return Image.asset(path, fit: BoxFit.contain);
+    }
+    return CachedNetworkImage(
+      imageUrl: path,
+      fit: BoxFit.contain,
+      placeholder: (_, __) => Container(color: Colors.grey.shade200),
+      errorWidget: (_, __, ___) =>
+          const Icon(Icons.image, size: 24, color: Colors.grey),
+    );
+  }
+
+  // ─── Reusable product card ────────────────────────────────────────────────
+
+  Widget _buildProductCard(Map<String, dynamic> product,
+      {double cardWidth = 125}) {
+    final productId = product['_id'] as String? ?? '';
+    final variants = product['variants'] as List<dynamic>? ?? [];
+    final variant = variants.isNotEmpty
+        ? variants.first as Map<String, dynamic>
+        : <String, dynamic>{};
+    final variantId = variant['_id'] as String? ?? '';
+    final affiliateId = _selfie?.user?.sId ?? '';
+
+    return ProductCard(
+      product: product,
+      cardWidth: cardWidth,
+      affiliateId: affiliateId,
+      onAddToCart: productId.isEmpty || variantId.isEmpty
+          ? null
+          : () => _addProductToCart(productId, variantId, affiliateId),
+      onRemoveFromCart: _removeProductFromCart,
+    );
+  }
+
+  // ─── Section builders ─────────────────────────────────────────────────────
+
+  Widget _buildLinkedProductsSection() {
+    if (_linkedProducts.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 11),
+          child: RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Lato',
+                fontStyle: FontStyle.italic,
+                height: 1.0,
+                color: Color(0xFF8D8D8D),
+              ),
+              children: [
+                const TextSpan(text: 'La Séléction de '),
+                TextSpan(
+                  text:
+                      _selfie!.user?.userName ?? _selfie!.user?.firstName ?? '',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontStyle: FontStyle.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 268,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 11),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _linkedProducts.length,
+              itemBuilder: (_, i) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildProductCard(_linkedProducts[i]),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSimilarProductsSection() {
+    if (_similarProducts.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 11),
+          child: Text(
+            'Autour du look',
+            style: TextStyle(
+              fontFamily: 'Lato',
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 268,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 11),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _similarProducts.length,
+              itemBuilder: (_, i) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildProductCard(_similarProducts[i]),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBrandCollectionsSection() {
+    if (_brandCollections.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _brandCollections.map((group) {
+        final brand = group['brand'] as Map<String, dynamic>? ?? {};
+        final products = (group['products'] as List<dynamic>? ?? [])
+            .cast<Map<String, dynamic>>();
+        final brandId = brand['_id'] as String? ?? '';
+        final brandName = brand['name'] as String? ?? '';
+        final brandLogo = brand['picture'] as String? ?? '';
+
+        final visibleProducts = products.take(10).toList();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 11),
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 14,
+                      color: Colors.black,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: 'Collection ',
+                        style: TextStyle(fontWeight: FontWeight.w400),
+                      ),
+                      TextSpan(
+                        text: brandName,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 290,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(left: 11),
+                  itemCount: visibleProducts.length,
+                  itemBuilder: (_, i) => Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child:
+                        _buildProductCard(visibleProducts[i], cardWidth: 130),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 11),
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BrandDetailsScreen(
+                          brandId: brandId,
+                          brandName: brandName,
+                          brandDescription: '',
+                          brandLogo: brandLogo,
+                          affiliateId: _selfie?.user?.sId ?? '',
+                        ),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 1))
+                        ],
+                      ),
+                      child: const Text(
+                        'Explorer la collection',
+                        style: TextStyle(
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ─── Shimmer ──────────────────────────────────────────────────────────────
 
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
@@ -247,35 +534,8 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Main image placeholder
-            Stack(
-              children: [
-                Container(
-                  height: 400,
-                  width: double.infinity,
-                  color: Colors.white,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                          radius: 20, backgroundColor: Colors.white),
-                      const SizedBox(width: 8),
-                      Container(height: 14, width: 100, color: Colors.white),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 12,
-                  left: 12,
-                  child:
-                      CircleAvatar(radius: 24, backgroundColor: Colors.white),
-                ),
-              ],
-            ),
+            Container(height: 400, width: double.infinity, color: Colors.white),
             const SizedBox(height: 16),
-            // Time + like row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -291,85 +551,47 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
               ),
             ),
             const SizedBox(height: 12),
-            // Divider
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Container(
                   height: 1, width: double.infinity, color: Colors.white),
             ),
             const SizedBox(height: 16),
-            // Section title
             Padding(
               padding: const EdgeInsets.only(left: 11),
               child: Container(height: 14, width: 160, color: Colors.white),
             ),
             const SizedBox(height: 12),
-            // Horizontal product cards
             SizedBox(
-              height: 210,
+              height: 268,
               child: Padding(
                 padding: const EdgeInsets.only(left: 11),
                 child: Row(
                   children: List.generate(
-                      4,
-                      (index) => Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                    height: 180,
-                                    width: 125,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(4))),
-                                const SizedBox(height: 8),
-                                Container(
-                                    height: 12,
-                                    width: 100,
-                                    color: Colors.white),
-                              ],
-                            ),
-                          )),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Second section title
-            Padding(
-              padding: const EdgeInsets.only(left: 11),
-              child: Container(height: 14, width: 130, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-            // Second horizontal product cards
-            SizedBox(
-              height: 210,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 11),
-                child: Row(
-                  children: List.generate(
-                      4,
-                      (index) => Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                    height: 180,
-                                    width: 125,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(4))),
-                                const SizedBox(height: 8),
-                                Container(
-                                    height: 12,
-                                    width: 100,
-                                    color: Colors.white),
-                              ],
-                            ),
-                          )),
+                    3,
+                    (_) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                              height: 180, width: 125, color: Colors.white),
+                          const SizedBox(height: 8),
+                          Container(
+                              height: 12, width: 100, color: Colors.white),
+                          const SizedBox(height: 6),
+                          Container(height: 10, width: 60, color: Colors.white),
+                          const SizedBox(height: 6),
+                          Container(
+                              height: 30,
+                              width: 125,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4))),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -379,27 +601,32 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     );
   }
 
+  // ─── Build ────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: HapperAppBar(
-        title: 'SHOP LE LOOK',
-        actions: [
-          CartIconButton(
-            cartItemCount: _cartItemCount,
-            onNavigateBack: _fetchCartItemCount,
+      extendBody: true,
+      appBar: HapperAppBar(title: 'SHOP LE LOOK', actions: const []),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CartPreviewPill(),
+          SafeArea(
+            top: false,
+            child: const SizedBox(height: kBottomNavigationBarHeight),
           ),
         ],
       ),
-      body: _isLoading
+      body: (_isLoading || _selfie == null)
           ? _buildShimmerLoading()
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(0.0),
+              padding: const EdgeInsets.only(bottom: 170.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Display the selfie image with user details
+                  // ── Main selfie image ──────────────────────────────────
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onDoubleTap: _onDoubleTap,
@@ -410,30 +637,13 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                           maxScale: 4.0,
                           onZoomStart: () {},
                           onZoomEnd: () {},
-                          child: CachedNetworkImage(
-                            imageUrl: _selfie?.picture ?? '',
+                          child: _buildNetworkImage(
+                            _selfie?.picture ?? '',
                             height: 400,
                             width: double.infinity,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: Container(
-                                height: 400,
-                                width: double.infinity,
-                                color: Colors.white,
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              height: 400,
-                              width: double.infinity,
-                              color: Colors.grey.shade200,
-                              child: const Center(
-                                child: Icon(Icons.broken_image, size: 56),
-                              ),
-                            ),
                           ),
                         ),
+                        // User avatar + name row
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
@@ -442,21 +652,18 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                               Row(
                                 children: [
                                   GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ImageGridScreen(
-                                            userId: _selfie!.user!.sId ?? '',
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ImageGridScreen(
+                                            userId: _selfie!.user!.sId ?? ''),
+                                      ),
+                                    ),
                                     child: CircleAvatar(
                                       backgroundImage: _selfie!.user?.picture !=
                                                   null &&
                                               _selfie!.user!.picture!.isNotEmpty
-                                          ? CachedNetworkImageProvider(
+                                          ? _profileProvider(
                                               _selfie!.user!.picture!)
                                           : null,
                                       backgroundColor: Colors.grey.shade200,
@@ -470,16 +677,13 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                   ),
                                   const SizedBox(width: 8),
                                   GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ImageGridScreen(
-                                            userId: _selfie!.user!.sId ?? '',
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ImageGridScreen(
+                                            userId: _selfie!.user!.sId ?? ''),
+                                      ),
+                                    ),
                                     child: Text(
                                       _selfie!.user?.userName ??
                                           '${_selfie!.user?.firstName ?? ''} ${_selfie!.user?.lastName ?? ''}'
@@ -488,66 +692,36 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                         fontFamily: 'Lato',
                                         fontWeight: FontWeight.w400,
                                         fontSize: 16,
-                                        height: 1.0, // line-height 100%
-                                        letterSpacing: 0.0,
                                         color: Colors.white,
                                       ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.verified,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
+                                  const Icon(Icons.verified,
+                                      color: Colors.white, size: 24),
                                 ],
                               ),
                               Container(
-                                decoration: BoxDecoration(
-                                  color: Color(
-                                    0x33000000,
-                                  ), // Updated grey circular background
+                                decoration: const BoxDecoration(
+                                  color: Color(0x33000000),
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
-                                  icon: Icon(
-                                    Icons.share,
-                                    size: 24,
-                                    color: Colors.white,
-                                  ),
+                                  icon: const Icon(Icons.share,
+                                      size: 24, color: Colors.white),
                                   onPressed: () {
                                     final selfieId = _selfie?.sId ?? '';
-                                    if (selfieId.isNotEmpty) {
-                                      final encodedId = base64Url
-                                          .encode(utf8.encode(selfieId));
-                                      final deepLink =
-                                          'https://newapi.happer.fr/store/$encodedId';
-                                      // On iPad (iOS) the share sheet needs a non-zero
-                                      // source rect for the popover. Provide a
-                                      // `sharePositionOrigin` using the button's
-                                      // RenderBox so the platform plugin can present
-                                      // the share sheet safely.
-                                      try {
-                                        final RenderBox? box = context
-                                            .findRenderObject() as RenderBox?;
-                                        if (box != null && box.hasSize) {
-                                          final origin =
-                                              box.localToGlobal(Offset.zero) &
-                                                  box.size;
-                                          Share.share(
-                                            "J'ai trouvé cet outfit sur Happer, je pense qu'il pourrait te plaire ✨ $deepLink",
-                                            sharePositionOrigin: origin,
-                                          );
-                                        } else {
-                                          // Fallback if RenderBox not available
-                                          Share.share(
-                                              "J'ai trouvé cet outfit sur Happer, je pense qu'il pourrait te plaire ✨ $deepLink");
-                                        }
-                                      } catch (e) {
-                                        // If anything goes wrong, fall back to basic share
-                                        Share.share(
-                                            "J'ai trouvé cet outfit sur Happer, je pense qu'il pourrait te plaire ✨ $deepLink");
-                                      }
+                                    final username = _selfie?.user?.userName ?? '';
+                                    if (selfieId.isNotEmpty && username.isNotEmpty) {
+                                      final box = context.findRenderObject() as RenderBox?;
+                                      shareOutfit(
+                                        username: username,
+                                        selfieId: selfieId,
+                                        creatorName: '${_selfie?.user?.firstName ?? ''} ${_selfie?.user?.lastName ?? ''}'.trim(),
+                                        sharePositionOrigin: box != null && box.hasSize
+                                            ? box.localToGlobal(Offset.zero) & box.size
+                                            : null,
+                                      );
                                     }
                                   },
                                 ),
@@ -555,91 +729,76 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                             ],
                           ),
                         ),
-
-                        // --- BRAND LOGOS (bottom-left on main image) ---
-                        if (_selfie?.itemsId != null &&
-                            _selfie!.itemsId!.any((item) =>
-                                item.exactMatch == true &&
-                                item.item?.brandId?.picture != null))
+                        // Brand logos (bottom-left overlapping circles)
+                        if (_linkedProducts.any((p) =>
+                            p['brand_id'] is Map &&
+                            ((p['brand_id'] as Map)['picture'] as String? ?? '')
+                                .isNotEmpty))
                           Positioned(
                             bottom: 12,
                             left: 12,
                             child: () {
-                              final seenBrandIds = <String>{};
-                              final uniqueBrandItems = <ItemsId>[];
-                              for (final item in _selfie!.itemsId!) {
-                                if (item.exactMatch == true &&
-                                    item.item?.brandId?.picture != null &&
-                                    item.item?.brandId?.sId != null &&
-                                    seenBrandIds
-                                        .add(item.item!.brandId!.sId!)) {
-                                  uniqueBrandItems.add(item);
+                              final seen = <String>{};
+                              final brands = <Map<String, dynamic>>[];
+                              for (final p in _linkedProducts) {
+                                final b = p['brand_id'];
+                                if (b is Map<String, dynamic> &&
+                                    b['_id'] != null &&
+                                    (b['picture'] as String? ?? '')
+                                        .isNotEmpty &&
+                                    seen.add(b['_id'] as String)) {
+                                  brands.add(b);
                                 }
                               }
-                              final logoSize = 48.0;
-                              final overlap = 16.0;
-                              final totalWidth =
-                                  uniqueBrandItems.length * logoSize -
-                                      (uniqueBrandItems.length - 1) * overlap;
+                              const size = 48.0;
+                              const overlap = 16.0;
                               return SizedBox(
-                                width: totalWidth,
-                                height: logoSize,
+                                width: brands.length * size -
+                                    (brands.length - 1) * overlap,
+                                height: size,
                                 child: Stack(
-                                  children: List.generate(
-                                      uniqueBrandItems.length, (i) {
-                                    final brand =
-                                        uniqueBrandItems[i].item!.brandId!;
+                                  children: List.generate(brands.length, (i) {
+                                    final b = brands[i];
                                     return Positioned(
-                                      left: i * (logoSize - overlap),
+                                      left: i * (size - overlap),
                                       child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  BrandDetailsScreen(
-                                                brandId: brand.sId ?? '',
-                                                brandName: brand.name ?? '',
-                                                brandDescription:
-                                                    brand.description ?? '',
-                                                brandLogo: brand.picture ?? '',
-                                              ),
+                                        onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BrandDetailsScreen(
+                                              brandId:
+                                                  b['_id'] as String? ?? '',
+                                              brandName:
+                                                  b['name'] as String? ?? '',
+                                              brandDescription:
+                                                  b['description'] as String? ??
+                                                      '',
+                                              brandLogo:
+                                                  b['picture'] as String? ?? '',
+                                              affiliateId:
+                                                  _selfie?.user?.sId ?? '',
                                             ),
-                                          );
-                                        },
+                                          ),
+                                        ),
                                         child: Container(
-                                          height: logoSize,
-                                          width: logoSize,
+                                          height: size,
+                                          width: size,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
                                             color: Colors.white,
                                             border: Border.all(
                                                 color: Colors.white, width: 2),
-                                            boxShadow: [
+                                            boxShadow: const [
                                               BoxShadow(
-                                                color: Colors.black26,
-                                                blurRadius: 6,
-                                                offset: Offset(1, 2),
-                                              )
+                                                  color: Colors.black26,
+                                                  blurRadius: 6,
+                                                  offset: Offset(1, 2))
                                             ],
                                           ),
                                           padding: const EdgeInsets.all(6),
                                           child: ClipOval(
-                                            child: CachedNetworkImage(
-                                              imageUrl: brand.picture!,
-                                              fit: BoxFit.contain,
-                                              placeholder: (context, url) =>
-                                                  Container(
-                                                color: Colors.grey.shade200,
-                                              ),
-                                              errorWidget:
-                                                  (context, url, error) => Icon(
-                                                Icons.image,
-                                                size: 24,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ),
+                                              child: _buildBrandLogoImg(
+                                                  b['picture'] as String)),
                                         ),
                                       ),
                                     );
@@ -648,92 +807,67 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                               );
                             }(),
                           ),
-
-                        // Add a share button at the right end of the image
+                        // Double-tap heart animation
                         if (_showHeart)
                           Positioned.fill(
                             child: Center(
                               child: AnimatedBuilder(
                                 animation: _heartAnimationController,
-                                builder: (context, child) {
-                                  return Opacity(
-                                    opacity: _heartOpacityAnimation.value,
-                                    child: Transform.scale(
-                                      scale: _heartScaleAnimation.value,
-                                      child: const Icon(
-                                        Icons.favorite,
+                                builder: (_, __) => Opacity(
+                                  opacity: _heartOpacityAnimation.value,
+                                  child: Transform.scale(
+                                    scale: _heartScaleAnimation.value,
+                                    child: const Icon(Icons.favorite,
                                         color: Colors.white,
                                         size: 100,
                                         shadows: [
                                           Shadow(
-                                            blurRadius: 20,
-                                            color: Colors.black38,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
+                                              blurRadius: 20,
+                                              color: Colors.black38)
+                                        ]),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
+                  // ── Time + like ────────────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            _getTimeDifference(
-                              _selfie!.createdAt ??
-                                  DateTime.now().toIso8601String(),
-                            ),
-                            style: const TextStyle(
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                              height:
-                                  1.0, // Line height as a multiplier of font size
-                              letterSpacing: 0.0,
-                              color: Color(0xFF8D8D8D), // Text color
-                            ),
+                        Text(
+                          _getTimeDifference(_selfie!.createdAt ??
+                              DateTime.now().toIso8601String()),
+                          style: const TextStyle(
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: Color(0xFF8D8D8D),
                           ),
                         ),
                         if (!AppManager.isLoginAsGuest)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Text(
-                              //   '$_likes',
-                              //   style: const TextStyle(
-                              //     fontSize: 14,
-                              //     fontWeight: FontWeight.w700,
-                              //     color: Colors.black,
-                              //   ),
-                              // ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.favorite,
-                                  size: 20,
-                                  color: _isLiked ? Colors.red : Colors.grey,
-                                ),
-                                onPressed: _isToggling ? null : _toggleFavorite,
-                              ),
-                            ],
+                          IconButton(
+                            icon: Icon(Icons.favorite,
+                                size: 20,
+                                color: _isLiked ? Colors.red : Colors.grey),
+                            onPressed: _isToggling ? null : _toggleFavorite,
                           ),
                       ],
                     ),
                   ),
-                  // "Look composé avec" brand names
-                  if (_selfie!.itemsId != null &&
-                      _selfie!.itemsId!.any((item) =>
-                          item.exactMatch == true &&
-                          item.item?.brandId?.name != null))
+
+                  // ── "Look composé avec" brand names ───────────────────
+                  if (_linkedProducts.any((p) =>
+                      p['brand_id'] is Map &&
+                      ((p['brand_id'] as Map)['name'] as String? ?? '')
+                          .isNotEmpty))
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: RichText(
@@ -745,24 +879,24 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                             fontWeight: FontWeight.w400,
                             fontSize: 13,
                             height: 1.4,
-                            letterSpacing: 0.0,
                             color: Color(0xFF8D8D8D),
                           ),
                           children: [
                             const TextSpan(text: 'Look composé avec '),
                             TextSpan(
                               text: () {
-                                final seenBrands = <String>{};
-                                final brandNames = <String>[];
-                                for (final item in _selfie!.itemsId!) {
-                                  if (item.exactMatch == true &&
-                                      item.item?.brandId?.name != null &&
-                                      seenBrands
-                                          .add(item.item!.brandId!.name!)) {
-                                    brandNames.add(item.item!.brandId!.name!);
+                                final seen = <String>{};
+                                final names = <String>[];
+                                for (final p in _linkedProducts) {
+                                  final b = p['brand_id'];
+                                  if (b is Map<String, dynamic>) {
+                                    final n = b['name'] as String? ?? '';
+                                    if (n.isNotEmpty && seen.add(n)) {
+                                      names.add(n);
+                                    }
                                   }
                                 }
-                                return brandNames.join(' - ');
+                                return names.join(' - ');
                               }(),
                               style: const TextStyle(
                                 fontFamily: 'Lato',
@@ -783,7 +917,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                         const Divider(thickness: 0.5, color: Color(0xFFD0D0D0)),
                   ),
 
-                  // "Prix Exclusif Happer" and "Livraison Offerte" right-aligned
+                  // ── Prix Exclusif / Livraison ──────────────────────────
                   Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
@@ -792,962 +926,91 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: const [
-                          Text(
-                            'Prix Exclusif Happer',
-                            style: TextStyle(
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                              height: 1.4,
-                              letterSpacing: 0.0,
-                              color: Color(0xFF8D8D8D),
-                            ),
-                          ),
-                          Text(
-                            'Livraison Offerte',
-                            style: TextStyle(
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                              height: 1.4,
-                              letterSpacing: 0.0,
-                              color: Color(0xFF8D8D8D),
-                            ),
-                          ),
+                          Text('Prix Exclusif Happer',
+                              style: TextStyle(
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+                                  color: Color(0xFF8D8D8D))),
+                          Text('Livraison Offerte',
+                              style: TextStyle(
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
+                                  color: Color(0xFF8D8D8D))),
                         ],
                       ),
                     ),
                   ),
 
-                  // Display the exact match product with horizontal scrollable images
-                  if (_selfie!.itemsId != null &&
-                      _selfie!.itemsId!.any(
-                        (item) => item.exactMatch == true,
-                      ))
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 11),
-                          child: RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Lato',
-                                fontStyle: FontStyle.italic,
-                                height: 1.0,
-                                letterSpacing: 0.0,
-                                color: Color(0xFF8D8D8D),
-                              ),
-                              children: [
-                                const TextSpan(text: 'La Séléction de '),
-                                TextSpan(
-                                  text: _selfie!.user?.userName ??
-                                      _selfie!.user?.firstName ??
-                                      '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                    fontStyle: FontStyle.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 268,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 11),
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: _selfie!.itemsId!
-                                  .where(
-                                    (item) => item.exactMatch == true,
-                                  )
-                                  .map(
-                                    (item) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 8.0,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          if (item.item?.pictures != null &&
-                                              item.item!.pictures!.isNotEmpty)
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (
-                                                      context,
-                                                    ) =>
-                                                        ProductDetailsScreen(
-                                                      itemId: item.item!.sId ??
-                                                          '', // Pass only the specific item ID
-                                                      userId: _selfie!
-                                                              .user?.sId ??
-                                                          '', // Pass the userId
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(0),
-                                                child: Stack(
-                                                  children: [
-                                                    // --- MAIN PRODUCT IMAGE ----
-                                                    PinchZoom(
-                                                      maxScale: 3.0,
-                                                      onZoomStart: () {},
-                                                      onZoomEnd: () {},
-                                                      child: CachedNetworkImage(
-                                                        imageUrl: item.item!
-                                                            .pictures!.first,
-                                                        height: 180,
-                                                        width: 125,
-                                                        fit: BoxFit.cover,
-                                                        placeholder: (context,
-                                                                url) =>
-                                                            Shimmer.fromColors(
-                                                          baseColor: Colors
-                                                              .grey.shade300,
-                                                          highlightColor: Colors
-                                                              .grey.shade100,
-                                                          child: Container(
-                                                            height: 180,
-                                                            width: 125,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        errorWidget: (context,
-                                                                url, error) =>
-                                                            Container(
-                                                          height: 180,
-                                                          width: 125,
-                                                          color: Colors
-                                                              .grey.shade200,
-                                                          child: const Center(
-                                                            child: Icon(
-                                                                Icons
-                                                                    .broken_image,
-                                                                size: 36),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                    // --- BRAND LOGO (top-left circle) ---
-                                                    if (item.item?.brandId
-                                                            ?.picture !=
-                                                        null)
-                                                      Positioned(
-                                                        top: 6,
-                                                        left: 6,
-                                                        child: Container(
-                                                          height: 32,
-                                                          width: 32,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color: Colors
-                                                                .white, // white background for clarity
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors
-                                                                    .black26,
-                                                                blurRadius: 4,
-                                                                offset: Offset(
-                                                                    1, 1),
-                                                              )
-                                                            ],
-                                                          ),
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(4),
-                                                          child: ClipOval(
-                                                            child:
-                                                                CachedNetworkImage(
-                                                              imageUrl: item
-                                                                  .item!
-                                                                  .brandId!
-                                                                  .picture!,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-
-                                              //   child: ClipRRect(
-                                              //     borderRadius:
-                                              //         BorderRadius.circular(
-                                              //       14,
-                                              //     ),
-                                              //       child: PinchZoom(
-                                              //       maxScale: 3.0,
-                                              //       onZoomStart: () {},
-                                              //       onZoomEnd: () {},
-                                              //       child: CachedNetworkImage(
-                                              //         imageUrl:
-                                              //             item.item!.pictures!.first,
-                                              //         height: 180,
-                                              //         width: 125,
-                                              //         fit: BoxFit.cover,
-                                              //         placeholder: (context, url) => Container(
-                                              //           height: 180,
-                                              //           width: 125,
-                                              //           color: Colors.grey.shade200,
-                                              //           child: const Center(
-                                              //               child:
-                                              //                   CircularProgressIndicator()),
-                                              //         ),
-                                              //         errorWidget:
-                                              //             (context, url, error) => Container(
-                                              //           height: 180,
-                                              //           width: 125,
-                                              //           color: Colors.grey.shade200,
-                                              //           child: const Center(
-                                              //             child: Icon(Icons.broken_image, size: 36),
-                                              //           ),
-                                              //         ),
-                                              //       ),
-                                              //   ),
-                                              // ),
-                                            ),
-                                          const SizedBox(height: 8),
-                                          SizedBox(
-                                            width: 125,
-                                            child: Text(
-                                              item.item?.name ?? '',
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                fontFamily: 'Lato',
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 13,
-                                                height: 1.3,
-                                                letterSpacing: 0.0,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          () {
-                                            final p = item.item?.price ?? 0;
-                                            final promo = item.item?.promoPercent ?? 0;
-                                            if (promo > 0) {
-                                              final discounted = (p - (p * promo / 100)).round();
-                                              return RichText(
-                                                text: TextSpan(
-                                                  children: [
-                                                    TextSpan(
-                                                      text: '$discounted€ ',
-                                                      style: const TextStyle(
-                                                        fontFamily: 'Lato',
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 13,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                    TextSpan(
-                                                      text: '$p€',
-                                                      style: const TextStyle(
-                                                        fontFamily: 'Lato',
-                                                        fontWeight: FontWeight.w400,
-                                                        fontSize: 12,
-                                                        color: Colors.black,
-                                                        decoration: TextDecoration.lineThrough,
-                                                        decorationColor: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            }
-                                            return Text(
-                                              '$p€',
-                                              style: const TextStyle(
-                                                fontFamily: 'Lato',
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 13,
-                                                color: Colors.black,
-                                              ),
-                                            );
-                                          }(),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
+                  // ── La Séléction de ────────────────────────────────────
+                  _buildLinkedProductsSection(),
                   const SizedBox(height: 16),
 
-                  // "AJOUTER LE LOOK AU PANIER" button
-                  if (_selfie!.itemsId != null &&
-                      _selfie!.itemsId!.any((item) => item.exactMatch == true))
+                  // ── AJOUTER LE LOOK AU PANIER button ──────────────────
+                  if (_linkedProducts.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: () {
-                        final exactItems = _selfie!.itemsId!
-                            .where((item) => item.exactMatch == true)
-                            .toList();
-                        final totalPrice = exactItems.fold<int>(
-                          0,
-                          (sum, item) {
-                            final price = item.item?.price ?? 0;
-                            final promo = item.item?.promoPercent ?? 0;
-                            if (promo > 0) {
-                              return sum +
-                                  (price - (price * promo / 100)).round();
-                            }
-                            return sum + price;
-                          },
-                        );
-                        return GestureDetector(
-                          onTap: () {
-                            // TODO: Add all exact match items to cart
-                            showAppSnackBar("Fonctionnalité bientôt disponible",
-                                isSuccess: false);
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/b3bag.png',
-                                      width: 23,
-                                      height: 23,
+                      child: GestureDetector(
+                        onTap: _isAddingLookToCart ? null : _addLookToCart,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (_isAddingLookToCart)
+                                    const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white)),
+                                    )
+                                  else
+                                    Image.asset('assets/images/b3bag.png',
+                                        width: 23,
+                                        height: 23,
+                                        color: Colors.white),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _lookTotalPrice > 0
+                                        ? 'AJOUTER LE LOOK AU PANIER - $_lookTotalPrice€'
+                                        : 'AJOUTER LE LOOK AU PANIER',
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
                                       color: Colors.white,
+                                      letterSpacing: 0.5,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'AJOUTER LE LOOK AU PANIER',
-                                      style: const TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        );
-                      }(),
+                        ),
+                      ),
                     ),
 
                   const SizedBox(height: 16),
 
-                  // Updated the ListView style and text style for similar products to match the exact match style
-                  if (_selfie!.itemsId != null &&
-                      _selfie!.itemsId!.any(
-                        (item) => item.exactMatch != true,
-                      ))
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 11),
-                          child: RichText(
-                            text: const TextSpan(
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontFamily: 'Lato',
-                                fontStyle: FontStyle.italic,
-                                height: 1.0,
-                                letterSpacing: 0.0,
-                                color: Color(0xFF8D8D8D),
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: 'Suggestion ',
-                                  style: TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                                TextSpan(
-                                  text: 'autour de look',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 268,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 11),
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: _selfie!.itemsId!
-                                  .where(
-                                    (item) => item.exactMatch != true,
-                                  )
-                                  .map(
-                                    (item) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 8.0,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          if (item.item?.pictures != null &&
-                                              item.item!.pictures!.isNotEmpty)
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (
-                                                      context,
-                                                    ) =>
-                                                        ProductDetailsScreen(
-                                                      itemId: item.item!.sId ??
-                                                          '', // Pass only the specific item ID
-                                                      userId: _selfie!
-                                                              .user?.sId ??
-                                                          '', // Pass the userId
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(0),
-                                                child: Stack(
-                                                  children: [
-                                                    // --- MAIN PRODUCT IMAGE ----
-                                                    PinchZoom(
-                                                      maxScale: 3.0,
-                                                      onZoomStart: () {},
-                                                      onZoomEnd: () {},
-                                                      child: CachedNetworkImage(
-                                                        imageUrl: item.item!
-                                                            .pictures!.first,
-                                                        height: 180,
-                                                        width: 125,
-                                                        fit: BoxFit.cover,
-                                                        placeholder: (context,
-                                                                url) =>
-                                                            Shimmer.fromColors(
-                                                          baseColor: Colors
-                                                              .grey.shade300,
-                                                          highlightColor: Colors
-                                                              .grey.shade100,
-                                                          child: Container(
-                                                            height: 180,
-                                                            width: 125,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        errorWidget: (context,
-                                                                url, error) =>
-                                                            Container(
-                                                          height: 180,
-                                                          width: 125,
-                                                          color: Colors
-                                                              .grey.shade200,
-                                                          child: const Center(
-                                                            child: Icon(
-                                                                Icons
-                                                                    .broken_image,
-                                                                size: 36),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                    // --- BRAND LOGO (top-left circle) ---
-                                                    if (item.item?.brandId
-                                                            ?.picture !=
-                                                        null)
-                                                      Positioned(
-                                                        top: 6,
-                                                        left: 6,
-                                                        child: Container(
-                                                          height: 32,
-                                                          width: 32,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color: Colors
-                                                                .white, // white background for clarity
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors
-                                                                    .black26,
-                                                                blurRadius: 4,
-                                                                offset: Offset(
-                                                                    1, 1),
-                                                              )
-                                                            ],
-                                                          ),
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(4),
-                                                          child: ClipOval(
-                                                            child:
-                                                                CachedNetworkImage(
-                                                              imageUrl: item
-                                                                  .item!
-                                                                  .brandId!
-                                                                  .picture!,
-                                                              fit: BoxFit
-                                                                  .contain,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          const SizedBox(height: 8),
-                                          SizedBox(
-                                            width: 125,
-                                            child: Text(
-                                              item.item?.name ?? '',
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                fontFamily: 'Lato',
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 13,
-                                                height: 1.3,
-                                                letterSpacing: 0.0,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          () {
-                                            final p = item.item?.price ?? 0;
-                                            final promo = item.item?.promoPercent ?? 0;
-                                            if (promo > 0) {
-                                              final discounted = (p - (p * promo / 100)).round();
-                                              return RichText(
-                                                text: TextSpan(
-                                                  children: [
-                                                    TextSpan(
-                                                      text: '$discounted€ ',
-                                                      style: const TextStyle(
-                                                        fontFamily: 'Lato',
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 13,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                    TextSpan(
-                                                      text: '$p€',
-                                                      style: const TextStyle(
-                                                        fontFamily: 'Lato',
-                                                        fontWeight: FontWeight.w400,
-                                                        fontSize: 12,
-                                                        color: Colors.black,
-                                                        decoration: TextDecoration.lineThrough,
-                                                        decorationColor: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            }
-                                            return Text(
-                                              '$p€',
-                                              style: const TextStyle(
-                                                fontFamily: 'Lato',
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 13,
-                                                color: Colors.black,
-                                              ),
-                                            );
-                                          }(),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
+                  // ── Autour du look ─────────────────────────────────────
+                  _buildSimilarProductsSection(),
                   const SizedBox(height: 16),
 
-                  // Display brand items sections (one per brand)
-                  ..._brandItemsMap.entries
-                      .where((entry) => entry.value.isNotEmpty)
-                      .map((entry) {
-                    final brandId = entry.key;
-                    final items = entry.value;
-                    final brand = _brandInfoMap[brandId];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 11),
-                          child: RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontFamily: 'Lato',
-                                fontStyle: FontStyle.italic,
-                                height: 1.0,
-                                letterSpacing: 0.0,
-                                color: Color(0xFF8D8D8D),
-                              ),
-                              children: [
-                                const TextSpan(text: 'Suggestion collection '),
-                                TextSpan(
-                                  text: brand?.name ?? 'la Marque',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 268,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 11),
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: items.length,
-                              itemBuilder: (context, index) {
-                                final item = items[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductDetailsScreen(
-                                                itemId: item.id,
-                                                userId:
-                                                    _selfie?.user?.sId ?? '',
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(0),
-                                          child: Stack(
-                                            children: [
-                                              // --- MAIN PRODUCT IMAGE ----
-                                              PinchZoom(
-                                                maxScale: 3.0,
-                                                onZoomStart: () {},
-                                                onZoomEnd: () {},
-                                                child: CachedNetworkImage(
-                                                  imageUrl:
-                                                      item.pictures.isNotEmpty
-                                                          ? item.pictures.first
-                                                          : '',
-                                                  height: 180,
-                                                  width: 125,
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (context, url) =>
-                                                      Shimmer.fromColors(
-                                                    baseColor:
-                                                        Colors.grey.shade300,
-                                                    highlightColor:
-                                                        Colors.grey.shade100,
-                                                    child: Container(
-                                                      height: 180,
-                                                      width: 125,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          Container(
-                                                    height: 180,
-                                                    width: 125,
-                                                    color: Colors.grey.shade200,
-                                                    child: const Center(
-                                                      child: Icon(
-                                                          Icons.broken_image,
-                                                          size: 36),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-
-                                              // --- BRAND LOGO (top-left circle) ---
-                                              if (brand?.picture != null)
-                                                Positioned(
-                                                  top: 6,
-                                                  left: 6,
-                                                  child: Container(
-                                                    height: 32,
-                                                    width: 32,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.white,
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.black26,
-                                                          blurRadius: 4,
-                                                          offset: Offset(1, 1),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    padding:
-                                                        const EdgeInsets.all(4),
-                                                    child: ClipOval(
-                                                      child: CachedNetworkImage(
-                                                        imageUrl:
-                                                            brand!.picture!,
-                                                        fit: BoxFit.contain,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      SizedBox(
-                                        width: 125,
-                                        child: Text(
-                                          item.name,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontFamily: 'Lato',
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13,
-                                            height: 1.3,
-                                            letterSpacing: 0.0,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      () {
-                                        final p = item.price;
-                                        final promo = item.promoPercent;
-                                        if (promo > 0) {
-                                          final discounted = (p - (p * promo / 100)).round();
-                                          return RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: '$discounted€ ',
-                                                  style: const TextStyle(
-                                                    fontFamily: 'Lato',
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 13,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '$p€',
-                                                  style: const TextStyle(
-                                                    fontFamily: 'Lato',
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 12,
-                                                    color: Colors.black,
-                                                    decoration: TextDecoration.lineThrough,
-                                                    decorationColor: Color(0xFF8D8D8D),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                        return Text(
-                                          '$p€',
-                                          style: const TextStyle(
-                                            fontFamily: 'Lato',
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                            color: Colors.black,
-                                          ),
-                                        );
-                                      }(),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        // Explorer la collection button for this brand
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16, top: 8),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => BrandDetailsScreen(
-                                      brandId: brand?.sId ?? '',
-                                      brandName: brand?.name ?? '',
-                                      brandDescription:
-                                          brand?.description ?? '',
-                                      brandLogo: brand?.picture ?? '',
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: const Text(
-                                  'Explorer la collection',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontFamily: 'Lato',
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    );
-                  }),
+                  // ── Brand collections ──────────────────────────────────
+                  _buildBrandCollectionsSection(),
 
                   const SizedBox(height: 50),
-
-                  // Display the category name
-                  // Text(
-                  //   selfie.category?.name?.en ?? 'Unknown Category',
-                  //   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  // ),
-                  // const SizedBox(height: 8),
-                  //
-                  // // Display the number of likes
-                  // Text(
-                  //   'Likes: ${selfie.nbLike ?? 0}',
-                  //   style: const TextStyle(fontSize: 16),
-                  // ),
-                  // const SizedBox(height: 8),
-                  //
-                  // // Display the creation date
-                  // Text(
-                  //   'Created At: ${selfie.createdAt ?? 'Unknown Date'}',
-                  //   style: const TextStyle(fontSize: 16),
-                  // ),
-                  // const SizedBox(height: 16),
-                  //
-                  // // Display user details if available
-                  // if (selfie.user != null) ...[
-                  //   Stack(
-                  //     children: [
-                  //       CircleAvatar(
-                  //         backgroundImage: NetworkImage(selfie.user?.picture ?? ''),
-                  //         radius: 20,
-                  //       ),
-                  //       Positioned(
-                  //         bottom: 0,
-                  //         right: 0,
-                  //         child: CircleAvatar(
-                  //           backgroundColor: Colors.white,
-                  //           radius: 8,
-                  //           child: Icon(Icons.verified, color: Colors.blue, size: 12),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  //   const SizedBox(width: 8),
-                  //   Text(
-                  //     selfie.user?.firstName ?? 'Unknown',
-                  //     style: const TextStyle(
-                  //       fontFamily: 'Lato',
-                  //       fontWeight: FontWeight.w400,
-                  //       fontSize: 16,
-                  //       height: 1.0, // line-height 100%
-                  //       letterSpacing: 0.0,
-                  //       color: Colors.white,
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   Text(
-                  //     'Creator: ${selfie.user?.firstName ?? ''} ${selfie.user?.lastName ?? ''}',
-                  //     style: const TextStyle(
-                  //       fontSize: 18,
-                  //       fontWeight: FontWeight.bold,
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   Text(
-                  //     'Email: ${selfie.user?.email ?? 'N/A'}',
-                  //     style: const TextStyle(fontSize: 16),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   Text(
-                  //     'City: ${selfie.user?.city ?? 'N/A'}',
-                  //     style: const TextStyle(fontSize: 16),
-                  //   ),
-                  // ],
-                  //
-                  // const SizedBox(height: 16),
-                  //
-                  // // Display additional details if available
-                  // if (selfie.container != null)
-                  //   Text(
-                  //     'Container: ${selfie.container}',
-                  //     style: const TextStyle(fontSize: 16),
-                  //   ),
                 ],
               ),
             ),

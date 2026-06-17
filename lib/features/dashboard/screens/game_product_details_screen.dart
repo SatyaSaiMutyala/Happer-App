@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/shared/models/happer_product.dart';
 import 'package:happer_app/shared/models/happer_product_detail.dart';
-import 'package:happer_app/core/network/product_api.dart';
-import 'package:happer_app/core/network/user_service.dart';
 import 'package:happer_app/core/network/websocket_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
@@ -377,29 +375,12 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
     });
   }
 
-  // Fetch user credits from the server via API
-  void fetchUserCredits() async {
-    try {
-      // Use the UserService to fetch credits from the API
-      final userService = UserService();
-      final credits = await userService.fetchUserCredits();
-
-      // Update the state with the fetched credits
-      if (mounted) {
-        setState(() {
-          _userCredits = credits.toString().toUpperCase();
-        });
-      }
-
-      debugPrint('User credits updated: $_userCredits');
-    } catch (e) {
-      debugPrint('Error fetching user credits: $e');
-      // In case of an error, set a default value
-      if (mounted) {
-        setState(() {
-          _userCredits = "0".toUpperCase();
-        });
-      }
+  // Fetch user credits — returns 0 (dummy)
+  void fetchUserCredits() {
+    if (mounted) {
+      setState(() {
+        _userCredits = "0".toUpperCase();
+      });
     }
   }
 
@@ -781,60 +762,14 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                             return;
                           }
 
-                          // Original HAPPER button functionality for AVAILABLE state
-                          try {
-                            debugPrint(
-                              'Attempting to happ product: ${_productDetail!.id}',
+                          // HAPPER button — feature coming soon
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Fonctionnalité bientôt disponible'),
+                                duration: Duration(seconds: 2),
+                              ),
                             );
-                            final result = await ProductApi.happProduct(
-                              _productDetail!.id,
-                            );
-                            debugPrint('Happ button click response: $result');
-
-                            if (mounted) {
-                              if (result['success']) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(result['message']),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
-
-                                fetchUserCredits();
-
-                                Future.delayed(Duration(milliseconds: 500), () {
-                                  if (mounted) {
-                                    _connectWebSocket();
-                                    setState(() {});
-                                  }
-                                });
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      result['message'] ?? 'An error occurred',
-                                    ),
-                                    backgroundColor:
-                                        result['statusCode'] == 500
-                                            ? Colors.orange
-                                            : Colors.red,
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
-                              }
-                            }
-                          } catch (e) {
-                            debugPrint('Error in happ button tap: $e');
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(e.toString()),
-                                  backgroundColor: Colors.red,
-                                  duration: Duration(seconds: 3),
-                                ),
-                              );
-                            }
                           }
                         } : null, // Disable onTap when button is not enabled
                         child: SizedBox(
@@ -1103,264 +1038,12 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
     }
   }
 
-  Widget _buildLastBuyersList() {
-    // Show loading indicator while waiting for WebSocket data
-    if (_isLoadingWebSocketData) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 20),
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE8A30A)),
-            ),
-            SizedBox(height: 16),
-            Text(
-              "Loading latest users...",
-              style: TextStyle(
-                fontFamily: 'Lato',
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
+  Widget _buildLastBuyersList() => _LastBuyersList(
+        isLoading: _isLoadingWebSocketData,
+        latestUsers: _latestUsers,
+        productDetail: _productDetail,
+        onRefresh: _forceRefreshUserData,
       );
-    }
-
-    // If we have latest users from WebSocket data, use that instead
-    if (_latestUsers.isNotEmpty) {
-      debugPrint("Displaying ${_latestUsers.length} users from WebSocket data");
-      return Column(
-        children: [
-          ..._latestUsers.asMap().entries.map((entry) {
-            final index = entry.key;
-            final user = entry.value;
-
-            return Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        user.position != null
-                            ? "${user.position}"
-                            : "${index + 1}",
-                        style: TextStyle(
-                          fontFamily: 'Lato',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        user.username,
-                        style: TextStyle(
-                          fontFamily: 'Lato',
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    if (user.position == 1 || index == 0)
-                      Icon(
-                        Icons.emoji_events,
-                        color: Color(0xFFE8A30A),
-                        size: 18,
-                      ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-          // Add a "pull to refresh" hint
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: GestureDetector(
-              onTap: _forceRefreshUserData,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.refresh, size: 16, color: Colors.grey),
-                  SizedBox(width: 4),
-                  Text(
-                    "Tap to refresh user list",
-                    style: TextStyle(
-                      fontFamily: 'Lato',
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    // Get users from the product's usersList as fallback
-    final List<Map<String, String>> buyers = [];
-
-    // Process the user list with numerical indices
-    if (_productDetail != null && _productDetail!.usersList.isNotEmpty) {
-      debugPrint(
-        "Fallback: Using ${_productDetail!.usersList.length} users from product details",
-      );
-
-      for (int i = 0; i < _productDetail!.usersList.length && i < 10; i++) {
-        final user = _productDetail!.usersList[i];
-        String userName = "Unknown";
-
-        // Extract user name from format like "userId/username"
-        if (user.contains('/')) {
-          userName = user.split('/')[1];
-        } else {
-          userName = user;
-        }
-
-        // Use position numbers like in the design (1ère, 2ème, etc.)
-        buyers.add({'position': (i + 1).toString(), 'name': userName});
-      }
-    } else {
-      debugPrint("No users found in product details usersList");
-    }
-
-    // If we have no users, show a message
-    if (buyers.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
-            SizedBox(height: 16),
-            Text(
-              "Pas encore d'utilisateurs.",
-              style: TextStyle(
-                fontFamily: 'Lato',
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 24),
-            // Add a button to try refreshing
-            GestureDetector(
-              onTap: _forceRefreshUserData,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.refresh, size: 16),
-                    SizedBox(width: 4),
-                    Text(
-                      "Refresh",
-                      style: TextStyle(
-                        fontFamily: 'Lato',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    debugPrint("Showing ${buyers.length} users in Dernières Happeuses list");
-
-    return Column(
-      children: [
-        ...buyers.map((buyer) {
-          return Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: 80,
-                    child: Text(
-                      buyer['position']!,
-                      style: TextStyle(
-                        fontFamily: 'Lato',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      buyer['name']!,
-                      style: TextStyle(
-                        fontFamily: 'Lato',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  if (buyer['position'] == '1')
-                    Icon(
-                      Icons.emoji_events,
-                      color: Color(0xFFE8A30A),
-                      size: 18,
-                    ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
-        // Add a "refresh" option
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: GestureDetector(
-            onTap: _forceRefreshUserData,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.refresh, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
-                Text(
-                  "Tap to refresh user list",
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   // Share product with share_plus package
   void _shareProduct() {
@@ -1413,128 +1096,227 @@ Découvrez ce produit sur Happer!
   }
 
   // Build info tab content
-  Widget _buildProductInfoTab() {
-    // Show loading indicator while waiting for WebSocket data
-    if (_isLoadingWebSocketData) {
+  Widget _buildProductInfoTab() => _ProductInfoTab(
+        isLoading: _isLoadingWebSocketData,
+        productDetail: _productDetail ?? HapperProductDetail.fromHapperProduct(widget.product),
+        webSocketProductDetail: _productDetail,
+        totalUsers: _totalUsers,
+      );
+
+}
+
+// ─── Game Product Details Widget Components ──────────────────────────────────
+
+class _LastBuyersList extends StatelessWidget {
+  final bool isLoading;
+  final List<UserDetail> latestUsers;
+  final HapperProductDetail? productDetail;
+  final VoidCallback onRefresh;
+
+  const _LastBuyersList({
+    required this.isLoading,
+    required this.latestUsers,
+    required this.productDetail,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-            CircularProgressIndicator(
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE8A30A)),
             ),
-            SizedBox(height: 16),
-            Text(
-              "Loading product information...",
-              style: TextStyle(
-                fontFamily: 'Lato',
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
-            ),
+            const SizedBox(height: 16),
+            Text('Loading latest users...',
+                style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey.shade600)),
           ],
         ),
       );
     }
 
-    // Use product detail from WebSocket if available
-    final productDetail =
-        _productDetail ?? HapperProductDetail.fromHapperProduct(widget.product);
+    if (latestUsers.isNotEmpty) {
+      return Column(
+        children: [
+          ...latestUsers.asMap().entries.map((entry) {
+            final index = entry.key;
+            final user = entry.value;
+            return Container(
+              width: double.infinity,
+              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade200))),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      child: Text(user.position != null ? '${user.position}' : '${index + 1}',
+                          style: const TextStyle(fontFamily: 'Lato', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87)),
+                    ),
+                    Expanded(child: Text(user.username,
+                        style: const TextStyle(fontFamily: 'Lato', fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black))),
+                    if (user.position == 1 || index == 0)
+                      const Icon(Icons.emoji_events, color: Color(0xFFE8A30A), size: 18),
+                  ],
+                ),
+              ),
+            );
+          }),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: GestureDetector(
+              onTap: onRefresh,
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Icon(Icons.refresh, size: 16, color: Colors.grey),
+                const SizedBox(width: 4),
+                const Text('Tap to refresh user list',
+                    style: TextStyle(fontFamily: 'Lato', fontSize: 12, color: Colors.grey)),
+              ]),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final List<Map<String, String>> buyers = [];
+    if (productDetail != null && productDetail!.usersList.isNotEmpty) {
+      for (int i = 0; i < productDetail!.usersList.length && i < 10; i++) {
+        final user = productDetail!.usersList[i];
+        final userName = user.contains('/') ? user.split('/')[1] : user;
+        buyers.add({'position': (i + 1).toString(), 'name': userName});
+      }
+    }
+
+    if (buyers.isEmpty) {
+      return Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text("Pas encore d'utilisateurs.",
+              style: TextStyle(fontFamily: 'Lato', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[600])),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: onRefresh,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
+              child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.refresh, size: 16),
+                SizedBox(width: 4),
+                Text('Refresh', style: TextStyle(fontFamily: 'Lato', fontSize: 14, fontWeight: FontWeight.w500)),
+              ]),
+            ),
+          ),
+        ]),
+      );
+    }
+
+    return Column(children: [
+      ...buyers.map((buyer) => Container(
+        width: double.infinity,
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.shade200))),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            SizedBox(width: 80, child: Text(buyer['position']!,
+                style: const TextStyle(fontFamily: 'Lato', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87))),
+            Expanded(child: Text(buyer['name']!,
+                style: const TextStyle(fontFamily: 'Lato', fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black))),
+            if (buyer['position'] == '1')
+              const Icon(Icons.emoji_events, color: Color(0xFFE8A30A), size: 18),
+          ]),
+        ),
+      )),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: GestureDetector(
+          onTap: onRefresh,
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const Icon(Icons.refresh, size: 16, color: Colors.grey),
+            const SizedBox(width: 4),
+            const Text('Tap to refresh user list',
+                style: TextStyle(fontFamily: 'Lato', fontSize: 12, color: Colors.grey)),
+          ]),
+        ),
+      ),
+    ]);
+  }
+}
+
+class _ProductInfoTab extends StatelessWidget {
+  final bool isLoading;
+  final HapperProductDetail productDetail;
+  final HapperProductDetail? webSocketProductDetail;
+  final int totalUsers;
+
+  const _ProductInfoTab({
+    required this.isLoading,
+    required this.productDetail,
+    this.webSocketProductDetail,
+    required this.totalUsers,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const SizedBox(height: 20),
+          const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE8A30A))),
+          const SizedBox(height: 16),
+          Text('Loading product information...',
+              style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey.shade600)),
+        ]),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Description",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        SizedBox(height: 8),
-        Text(productDetail.getDescription(), style: TextStyle(fontSize: 14)),
-        SizedBox(height: 16),
-
-        Text(
-          "Country",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        SizedBox(height: 8),
-        Text(
-          productDetail.country ?? "Unknown",
-          style: TextStyle(fontSize: 14),
-        ),
-        SizedBox(height: 16),
-
-        // Show product status if available from WebSocket
-        if (_productDetail?.productStatus != null)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        Text(productDetail.getDescription(), style: const TextStyle(fontSize: 14)),
+        const SizedBox(height: 16),
+        const Text('Country', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        Text(productDetail.country ?? 'Unknown', style: const TextStyle(fontSize: 14)),
+        const SizedBox(height: 16),
+        if (webSocketProductDetail?.productStatus != null)
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
+            Row(children: [
+              Container(
+                width: 12, height: 12,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: webSocketProductDetail!.isActive ? Colors.green : Colors.red,
+                ),
+              ),
+              const SizedBox(width: 8),
               Text(
-                "Status",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                webSocketProductDetail!.productStatus.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.bold,
+                  color: webSocketProductDetail!.isActive ? Colors.green : Colors.red,
+                ),
               ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color:
-                          _productDetail!.isActive ? Colors.green : Colors.red,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    _productDetail!.productStatus.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color:
-                          _productDetail!.isActive ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-            ],
-          ),
-
-        // Show total users count if available from WebSocket
-        if (_totalUsers > 0)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Total Users",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 8),
-              Text("$_totalUsers", style: TextStyle(fontSize: 14)),
-              SizedBox(height: 16),
-            ],
-          ),
-
-        // if (productDetail.buyUrl != null)
-        //   Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       Text(
-        //         "Buy URL",
-        //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        //       ),
-        //       SizedBox(height: 8),
-        //       Text(
-        //         productDetail.buyUrl.toString(),
-        //         style: TextStyle(
-        //           fontSize: 14,
-        //           color: Colors.blue,
-        //           decoration: TextDecoration.underline,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
+            ]),
+            const SizedBox(height: 16),
+          ]),
+        if (totalUsers > 0)
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Total Users', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
+            Text('$totalUsers', style: const TextStyle(fontSize: 14)),
+            const SizedBox(height: 16),
+          ]),
       ],
     );
   }

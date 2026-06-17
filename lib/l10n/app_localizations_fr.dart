@@ -942,10 +942,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cartTitle => 'PANIER';
 
   @override
-  String get termsAndConditions => 'CONDITIONS GÉNÉRALES DE VENTE';
+  String get termsAndConditions => 'Conditions générales de vente';
 
   @override
-  String get changePasswordTitle => 'CHANGER MOT DE PASSE';
+  String get changePasswordTitle => 'Changer mot de passe';
 
   @override
   String get forgotPasswordTitle => 'MOT DE PASSE OUBLIÉ';
@@ -1385,4 +1385,146 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get couldNotOpenImageDetails =>
       'Impossible d\'ouvrir les détails de l\'image';
+
+  @override
+  String get myAddressesTitle => 'MES ADRESSES';
+
+  @override
+  String get addAddress => 'Ajouter une adresse';
+
+  @override
+  String get noAddressRegistered => 'Aucune adresse enregistrée';
+
+  @override
+  String get deleteAddressTitle => 'Supprimer l\'adresse';
+
+  @override
+  String get deleteAddressConfirm =>
+      'Voulez-vous vraiment supprimer cette adresse ?';
+
+  @override
+  String get addressDeleted => 'Adresse supprimée';
+
+  @override
+  String get newAddressTitle => 'NOUVELLE ADRESSE';
+
+  @override
+  String get editAddressTitle => 'MODIFIER L\'ADRESSE';
+
+  @override
+  String get addressLabelField => 'Étiquette (ex: Maison, Bureau)';
+
+  @override
+  String get phoneLabel => 'Téléphone';
+
+  @override
+  String get saveButton => 'ENREGISTRER';
+
+  @override
+  String get updateButton => 'METTRE À JOUR';
+
+  @override
+  String get addressUpdated => 'Adresse mise à jour';
+
+  @override
+  String get addressAdded => 'Adresse ajoutée';
+
+  @override
+  String get fieldRequired => 'Ce champ est requis';
+
+  @override
+  String get myProfileTitle => 'Mon profil';
+
+  @override
+  String get personalInfoSection => 'Informations personnelles';
+
+  @override
+  String get fullNameLabel => 'Nom complet';
+
+  @override
+  String get firstNameLabel => 'Prénom';
+
+  @override
+  String get lastNameLabel => 'Nom';
+
+  @override
+  String get usernameLabel => 'Nom d\'utilisateur';
+
+  @override
+  String get memberSinceLabel => 'Membre depuis';
+
+  @override
+  String get editProfileTitle => 'Modifier le profil';
+
+  @override
+  String get follow => 'Suivre';
+
+  @override
+  String get unfollow => 'Se désabonner';
+
+  @override
+  String get followers => 'Abonnés';
+
+  @override
+  String get following => 'Abonnements';
+
+  @override
+  String get posts => 'Publications';
+
+  @override
+  String get profileLoadFailed => 'Impossible de charger le profil';
+
+  @override
+  String get linkProductsTitle => 'Lier des produits';
+
+  @override
+  String get selectAtLeastOneProduct =>
+      'Veuillez lier au moins un produit à votre selfie';
+
+  @override
+  String get noFavoritesYet => 'Aucun favori pour le moment';
+
+  @override
+  String get favoritesWillAppearHere =>
+      'Les looks que vous aimez apparaîtront ici';
+
+  @override
+  String get uploading => 'Téléchargement...';
+
+  @override
+  String get pleaseWaitMoment => 'Veuillez patienter un instant';
+
+  @override
+  String get loggingIn => 'Connexion en cours...';
+
+  @override
+  String get signingUp => 'Inscription en cours...';
+
+  @override
+  String get verifying => 'Vérification en cours...';
+
+  @override
+  String get addPhoto => 'Ajouter un selfie';
+
+  @override
+  String get loginToAddToCart =>
+      'Veuillez vous connecter pour ajouter au panier';
+
+  @override
+  String get activateCreatorAccount => 'Activer Creator';
+
+  @override
+  String get dobLabel => 'Date de naissance';
+
+  @override
+  String get creatorAccountActivated => 'Compte Creator activé avec succès !';
+
+  @override
+  String completeProfileBeforeAccept(String fields) {
+    return 'Complétez votre profil avant d\'accepter : $fields';
+  }
+
+  @override
+  String get pleaseSelectShippingAddress =>
+      'Veuillez sélectionner une adresse de livraison';
 }

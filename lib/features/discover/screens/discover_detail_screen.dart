@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/app_manager.dart';
-import 'package:happer_app/features/creator/api/creator_api.dart';
-import 'package:happer_app/features/discover/api/discover_api.dart';
-import 'package:happer_app/features/discover/models/discover_model.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
-import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
-import 'package:happer_app/core/network/profile_api.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:get/get.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
+import 'package:happer_app/core/utils/deep_link_utils.dart';
+import 'package:happer_app/app_manager.dart';
+import 'package:happer_app/core/constants/app_colors.dart';
+import 'package:happer_app/core/constants/app_dimensions.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/features/discover/models/discover_model.dart';
+import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
+import 'package:happer_app/features/selfies/bindings/selfie_binding.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
+import 'package:happer_app/features/selfies/data/models/selfie_model.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 
 class DiscoverDetailScreen extends StatefulWidget {
   final DiscoverModel selfieModel;
@@ -28,11 +30,7 @@ class DiscoverDetailScreen extends StatefulWidget {
 
 class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
     with SingleTickerProviderStateMixin {
-  bool _isLoading = false;
-  bool _isLiked = false;
-  bool _isLoadingDetails = true;
-  Map<String, dynamic>? _detailedSelfieData;
-  int _likeCount = 0;
+  late final SelfieController _controller;
   bool _showHeart = false;
   late AnimationController _heartAnimationController;
   late Animation<double> _heartScaleAnimation;
@@ -41,34 +39,32 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
   @override
   void initState() {
     super.initState();
-    _isLiked = widget.selfieModel.isLikedByMe;
-    _likeCount = widget.selfieModel.nbLike;
+    if (!Get.isRegistered<SelfieController>()) {
+      SelfieBinding().dependencies();
+    }
+    _controller = Get.find<SelfieController>();
+    _controller.fetchDetail(widget.selfieModel.id);
 
     _heartAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-
     _heartScaleAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.2), weight: 30),
       TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.0), weight: 30),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_heartAnimationController);
-
     _heartOpacityAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 20),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.0), weight: 50),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 30),
     ]).animate(_heartAnimationController);
-
     _heartAnimationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         setState(() => _showHeart = false);
       }
     });
-
-    _fetchSelfieDetails();
   }
 
   @override
@@ -77,218 +73,115 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
     super.dispose();
   }
 
-  void _onDoubleTap() {
+  void _onDoubleTap(bool isLiked) {
     if (AppManager.isLoginAsGuest) return;
-
     setState(() => _showHeart = true);
     _heartAnimationController.forward(from: 0.0);
-
-    if (!_isLiked) {
-      _toggleLike();
+    if (!isLiked) {
+      _controller.toggleLike(widget.selfieModel.id);
     }
   }
 
-  Future<void> _fetchSelfieDetails() async {
+  Future<void> _deleteImage(AppLocalizations l) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.deleteImageTitle),
+        content: Text(l.deleteImageConfirm),
+        actions: [
+          TextButton(
+            child: Text(l.cancel, style: const TextStyle(color: AppColors.textPrimary)),
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimary),
+            child: Text(l.delete, style: const TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.pop(ctx, true),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    final success = await _controller.deleteSelfie(widget.selfieModel.id);
+    if (!mounted) return;
+    if (success) {
+      showAppSnackBar('Image deleted successfully', isSuccess: true);
+      Navigator.pop(context, true);
+    }
+  }
+
+  String _formatTime(String dateString, AppLocalizations l) {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      if (token == null || token.isEmpty) {
-        setState(() => _isLoadingDetails = false);
-        return;
+      final diff = DateTime.now().difference(DateTime.parse(dateString));
+      if (diff.inMinutes < 1) return l.justNow;
+      if (diff.inMinutes < 60) return l.minutesAgo(diff.inMinutes);
+      if (diff.inHours < 24) return l.hoursAgo(diff.inHours);
+      if (diff.inDays < 7) return l.daysAgo(diff.inDays);
+      if (diff.inDays < 30) {
+        final w = (diff.inDays / 7).floor();
+        return w == 1 ? l.weekAgo(w) : l.weeksAgo(w);
       }
+      if (diff.inDays < 365) return l.monthsAgo((diff.inDays / 30).floor());
+      final y = (diff.inDays / 365).floor();
+      return y == 1 ? l.yearAgo(y) : l.yearsAgo(y);
+    } catch (_) {
+      return '';
+    }
+  }
 
-      final discoverApiService = DiscoverApiService(token: token);
-      final detailedData = await discoverApiService.fetchDiscoverSelfieDetails(
-        widget.selfieModel.id,
+  Widget _buildAvatar(SelfieUser? user) {
+    final picture = user?.picture;
+    if (picture != null && picture.isNotEmpty) {
+      return CircleAvatar(
+        radius: AppDimensions.p20,
+        backgroundImage: NetworkImage(picture),
+        backgroundColor: Colors.grey.shade200,
       );
-
-      setState(() {
-        _detailedSelfieData = detailedData;
-        _isLoadingDetails = false;
-      });
-    } catch (e) {
-      setState(() => _isLoadingDetails = false);
     }
-  }
-
-  Future<void> _toggleLike() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      if (token == null || token.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).authErrorLoginAgain)),
-        );
-        return;
-      }
-
-      final creatorApiService = CreatorApiService(token: token);
-
-      if (_isLiked) {
-        await creatorApiService.dislikeSelfie(widget.selfieModel.id);
-      } else {
-        await creatorApiService.likeSelfie(widget.selfieModel.id);
-      }
-
-      setState(() {
-        _isLiked = !_isLiked;
-        _likeCount =
-            _isLiked ? _likeCount + 1 : (_likeCount > 0 ? _likeCount - 1 : 0);
-        _isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _isLiked
-                ? AppLocalizations.of(context).addedToFavorites
-                : AppLocalizations.of(context).removedFromFavorites,
+    if (user != null) {
+      return CircleAvatar(
+        radius: AppDimensions.p20,
+        backgroundColor: AppColors.textPrimary,
+        child: Text(
+          _initials(user),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: AppDimensions.fontS,
+            fontWeight: FontWeight.bold,
           ),
         ),
       );
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).failedUpdateFavorite)),
-      );
     }
-  }
-
-  // String _formatTimeDifference(String dateString) {
-  //   try {
-  //     final createdTime = DateTime.parse(dateString);
-  //     final currentTime = DateTime.now();
-  //     final difference = currentTime.difference(createdTime);
-
-  //     if (difference.inMinutes < 1) return 'À l’instant';
-  //     if (difference.inMinutes < 60) return '${difference.inMinutes} min il y a';
-  //     if (difference.inHours < 24) return '${difference.inHours} hours il y a';
-  //     if (difference.inDays < 7) return '${difference.inDays} jour il y a';
-  //     if (difference.inDays < 30)
-  //       return '${(difference.inDays / 7).floor()} semaine il y a';
-  //     if (difference.inDays < 365)
-  //       return '${(difference.inDays / 30).floor()} months il y a';
-  //     return '${(difference.inDays / 365).floor()} years il y a';
-  //   } catch (e) {
-  //     return 'Unknown date';
-  //   }
-  // }
-
-
-  String _formatTimeDifference(String dateString) {
-  try {
-    final createdTime = DateTime.parse(dateString);
-    final difference = DateTime.now().difference(createdTime);
-
-    if (difference.inMinutes < 1) {
-      return "À l'instant";
-    }
-
-    if (difference.inMinutes < 60) {
-      return "Il y a ${difference.inMinutes} min";
-    }
-
-    if (difference.inHours < 24) {
-      return difference.inHours == 1
-          ? "Il y a 1 heure"
-          : "Il y a ${difference.inHours} heures";
-    }
-
-    if (difference.inDays < 7) {
-      return difference.inDays == 1
-          ? "Il y a 1 jour"
-          : "Il y a ${difference.inDays} jours";
-    }
-
-    if (difference.inDays < 30) {
-      final weeks = (difference.inDays / 7).floor();
-      return weeks == 1
-          ? "Il y a 1 semaine"
-          : "Il y a $weeks semaines";
-    }
-
-    if (difference.inDays < 365) {
-      final months = (difference.inDays / 30).floor();
-      return "Il y a $months mois";
-    }
-
-    final years = (difference.inDays / 365).floor();
-    return years == 1
-        ? "Il y a 1 an"
-        : "Il y a $years ans";
-  } catch (e) {
-    return "Date inconnue";
-  }
-}
-
-
-  void _shareContent() {
-    final selfie = widget.selfieModel;
-    final userName =
-        selfie.user != null
-            ? '${selfie.user!.firstName} ${selfie.user!.lastName}'.trim()
-            : 'Unknown';
-    final String shareText =
-        'Check out this style by $userName on Happer! ${selfie.picture}';
-    Share.share(shareText, subject: 'Shop the style on Happer');
-  }
-
-  Future<void> _deleteImage() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context).deleteImageTitle),
-            content: Text(AppLocalizations.of(context).deleteImageConfirm),
-            actions: [
-              TextButton(
-                child: Text(AppLocalizations.of(context).cancel, style: const TextStyle(color: Colors.black)),
-                onPressed: () => Navigator.pop(context, false),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                child: Text(AppLocalizations.of(context).delete, style: const TextStyle(color: Colors.white)),
-                onPressed: () => Navigator.pop(context, true),
-              ),
-            ],
-          ),
+    // Still loading or user data unavailable — show person placeholder
+    return CircleAvatar(
+      radius: AppDimensions.p20,
+      backgroundColor: Colors.grey.shade300,
+      child: Icon(Icons.person, color: Colors.grey.shade600, size: AppDimensions.p20),
     );
+  }
 
-    if (confirm != true) return;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      if (token == null || token.isEmpty) return;
-
-      final profileApi = ProfileApiService();
-      await profileApi.deleteImageAPI(widget.selfieModel.id);
-      await _fetchMySelfies();
-
-      // Pass a flag to indicate deletion and refresh the MyImagesScreen
-      Navigator.pop(context, true); // Pass true to indicate deletion
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Image deleted successfully')));
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to delete image')));
+  String _initials(SelfieUser? user) {
+    if (user == null) return '?';
+    final first = user.firstName?.isNotEmpty == true ? user.firstName![0] : '';
+    final last = user.lastName?.isNotEmpty == true ? user.lastName![0] : '';
+    if (first.isEmpty && last.isEmpty) {
+      return (user.username?.isNotEmpty == true) ? user.username![0].toUpperCase() : '?';
     }
+    return '$first$last'.toUpperCase();
+  }
+
+  void _navigateToProfile(String userId) {
+    if (userId.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ImageGridScreen(userId: userId)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final selfie = widget.selfieModel;
-    final userName =
-        selfie.user != null
-            ? '${selfie.user!.firstName}'.trim()
-            : 'Unknown';
-
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
@@ -297,229 +190,180 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
           if (widget.isFromMyImages)
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: _deleteImage,
+              onPressed: () => _deleteImage(l),
             ),
         ],
       ),
-      body:
-          _isLoadingDetails
-              ? Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: Obx(() {
+        final isLoading = _controller.isDetailLoading.value;
+        final selfie = _controller.detailSelfie.value;
+
+        if (isLoading && selfie == null) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.textPrimary),
+          );
+        }
+
+        // Fall back to initial data from DiscoverModel while loading
+        final imageUrl = selfie?.primaryImage ?? widget.selfieModel.picture;
+        final createdAt = selfie?.createdAt ?? widget.selfieModel.createdAt;
+        final nbLike = selfie?.nbLike ?? widget.selfieModel.nbLike;
+        final isLiked = selfie?.isLikedByMe ?? widget.selfieModel.isLikedByMe;
+        // Only approved selfies can be liked (submitted ones return 404 on like endpoint)
+        final canLike = selfie?.state == 'approved';
+        final selfieUser = selfie?.user;
+        final fallbackUser = widget.selfieModel.user;
+        final userId = selfieUser?.id ?? fallbackUser?.id ?? '';
+        final fallbackName = '${fallbackUser?.firstName ?? ''} ${fallbackUser?.lastName ?? ''}'.trim();
+        final userName = selfieUser?.displayName.isNotEmpty == true
+            ? selfieUser!.displayName
+            : (selfieUser?.username ?? fallbackName);
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onDoubleTap: canLike ? () => _onDoubleTap(isLiked) : null,
+                child: Stack(
                   children: [
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onDoubleTap: _onDoubleTap,
-                      child: Stack(
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height * 0.5,
-                            child: PinchZoom(
-                              maxScale: 4.0,
-                              child: Image.network(
-                                selfie.picture,
-                                fit: BoxFit.cover,
-                                errorBuilder:
-                                    (context, error, stackTrace) => Center(
-                                      child: Icon(
-                                        Icons.broken_image,
-                                        size: 100,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                              ),
-                            ),
-                          ),
-                        Positioned(
-                          top: 10,
-                          left: 10,
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  if (selfie.user != null &&
-                                      selfie.user!.id.isNotEmpty) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ImageGridScreen(
-                                              userId: selfie.user!.id,
-                                            ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage:
-                                      selfie.user?.picture.isNotEmpty == true
-                                          ? NetworkImage(selfie.user!.picture)
-                                          : null,
-                                  backgroundColor: Colors.grey.shade200,
-                                  child:
-                                      selfie.user?.picture.isEmpty == true
-                                          ? Icon(
-                                            Icons.person,
-                                            color: Colors.grey,
-                                          )
-                                          : null,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () {
-                                  if (selfie.user != null &&
-                                      selfie.user!.id.isNotEmpty) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ImageGridScreen(
-                                          userId: selfie.user!.id,
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Text(
-                                  userName,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                    shadows: [
-                                      Shadow(
-                                        offset: Offset(0, 1),
-                                        blurRadius: 3.0,
-                                        color: Colors.black,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                    SizedBox(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: PinchZoom(
+                        maxScale: 4.0,
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Icon(Icons.broken_image, size: 100, color: Colors.grey),
                           ),
                         ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.black.withOpacity(0.5),
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.share,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              onPressed: _shareContent,
-                            ),
-                          ),
-                        ),
-                        if (_showHeart)
-                          Positioned.fill(
-                            child: Center(
-                              child: AnimatedBuilder(
-                                animation: _heartAnimationController,
-                                builder: (context, child) {
-                                  return Opacity(
-                                    opacity: _heartOpacityAnimation.value,
-                                    child: Transform.scale(
-                                      scale: _heartScaleAnimation.value,
-                                      child: const Icon(
-                                        Icons.favorite,
-                                        color: Colors.white,
-                                        size: 100,
-                                        shadows: [
-                                          Shadow(
-                                            blurRadius: 20,
-                                            color: Colors.black38,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+
+                    // User avatar + name
+                    Positioned(
+                      top: AppDimensions.p12,
+                      left: AppDimensions.p12,
+                      child: GestureDetector(
+                        onTap: () => _navigateToProfile(userId),
+                        child: Row(
+                          children: [
+                            _buildAvatar(selfieUser),
+                            const SizedBox(width: AppDimensions.p8),
+                            if (userName.isNotEmpty)
                               Text(
-                                _formatTimeDifference(selfie.createdAt),
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              if (!AppManager.isLoginAsGuest)
-                                Row(
-                                  children: [
-                                    Text(
-                                      '$_likeCount',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(width: 4),
-                                    IconButton(
-                                      icon: Icon(
-                                        _isLiked
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: _isLiked ? Colors.red : null,
-                                        size: 20,
-                                      ),
-                                      onPressed:
-                                          _isLoading ? null : _toggleLike,
+                                userName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: AppDimensions.fontL,
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3.0,
+                                      color: Colors.black,
                                     ),
                                   ],
                                 ),
-                            ],
-                          ),
-                          Divider(),
-                        ],
+                              ),
+                          ],
+                        ),
                       ),
                     ),
+
+                    // Share button
+                    Positioned(
+                      top: AppDimensions.p12,
+                      right: AppDimensions.p12,
+                      child: CircleAvatar(
+                        radius: AppDimensions.p20,
+                        backgroundColor: Colors.black54,
+                        child: IconButton(
+                          icon: const Icon(Icons.share, color: Colors.white, size: 20),
+                          onPressed: () => shareOutfit(
+                            username: selfieUser?.username ??
+                                fallbackUser?.username ?? '',
+                            selfieId: widget.selfieModel.id,
+                            creatorName: userName,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Double-tap heart animation
+                    if (_showHeart)
+                      Positioned.fill(
+                        child: Center(
+                          child: AnimatedBuilder(
+                            animation: _heartAnimationController,
+                            builder: (_, __) => Opacity(
+                              opacity: _heartOpacityAnimation.value,
+                              child: Transform.scale(
+                                scale: _heartScaleAnimation.value,
+                                child: const Icon(
+                                  Icons.favorite,
+                                  color: Colors.white,
+                                  size: 100,
+                                  shadows: [Shadow(blurRadius: 20, color: Colors.black38)],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
-    );
-  }
 
-  Future<void> _fetchMySelfies() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      if (token == null || token.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please log in to refresh your images')),
+              Padding(
+                padding: const EdgeInsets.all(AppDimensions.p16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _formatTime(createdAt, l),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: AppDimensions.fontM,
+                          ),
+                        ),
+                        if (!AppManager.isLoginAsGuest && canLike)
+                          Row(
+                            children: [
+                              Text(
+                                '$nbLike',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: AppDimensions.fontM,
+                                ),
+                              ),
+                              const SizedBox(width: AppDimensions.p4),
+                              IconButton(
+                                icon: Icon(
+                                  isLiked ? Icons.favorite : Icons.favorite_border,
+                                  color: isLiked ? Colors.red : AppColors.textSecondary,
+                                  size: AppDimensions.p20,
+                                ),
+                                onPressed: () => _controller.toggleLike(widget.selfieModel.id),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const Divider(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
-        return;
-      }
-
-      final creatorApiService = CreatorApiService(token: token);
-      final selfies = await creatorApiService.fetchMySelfies();
-
-      // Log the fetched selfies for debugging
-      print('Fetched selfies: $selfies');
-
-      setState(() {
-        // Update the UI or state with the refreshed selfies
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to refresh images')));
-    }
+      }),
+    );
   }
 }

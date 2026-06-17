@@ -1,163 +1,208 @@
-class Purchase {
-  final int? status;
-  final List<Datum>? data;
-  final String? message;
+class PurchasedProduct {
+  final String paymentReference;
+  final DateTime? paidAt;
+  final String currency;
+  final ShippingAddress? shippingAddress;
+  final PurchasedProductInfo? product;
+  final PurchasedVariant? variant;
+  final PurchasedAffiliate? affiliate;
+  final PurchasedBrand? brand;
+  final String orderId;
+  final String cartItemId;
+  final int quantity;
+  final double unitPrice;
+  final double? compareAtPrice;
+  final double promoPercent;
+  final double discount;
+  final double shippingPrice;
+  final double total;
+  final String? invoiceUrl;
 
-  Purchase({
-    this.status,
-    this.data,
-    this.message,
+  PurchasedProduct({
+    required this.paymentReference,
+    this.paidAt,
+    required this.currency,
+    this.shippingAddress,
+    this.product,
+    this.variant,
+    this.affiliate,
+    this.brand,
+    required this.orderId,
+    required this.cartItemId,
+    required this.quantity,
+    required this.unitPrice,
+    this.compareAtPrice,
+    required this.promoPercent,
+    required this.discount,
+    required this.shippingPrice,
+    required this.total,
+    this.invoiceUrl,
   });
 
-  factory Purchase.fromJson(Map<String, dynamic> json) => Purchase(
-        status: json['status'] is int
-            ? json['status']
-            : int.tryParse(json['status'].toString()),
-        message: json['message'],
-        data: json['data'] != null
-            ? List<Datum>.from(json['data'].map((x) => Datum.fromJson(x)))
-            : null,
-      );
+  factory PurchasedProduct.fromJson(Map<String, dynamic> json) {
+    return PurchasedProduct(
+      paymentReference: json['payment_reference'] as String? ?? '',
+      paidAt: json['paid_at'] != null
+          ? DateTime.tryParse(json['paid_at'] as String)
+          : null,
+      currency: json['currency'] as String? ?? 'EUR',
+      shippingAddress: json['shipping_address'] != null
+          ? ShippingAddress.fromJson(
+              json['shipping_address'] as Map<String, dynamic>)
+          : null,
+      product: json['product_id'] != null
+          ? PurchasedProductInfo.fromJson(
+              json['product_id'] as Map<String, dynamic>)
+          : null,
+      variant: json['variant_id'] != null
+          ? PurchasedVariant.fromJson(
+              json['variant_id'] as Map<String, dynamic>)
+          : null,
+      affiliate: json['affiliate_id'] != null
+          ? PurchasedAffiliate.fromJson(
+              json['affiliate_id'] as Map<String, dynamic>)
+          : null,
+      brand: json['brand_id'] != null
+          ? PurchasedBrand.fromJson(json['brand_id'] as Map<String, dynamic>)
+          : null,
+      orderId: json['order_id'] as String? ?? '',
+      cartItemId: json['cart_item_id'] as String? ?? '',
+      quantity: json['quantity'] as int? ?? 1,
+      unitPrice: ((json['unit_price'] as num?) ?? 0).toDouble(),
+      compareAtPrice: json['compare_at_price'] != null
+          ? (json['compare_at_price'] as num).toDouble()
+          : null,
+      promoPercent: ((json['promo_percent'] as num?) ?? 0).toDouble(),
+      discount: ((json['discount'] as num?) ?? 0).toDouble(),
+      shippingPrice: ((json['shipping_price'] as num?) ?? 0).toDouble(),
+      total: ((json['total'] as num?) ?? 0).toDouble(),
+      invoiceUrl: json['invoice_url'] as String? ?? json['invoice_link'] as String?,
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-        'status': status,
-        'message': message,
-        'data': data?.map((x) => x.toJson()).toList(),
-      };
+  String get displayImage {
+    if (variant?.images.isNotEmpty == true) return variant!.images.first;
+    return product?.productImage ?? '';
+  }
+
+  double get displayPrice => unitPrice;
+  double? get displayCompareAtPrice => compareAtPrice;
 }
 
-class Datum {
-  final double? total;
-  final String? id;
-  final List<Item>? items;
-  final DateTime? createdAt;
-  final DateTime? paidOn;
+class ShippingAddress {
+  final String firstName;
+  final String lastName;
+  final String streetAddress;
+  final String postalCode;
+  final String city;
+  final String email;
+  final String mobileNumber;
 
-  Datum({
-    this.total,
-    this.id,
-    this.items,
-    this.createdAt,
-    this.paidOn,
+  ShippingAddress({
+    required this.firstName,
+    required this.lastName,
+    required this.streetAddress,
+    required this.postalCode,
+    required this.city,
+    required this.email,
+    required this.mobileNumber,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-        total: (json['total'] is int)
-            ? (json['total'] as int).toDouble()
-            : (json['total'] as num?)?.toDouble(),
-        id: json['_id'] ?? '',
-        items: json['items'] != null
-            ? List<Item>.from(json['items'].map((x) => Item.fromJson(x)))
-            : [],
-        createdAt: json['created_at'] != null
-            ? DateTime.tryParse(json['created_at'])
-            : null,
-        paidOn: json['paid_on'] != null
-            ? DateTime.tryParse(json['paid_on'])
-            : null,
-      );
-
-  Map<String, dynamic> toJson() => {
-        'total': total,
-        '_id': id,
-        'items': items?.map((x) => x.toJson()).toList(),
-        'created_at': createdAt?.toIso8601String(),
-        'paid_on': paidOn?.toIso8601String(),
-      };
+  factory ShippingAddress.fromJson(Map<String, dynamic> json) {
+    return ShippingAddress(
+      firstName: json['first_name'] as String? ?? '',
+      lastName: json['last_name'] as String? ?? '',
+      streetAddress: json['street_address'] as String? ?? '',
+      postalCode: json['postal_code'] as String? ?? '',
+      city: json['city'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      mobileNumber: json['mobile_number'] as String? ?? '',
+    );
+  }
 }
 
-class Item {
-  final bool? isInStock;
-  final String? id;
-  final ItemId? itemId;
-  final String? name;
-  final double? price;
-  final int? quantity;
-  final String? size;
-  final String? invoiceLink;
-  final String? deliveryLink;
-  final String? status;
-  final double? initialPrice;
-  final double? promoPercent;
-  final double? promoDiscount;
+class PurchasedProductInfo {
+  final String id;
+  final String name;
+  final String productImage;
+  final String productUrl;
+  final String status;
 
-  Item({
-    this.isInStock,
-    this.id,
-    this.itemId,
-    this.name,
-    this.price,
-    this.quantity,
-    this.size,
-    this.invoiceLink,
-    this.deliveryLink,
-    this.status,
-    this.initialPrice,
-    this.promoPercent,
-    this.promoDiscount,
+  PurchasedProductInfo({
+    required this.id,
+    required this.name,
+    required this.productImage,
+    required this.productUrl,
+    required this.status,
   });
 
-  factory Item.fromJson(Map<String, dynamic> json) => Item(
-        isInStock: json['is_in_stock'] ?? false,
-        id: json['_id'] ?? '',
-        itemId: json['item_id'] != null ? ItemId.fromJson(json['item_id']) : null,
-        name: json['name'] ?? '',
-        price: (json['price'] is int)
-            ? (json['price'] as int).toDouble()
-            : (json['price'] as num?)?.toDouble(),
-        quantity: json['quantity'] ?? 1,
-        size: json['size']?.toString() ?? '',
-        invoiceLink: json['invoice_link'] ?? '',
-        deliveryLink: json['delivery_link'] ?? '',
-        status: json['status'] ?? '',
-        initialPrice: (json['initial_price'] as num?)?.toDouble(),
-        promoPercent: (json['promo_percent'] as num?)?.toDouble(),
-        promoDiscount: (json['promo_discount'] as num?)?.toDouble(),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'is_in_stock': isInStock,
-        '_id': id,
-        'item_id': itemId?.toJson(),
-        'name': name,
-        'price': price,
-        'quantity': quantity,
-        'size': size,
-        'invoice_link': invoiceLink,
-        'delivery_link': deliveryLink,
-        'status': status,
-        'initial_price': initialPrice,
-        'promo_percent': promoPercent,
-        'promo_discount': promoDiscount,
-      };
+  factory PurchasedProductInfo.fromJson(Map<String, dynamic> json) {
+    return PurchasedProductInfo(
+      id: json['_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      productImage: (json['product_image'] as String? ?? '').trim(),
+      productUrl: json['product_url'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+    );
+  }
 }
 
-class ItemId {
-  final List<String>? pictures;
-  final String? id;
-  final String? description;
-  final String? subtitle;
+class PurchasedVariant {
+  final String id;
+  final double price;
+  final List<String> images;
 
-  ItemId({
-    this.pictures,
-    this.id,
-    this.description,
-    this.subtitle,
+  PurchasedVariant({
+    required this.id,
+    required this.price,
+    required this.images,
   });
 
-  factory ItemId.fromJson(Map<String, dynamic> json) => ItemId(
-        pictures: json['pictures'] != null
-            ? List<String>.from(json['pictures'])
-            : [],
-        id: json['_id'] ?? '',
-        description: json['description'] ?? '',
-        subtitle: json['subtitle'] ?? '',
-      );
+  factory PurchasedVariant.fromJson(Map<String, dynamic> json) {
+    return PurchasedVariant(
+      id: json['_id'] as String? ?? '',
+      price: ((json['price'] as num?) ?? 0).toDouble(),
+      images: (json['images'] as List<dynamic>? ?? []).cast<String>(),
+    );
+  }
+}
 
-  Map<String, dynamic> toJson() => {
-        'pictures': pictures,
-        '_id': id,
-        'description': description,
-        'subtitle': subtitle,
-      };
+class PurchasedAffiliate {
+  final String id;
+  final String username;
+  final String? profileImage;
+
+  PurchasedAffiliate({
+    required this.id,
+    required this.username,
+    this.profileImage,
+  });
+
+  factory PurchasedAffiliate.fromJson(Map<String, dynamic> json) {
+    return PurchasedAffiliate(
+      id: json['_id'] as String? ?? '',
+      username: json['username'] as String? ?? '',
+      profileImage: json['profile_image'] as String?,
+    );
+  }
+}
+
+class PurchasedBrand {
+  final String id;
+  final String name;
+  final String? picture;
+
+  PurchasedBrand({
+    required this.id,
+    required this.name,
+    this.picture,
+  });
+
+  factory PurchasedBrand.fromJson(Map<String, dynamic> json) {
+    return PurchasedBrand(
+      id: json['_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      picture: json['picture'] as String?,
+    );
+  }
 }

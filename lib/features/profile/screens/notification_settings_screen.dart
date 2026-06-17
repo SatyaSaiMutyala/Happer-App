@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/models/notification_settings.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({Key? key}) : super(key: key);
@@ -14,7 +13,6 @@ class NotificationSettingsScreen extends StatefulWidget {
 
 class _NotificationSettingsScreenState
     extends State<NotificationSettingsScreen> {
-  final ProfileApiService _apiService = ProfileApiService();
   NotificationSettings _settings = NotificationSettings();
   bool _isLoading = true;
   bool _isSaving = false;
@@ -26,35 +24,13 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _loadNotificationSettings() async {
-    try {
-      final settingsData = await _apiService.fetchNotificationSettings();
-      setState(() {
-        _settings = NotificationSettings.fromJson(settingsData);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load notification settings: $e')),
-      );
-    }
+    setState(() => _isLoading = false);
   }
 
   Future<void> _updateServerSettings() async {
     setState(() => _isSaving = true);
-    try {
-      await _apiService.updateNotificationSettings(
-        wishlist: _settings.wishlistNotifications,
-        credits: _settings.creditsNotifications,
-        push: _settings.pushNotifications,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
-    } finally {
-      setState(() => _isSaving = false);
-    }
+    await Future.delayed(Duration.zero);
+    setState(() => _isSaving = false);
   }
 
   Widget _buildSettingTile({

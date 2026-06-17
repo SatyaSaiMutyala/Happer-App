@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/app/routes/app_routes.dart';
 import 'package:happer_app/app_manager.dart';
-import 'package:happer_app/features/dashboard/screens/dashboard_screen.dart';
-import 'package:happer_app/features/auth/screens/login_screen.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
-import 'package:happer_app/features/auth/screens/signup_screen.dart';
-import 'package:happer_app/core/network/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:happer_app/core/utils/storage_service.dart';
+import 'package:happer_app/features/auth/controllers/auth_controller.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
+
   Future<void> _saveIsGuestLogin(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_guest_login', value);
+    await StorageService.setGuestLogin(value);
     AppManager.isLoginAsGuest = value;
   }
 
   @override
   Widget build(BuildContext context) {
- 
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -84,64 +80,17 @@ class RegisterScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Adjusted the tagline layout to match the screenshot
                     Column(
-                      //crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.center,
-                        //   children: [
-                        //     Text.rich(
-                        //       TextSpan(
-                        //         text: "The ",
-                        //         style: TextStyle(
-                        //           fontFamily: "Lato",
-                        //           fontWeight: FontWeight.w700,
-                        //           fontSize: 23,
-                        //           height: 1.0,
-                        //           letterSpacing: 0.0,
-                        //           color: Colors.grey,
-                        //         ),
-                        //         children: [
-                        //           TextSpan(
-                        //             text: "Fashion App ",
-                        //             style: TextStyle(
-                        //               fontWeight: FontWeight.w700,
-                        //               color: Colors.black,
-                        //             ),
-                        //           ),
-                        //           TextSpan(
-                        //             text: "For Content",
-                        //             style: TextStyle(
-                        //               fontWeight: FontWeight.w700,
-                        //               color: Colors.grey,
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //       textAlign: TextAlign.center,
-                        //     ),
-                        //   ],
-                        // ),
-                        // SizedBox(height: 4),
-                        // const Text(
-                        //   "Creators",
-                        //   style: TextStyle(
-                        //     fontFamily: "",
-                        //     fontWeight: FontWeight.w700,
-                        //     fontSize: 24,
-                        //     height: 1.0,
-                        //     letterSpacing: 0.0,
-                        //     color: Colors.black,
-                        //   ),
-                        //   textAlign: TextAlign.center,
-                        // ),
-                        Image.asset('assets/images/logo_header.png', 
-                                fit: BoxFit.cover,
-                                width: 150),
-                        SizedBox(height: 16),
+                        Image.asset(
+                          'assets/images/logo_header.png',
+                          fit: BoxFit.cover,
+                          width: 150,
+                        ),
+                        const SizedBox(height: 16),
                         Text(
-                          style: TextStyle(
+                          AppLocalizations.of(context).registerTagline,
+                          style: const TextStyle(
                             fontFamily: "Lato",
                             fontWeight: FontWeight.w500,
                             fontSize: 13,
@@ -150,19 +99,10 @@ class RegisterScreen extends StatelessWidget {
                             color: Colors.grey,
                           ),
                           textAlign: TextAlign.center,
-                          AppLocalizations.of(context).registerTagline
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // const Text(
-                    //   "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, and web development.",
-                    //   style: TextStyle(
-                    //     color: Colors.grey,
-                    //     fontSize: 14,
-                    //   ),
-                    //   textAlign: TextAlign.center,
-                    // ),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -176,16 +116,11 @@ class RegisterScreen extends StatelessWidget {
                         ),
                         onPressed: () {
                           _saveIsGuestLogin(false);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SignupScreen(),
-                            ),
-                          );
+                          Get.toNamed(AppRoutes.signup);
                         },
                         child: Text(
                           AppLocalizations.of(context).getStartedButton,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: "Lato",
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
@@ -202,7 +137,7 @@ class RegisterScreen extends StatelessWidget {
                       children: [
                         Text(
                           AppLocalizations.of(context).alreadyHaveAccount,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: "Lato",
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
@@ -214,16 +149,11 @@ class RegisterScreen extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             _saveIsGuestLogin(false);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
-                              ),
-                            );
+                            Get.toNamed(AppRoutes.login);
                           },
                           child: Text(
                             AppLocalizations.of(context).signInTitle,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: "Lato",
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
@@ -236,47 +166,12 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () async {
-                        final authService = AuthService();
-                        final success = await authService.loginUser(
-                          "dk@gmail.com",
-                          "123456",
-                        );
-                        if (success) {
-                          await _saveIsGuestLogin(true);
-                          AppManager.isLoginAsGuest = true;
-
-                          // Add small delay to ensure token is fully saved before navigation
-                          await Future.delayed(const Duration(milliseconds: 300));
-
-                          if (!context.mounted) return;
-
-                          // Use pushAndRemoveUntil to clear all previous routes
-                          // This prevents back button from showing login screen again
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const DashboardScreen(),
-                            ),
-                            (route) => false, // Remove all previous routes
-                          );
-                        } else {
-                          // Show error if guest login fails
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations.of(context).guestLoginFailed),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
+                      onPressed: () =>
+                          Get.find<AuthController>().loginAsGuest(),
                       child: Text(
                         AppLocalizations.of(context).continueAsGuest,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: "Lato",
                           fontWeight: FontWeight.w500,
                           fontSize: 14,

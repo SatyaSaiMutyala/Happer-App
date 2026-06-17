@@ -2,7 +2,7 @@ name: happer_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 26.04.20+38
+version: 26.04.20+46
 
 environment:
   sdk: ^3.6.1
@@ -45,9 +45,9 @@ dependencies:
   firebase_auth: ^5.5.4
   sign_in_with_apple: ^7.0.1
   crypto: ^3.0.3
-  uni_links: ^0.5.1
+  app_links: ^6.4.0
   awesome_dialog: ^3.3.0
-  font_awesome_flutter: ^10.9.1
+  font_awesome_flutter: ^11.0.0
   gal: ^2.3.2
   get: ^4.7.3
 
@@ -81,6 +81,9 @@ flutter:
   generate: true
   assets:
     - assets/images/
+    - assets/html/
+    - assets/images/brand1.png
+    - assets/images/brand2.png
     - assets/images/happer_logo.png
     - assets/images/happer_word_logo.png
     - assets/images/google_logo.png
@@ -113,5 +116,5 @@ flutter:
         - asset: assets/fonts/Lato-BlackItalic.ttf
           weight: 900
           style: italic
-  config:
-    enable-lldb-debugging: false
+  # config:
+  #   enable-lldb-debugging: false

@@ -50,11 +50,35 @@
       },
       "oauth_client": [
         {
+          "client_id": "287519573282-alar1cgmrt5h25li28pb8ub56r4bb098.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fr.happer.app",
+            "certificate_hash": "83ef10b42ad15e66796e9dd2eed87e3651937fe2"
+          }
+        },
+        {
+          "client_id": "287519573282-h694in1hlb4h5gbeu7vn2uq5ehk6mprg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fr.happer.app",
+            "certificate_hash": "e2a372d90c7ec23f6790d2b6a3ea03ddafcf411d"
+          }
+        },
+        {
           "client_id": "287519573282-hankgto22o0hpqqr9nv5j20lgjjhtohd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.fr.happer.app",
             "certificate_hash": "e9c2a172ed5d326641916d123b4758b824acd88a"
+          }
+        },
+        {
+          "client_id": "287519573282-i5lkb1lkd2j1hvvnb4tirjknhpfiggr5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fr.happer.app",
+            "certificate_hash": "782ff345a458f52c484641a93cb15c2f0252dfe9"
           }
         },
         {

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/app/routes/app_routes.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:happer_app/features/auth/screens/login_screen.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
 import 'package:happer_app/features/profile/screens/change_password_screen.dart';
 import 'package:happer_app/features/profile/screens/my_address_screen.dart';
+import 'package:happer_app/features/profile/screens/my_profile_screen.dart';
 import 'package:happer_app/core/utils/url_launcher_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
 class MyAccountScreen extends StatefulWidget {
@@ -17,7 +18,6 @@ class MyAccountScreen extends StatefulWidget {
 }
 
 class _MyAccountScreenState extends State<MyAccountScreen> {
-  final profileApiService = ProfileApiService();
   String provider = '';
 
   @override
@@ -27,9 +27,8 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
   }
 
   Future<void> _loadLoginProvider() async {
-    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      provider = prefs.getString('login_method') ?? 'email';
+      provider = StorageService.getLoginMethod() ?? 'email';
     });
   }
 
@@ -43,6 +42,20 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
           Expanded(
             child: ListView(
               children: [
+                _buildListTile(
+                  context,
+                  title: AppLocalizations.of(context).myProfileTitle,
+                  iconPath: 'assets/images/myaccount.svg',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MyProfileScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildDivider(),
                 _buildListTile(
                   context,
                   title: AppLocalizations.of(context).myAddressTitle,
@@ -114,8 +127,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                   title: AppLocalizations.of(context).deleteMyAccount,
                   iconPath: 'assets/images/delete_account.svg',
                   onTap: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    final userId = prefs.getString('myId');
+                    final userId = StorageService.getUserId();
 
                     if (userId == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -124,11 +136,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                       return;
                     }
 
-                    // Step 1: Trigger delete_procedure API
-                    await profileApiService.initiateDeleteAccount(
-                      userId,
-                      context,
-                    );
+                    // Dummy: delete procedure will be wired when API is integrated
 
                     // Step 2: Show dialog to enter verification code
                     final TextEditingController codeController =
@@ -167,29 +175,9 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                                   if (context.mounted)
                                     Navigator.of(context).pop();
 
-                                  try {
-                                    final response = await profileApiService
-                                        .deleteAccount(context, code);
-                                    // If deleteAccount returns void, just navigate after successful call
-                                    if (context.mounted) {
-                                      Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                const LoginScreen()),
-                                        (route) => false,
-                                      );
-                                    }
-                                  } catch (e) {
-                                    debugPrint('Error in deleteAccount: $e');
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content:
-                                                Text('Error: ${e.toString()}')),
-                                      );
-                                    }
-                                  }
+                                  // Dummy: deleteAccount API will be wired when integrated
+                                    StorageService.clearAuth();
+                                    Get.offAllNamed(AppRoutes.login);
                                 } else {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -257,11 +245,12 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                 ),
               ),
               onPressed: () async {
-                await profileApiService.logout(context);
+                StorageService.clearAuth();
+                Get.offAllNamed(AppRoutes.login);
               },
-              child: const Text(
-                'SE DECONNECTER',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context).logout,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

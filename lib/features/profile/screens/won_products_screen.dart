@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/profile/api/won_products_api.dart';
 import 'package:happer_app/features/profile/models/won_product_model.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
@@ -26,18 +25,10 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
       _isLoading = true;
     });
 
-    try {
-      final api = WonProductsApiService();
-      _wonProducts = api.getWonProducts();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load won products: $e')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    setState(() {
+      _wonProducts = Future.value([]);
+      _isLoading = false;
+    });
   }
 
   @override

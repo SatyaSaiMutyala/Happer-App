@@ -1,5 +1,7 @@
 class ApiConfig {
-    static const String baseUrl = 'https://newapi.happer.fr';
+  // Legacy API — used by existing services. Do not change.
+  static const String baseUrl = 'https://newapi.happer.fr';
 
-  //static const String baseUrl = 'https://happer-production.francecentral.cloudapp.azure.com';
+  // New API v1 — used by ApiClient for all new features.
+  static const String newBaseUrl = 'https://api.dev.happer.fr/api/v1';
 }

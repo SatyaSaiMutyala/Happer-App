@@ -1,506 +1,473 @@
 import 'package:flutter/material.dart';
-import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/auth/screens/login_screen.dart';
-import 'package:happer_app/core/network/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:happer_app/features/dashboard/screens/dashboard_screen.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/core/constants/app_colors.dart';
+import 'package:happer_app/core/constants/app_dimensions.dart';
+import 'package:happer_app/core/constants/app_images.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/features/auth/controllers/auth_controller.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/shared/widgets/app_button.dart';
+import 'package:happer_app/shared/widgets/app_input_field.dart';
+import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _RegisterScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _RegisterScreenState extends State<SignupScreen> {
-  bool showPassword = false;
-  bool showConfirmPassword = false;
-  String? selectedCountry;
-  bool isChecked = false; // Add a state variable to manage the checkbox state
-  bool _isLoading = false;
+class _SignupScreenState extends State<SignupScreen> {
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
+  bool _isChecked = false;
+  bool _usernameError = false;
+  bool _isCheckingUsername = false;
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController genderController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
-  final TextEditingController sponsorshipCodeController =
-      TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _referralCodeController = TextEditingController();
+  final _usernameFocusNode = FocusNode();
 
-  final AuthService _authService =
-      AuthService(); // Create an instance of AuthService
+  late final AuthController _auth;
 
-  Future<void> _saveLoginMethod(String method) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('login_method', method);
+  @override
+  void initState() {
+    super.initState();
+    _auth = Get.find<AuthController>();
+    _usernameFocusNode.addListener(_onUsernameFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _usernameFocusNode.removeListener(_onUsernameFocusChange);
+    _usernameFocusNode.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _referralCodeController.dispose();
+    super.dispose();
+  }
+
+  void _onUsernameFocusChange() {
+    if (!_usernameFocusNode.hasFocus) {
+      _checkUsernameAvailability();
+    }
+  }
+
+  Future<void> _checkUsernameAvailability() async {
+    final username = _usernameController.text.trim();
+    if (username.length < 3) return;
+    if (!mounted) return;
+
+    setState(() => _isCheckingUsername = true);
+    try {
+      final isAvailable = await _auth.checkUsernameAvailability(username);
+      if (!mounted) return;
+      setState(() => _usernameError = !isAvailable);
+    } catch (_) {
+      // Silently fail — don't block user on network error
+    } finally {
+      if (mounted) setState(() => _isCheckingUsername = false);
+    }
+  }
+
+  static final _emailRegex =
+      RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
+  static final _usernameRegex = RegExp(r'^[a-z0-9_.]{3,20}$');
+
+  bool _validate() {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirm = _confirmPasswordController.text;
+
+    if (firstName.isEmpty) {
+      showAppSnackBar('Please enter your first name', isSuccess: false);
+      return false;
+    }
+    if (lastName.isEmpty) {
+      showAppSnackBar('Please enter your last name', isSuccess: false);
+      return false;
+    }
+    if (username.isEmpty) {
+      showAppSnackBar('Please enter a username', isSuccess: false);
+      return false;
+    }
+    if (username.length < 3) {
+      showAppSnackBar('Username must be at least 3 characters',
+          isSuccess: false);
+      return false;
+    }
+    if (!_usernameRegex.hasMatch(username)) {
+      showAppSnackBar(
+          'Username can only contain lowercase letters, numbers, _ and .',
+          isSuccess: false);
+      return false;
+    }
+    if (email.isEmpty) {
+      showAppSnackBar('Please enter your email', isSuccess: false);
+      return false;
+    }
+    if (!_emailRegex.hasMatch(email)) {
+      showAppSnackBar('Please enter a valid email address', isSuccess: false);
+      return false;
+    }
+    if (password.isEmpty) {
+      showAppSnackBar('Please enter a password', isSuccess: false);
+      return false;
+    }
+    if (password.length < 6) {
+      showAppSnackBar('Password must be at least 6 characters',
+          isSuccess: false);
+      return false;
+    }
+    if (password != confirm) {
+      showAppSnackBar(AppLocalizations.of(context).passwordMustBeTheSame,
+          isSuccess: false);
+      return false;
+    }
+    if (!_isChecked) {
+      showAppSnackBar(AppLocalizations.of(context).acceptTermsToContinue,
+          isSuccess: false);
+      return false;
+    }
+    return true;
   }
 
   Future<void> _handleGoogleSignIn() async {
-    if (_isLoading) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final authService = AuthService();
-      final userCredential = await authService.firebaseGoogleSignIn();
-
-      if (userCredential != null) {
-        final success = await authService.loginWithFirebaseGoogle(userCredential);
-        if (success) {
-          await _saveLoginMethod('google');
-          // Clear guest login flag
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('is_guest_login', false);
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const DashboardScreen()),
-            );
-          }
-        } else if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context).googleLoginFailed)),
-          );
-        }
-      } else if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).googleLoginFailed)));
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context).errorLabel}: ${e.toString()}')),
-        );
-      }
-    }
+    if (_auth.isLoading.value) return;
+    await _auth.loginWithGoogle();
   }
 
   Future<void> _handleAppleSignIn() async {
-    if (_isLoading) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final authService = AuthService();
-
-      // Direct Apple Sign-In → Backend (no Firebase needed)
-      final success = await authService.appleSignInAndBackendLogin();
-
-      if (!mounted) return;
-
-      if (success) {
-        await _saveLoginMethod('apple');
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('is_guest_login', false);
-
-        if (!mounted) return;
-
-        setState(() {
-          _isLoading = false;
-        });
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DashboardScreen()),
-        );
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).appleLoginFailed)),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Handle user cancellation silently
-      if (e.toString().contains('CANCELLED')) {
-        return;
-      }
-
-      // Extract error message
-      String errorMessage = AppLocalizations.of(context).appleLoginFailed;
-
-      if (e is Exception) {
-        final exceptionMessage = e.toString().replaceFirst('Exception: ', '');
-        errorMessage = exceptionMessage;
-      } else {
-        errorMessage = e.toString();
-      }
-
-      debugPrint('Apple Sign In Error: $errorMessage');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          duration: const Duration(seconds: 4),
-          backgroundColor: Colors.red.shade700,
-        ),
-      );
-    }
+    if (_auth.isLoading.value) return;
+    await _auth.loginWithApple();
   }
 
-  Future<void> _registerUser() async {
-    final userData = {
-      "email": emailController.text,
-      "first_name": firstNameController.text,
-      "last_name": lastNameController.text,
-      "gender": genderController.text,
-      "password": passwordController.text,
-      "password_confirmation": confirmPasswordController.text,
-      "code": sponsorshipCodeController.text,
-      "country": selectedCountry ?? "",
-    };
-
-    final success = await _authService.registerUser(userData);
-
-    if (success) {
-      final loginSuccess = await _authService.loginUser(
-          userData['email']!, userData['password']!);
-      if (loginSuccess) {
-        // Clear guest login flag
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('is_guest_login', false);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => DashboardScreen()));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).loginFailed)),
-        );
-      }
-    } else {
-      // Show a snackbar with registration failed message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).registrationFailed)),
-      );
+  void _submit() {
+    if (_usernameError) {
+      showAppSnackBar('Username is already taken. Please choose another.',
+          isSuccess: false);
+      return;
     }
+    if (!_validate()) return;
+    _auth.signup(
+      email: _emailController.text.trim(),
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      username: _usernameController.text.trim(),
+      password: _passwordController.text,
+      referredByCode: _referralCodeController.text.trim(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: HapperAppBar(title: AppLocalizations.of(context).sInscrire),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-              /// Subtitle
-              Container(
-                margin: const EdgeInsets.only(left: 16, right: 16),
-                child: Text(
-                  AppLocalizations.of(context).signupSubtitle,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  textAlign: TextAlign.center,
+      body: Obx(() {
+        final loading = _auth.isLoading.value;
+        return Stack(
+          children: [
+            SafeArea(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppDimensions.p20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Subtitle
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: AppDimensions.p16),
+                      child: Text(
+                        AppLocalizations.of(context).signupSubtitle,
+                        style: const TextStyle(
+                            fontSize: AppDimensions.fontM,
+                            color: AppColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.p16),
+
+                    // First Name
+                    AppInputField(
+                      controller: _firstNameController,
+                      hintText: 'First Name',
+                    ),
+                    const SizedBox(height: AppDimensions.p12),
+
+                    // Last Name
+                    AppInputField(
+                      controller: _lastNameController,
+                      hintText: 'Last Name',
+                    ),
+                    const SizedBox(height: AppDimensions.p12),
+
+                    // Username
+                    AppInputField(
+                      controller: _usernameController,
+                      focusNode: _usernameFocusNode,
+                      hintText: 'Username',
+                      maxLength: 20,
+                      borderColor: _usernameError ? Colors.red : null,
+                      suffixIcon: _isCheckingUsername
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                          : null,
+                      onChanged: (v) {
+                        final filtered = v
+                            .toLowerCase()
+                            .replaceAll(RegExp(r'[^a-z0-9_.]'), '');
+                        if (filtered != v) {
+                          _usernameController.value = TextEditingValue(
+                            text: filtered,
+                            selection: TextSelection.collapsed(
+                                offset: filtered.length),
+                          );
+                        }
+                        if (_usernameError)
+                          setState(() => _usernameError = false);
+                      },
+                    ),
+                    if (_usernameError) ...[
+                      const SizedBox(height: 4),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Text(
+                          'Username is already used, choose another',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppDimensions.p12),
+
+                    // Email
+                    AppInputField(
+                      controller: _emailController,
+                      hintText: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      onChanged: (v) {
+                        if (v != v.toLowerCase()) {
+                          _emailController.value = TextEditingValue(
+                            text: v.toLowerCase(),
+                            selection:
+                                TextSelection.collapsed(offset: v.length),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: AppDimensions.p12),
+
+                    // Password
+                    AppInputField(
+                      controller: _passwordController,
+                      hintText: AppLocalizations.of(context).passwordHint,
+                      obscureText: !_showPassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _showPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () =>
+                            setState(() => _showPassword = !_showPassword),
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.p12),
+
+                    // Confirm Password
+                    AppInputField(
+                      controller: _confirmPasswordController,
+                      hintText:
+                          AppLocalizations.of(context).confirmPasswordHint,
+                      obscureText: !_showConfirmPassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _showConfirmPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () => setState(
+                            () => _showConfirmPassword = !_showConfirmPassword),
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.p12),
+
+                    // Referral Code
+                    AppInputField(
+                      controller: _referralCodeController,
+                      hintText: AppLocalizations.of(context).sponsorCodeHint,
+                    ),
+                    const SizedBox(height: AppDimensions.p8),
+
+                    // Terms & Conditions
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          value: _isChecked,
+                          activeColor: AppColors.checkboxActive,
+                          onChanged: (v) =>
+                              setState(() => _isChecked = v ?? false),
+                        ),
+                        Expanded(
+                          child: Wrap(
+                            children: [
+                              Text(AppLocalizations.of(context).iAcceptAllThe),
+                              GestureDetector(
+                                onTap: () {},
+                                child: Text(
+                                  AppLocalizations.of(context)
+                                      .conditionsGenerales,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppDimensions.p16),
+
+                    // Sign Up Button
+                    AppButton(
+                      text: AppLocalizations.of(context).signUpButton,
+                      onPressed: _submit,
+                    ),
+                    const SizedBox(height: AppDimensions.p20),
+
+                    // Divider
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppDimensions.p12),
+                          child: Text(
+                            AppLocalizations.of(context).orSignUpWith,
+                            style:
+                                const TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: AppDimensions.p16),
+
+                    // Social Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: _handleGoogleSignIn,
+                          child: CircleAvatar(
+                            radius: AppDimensions.socialAvatarRadius,
+                            backgroundColor: AppColors.googleButtonBg,
+                            child: Image.asset(AppImages.googleButton),
+                          ),
+                        ),
+                        const SizedBox(width: AppDimensions.p20),
+                        GestureDetector(
+                          onTap: _handleAppleSignIn,
+                          child: CircleAvatar(
+                            radius: AppDimensions.socialAvatarRadius,
+                            backgroundColor: AppColors.appleButtonBg,
+                            child: Image.asset(AppImages.appleButton),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppDimensions.p24),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-
-              /// First Name
-              _buildTextField(
-                controller: firstNameController,
-                hintText: AppLocalizations.of(context).firstNameHint,
-              ),
-              const SizedBox(height: 12),
-
-              /// Last Name
-              _buildTextField(
-                controller: lastNameController,
-                hintText: AppLocalizations.of(context).lastNameHint,
-              ),
-              const SizedBox(height: 12),
-
-              /// Email
-              _buildTextField(
-                controller: emailController,
-                hintText: 'Email',
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 12),
-
-              /// Password
-              _buildPasswordField(
-                controller: passwordController,
-                hintText: AppLocalizations.of(context).passwordHint,
-                obscureText: !showPassword,
-                toggleVisibility: () {
-                  setState(() {
-                    showPassword = !showPassword;
-                  });
-                },
-              ),
-              const SizedBox(height: 12),
-
-              /// Confirm Password
-              _buildPasswordField(
-                controller: confirmPasswordController,
-                hintText: AppLocalizations.of(context).confirmPasswordHint,
-                obscureText: !showConfirmPassword,
-                toggleVisibility: () {
-                  setState(() {
-                    showConfirmPassword = !showConfirmPassword;
-                  });
-                },
-              ),
-              const SizedBox(height: 12),
-
-              /// Sponsor Code
-              _buildTextField(
-                controller: sponsorshipCodeController,
-                hintText: AppLocalizations.of(context).sponsorCodeHint,
-              ),
-              const SizedBox(height: 8),
-
-              /// Terms and Conditions
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Checkbox(
-                    value: isChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value ?? false;
-                      });
-                    },
-                  ),
-                  Expanded(
-                    child: Wrap(
+            ),
+            if (loading)
+              Container(
+                color: Colors.black.withValues(alpha: 0.55),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 28),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(AppLocalizations.of(context).iAcceptAllThe),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Text(
-                            AppLocalizations.of(context).conditionsGenerales,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
-                            ),
+                        const SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 3,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          AppLocalizations.of(context).signingUp,
+                          style: const TextStyle(
+                            fontFamily: 'Lato',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          AppLocalizations.of(context).pleaseWaitMoment,
+                          style: TextStyle(
+                            fontFamily: 'Lato',
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              /// Sign Up Button
-              SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (!isChecked) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.of(context).acceptTermsToContinue,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                    _registerUser();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context).signUpButton,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
                 ),
               ),
-              const SizedBox(height: 20),
-
-              /// Divider With Text
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      AppLocalizations.of(context).orSignUpWith,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              /// Google & Apple Sign In
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _handleGoogleSignIn,
-                    child: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: Colors.grey.shade200,
-                      child: Image.asset('assets/images/google_button.png'),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: _handleAppleSignIn,
-                    child: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: Colors.black,
-                      child: Image.asset('assets/images/apple_button.png'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-      // Loading overlay
-          if (_isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade400),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        onChanged: (value) {
-          if (hintText.toLowerCase() == 'email') {
-            final lower = value.toLowerCase();
-            if (value != lower) {
-              controller.value = TextEditingValue(
-                text: lower,
-                selection: TextSelection.collapsed(offset: lower.length),
-              );
-            }
-          }
-        },
-        decoration: InputDecoration(
-          hintText: hintText,
-          border: InputBorder.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField({
-    required TextEditingController controller,
-    required String hintText,
-    required bool obscureText,
-    required VoidCallback toggleVisibility,
-  }) {
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade400),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              obscureText: obscureText,
-              decoration: InputDecoration(
-                hintText: hintText,
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: Icon(
-              obscureText ? Icons.visibility_off : Icons.visibility,
-              color: Colors.grey,
-            ),
-            onPressed: toggleVisibility,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTermsAndPrivacy() {
-    return Column(
-      children: [
-        const Text(
-          'By signing up, you agree to our',
-          style: TextStyle(fontSize: 11, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () {
-                // Navigate to Terms of Use
-              },
-              child: const Text('Terms of Use', style: TextStyle(fontSize: 11)),
-            ),
-            TextButton(
-              onPressed: () {
-                // Navigate to Privacy Policies
-              },
-              child: const Text(
-                'Privacy Policies',
-                style: TextStyle(fontSize: 11),
-              ),
-            ),
           ],
-        ),
-      ],
+        );
+      }),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/features/profile/models/wishlist_model.dart';
-import 'package:happer_app/features/profile/api/wishlist_api.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
 class WishlistScreen extends StatefulWidget {
@@ -26,25 +25,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
     _isLoading = true;
   });
 
-  try {
-    final api = WishlistApiService();
-    // Await the API call and assign the result to _wishlistItems
-    final items = await api.getWishlistItems();
-    setState(() {
-      _wishlistItems = Future.value(items);
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to load wishlist: $e')),
-    );
-    setState(() {
-      _wishlistItems = Future.value([]);
-    });
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
-  }
+  setState(() {
+    _wishlistItems = Future.value([]);
+    _isLoading = false;
+  });
 }
 
   @override

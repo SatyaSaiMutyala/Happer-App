@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
 
 class NotificationDetailScreen extends StatefulWidget {
   final String id;
@@ -23,28 +22,11 @@ class NotificationDetailScreen extends StatefulWidget {
 }
 
 class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
-  final ProfileApiService _apiService = ProfileApiService();
   bool _isDeleting = false;
 
-  void _deleteNotification() async {
-    setState(() {
-      _isDeleting = true;
-    });
-
-    try {
-      final accessToken = await _apiService.getToken();
-      if (accessToken != null) {
-        await _apiService.deleteNotification(widget.id, accessToken);
-        Navigator.pop(context, true); // Notify parent to remove the item
-      } else {
-        throw Exception("No access token");
-      }
-    } catch (e) {
-      setState(() {
-        _isDeleting = false;
-      });
-      
-    }
+  void _deleteNotification() {
+    setState(() => _isDeleting = true);
+    Navigator.pop(context, true);
   }
 
   @override

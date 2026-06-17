@@ -1,393 +1,464 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:happer_app/features/profile/data/repositories/purchases_repository.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/features/profile/models/purchase_model.dart';
+import 'package:happer_app/features/profile/screens/invoice_webview_screen.dart';
+import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:happer_app/features/creator/screens/product_details_screen.dart';
-import 'package:happer_app/features/profile/api/profile_api.dart';
-import 'package:happer_app/features/profile/models/purchase_model.dart';
-import 'package:happer_app/features/profile/screens/return_refund_screen.dart';
-import 'package:happer_app/features/profile/screens/invoice_viewer_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MyPurchasesScreen extends StatefulWidget {
-  const MyPurchasesScreen({super.key});
+  final bool fromCart;
+  const MyPurchasesScreen({super.key, this.fromCart = false});
 
   @override
   State<MyPurchasesScreen> createState() => _MyPurchasesScreenState();
 }
 
 class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
-  final ProfileApiService _profileApiService = ProfileApiService();
- 
+  final _repository = PurchasesRepository();
+  final _scrollController = ScrollController();
+
+  final List<PurchasedProduct> _purchases = [];
   bool _isLoading = true;
+  bool _hasMore = true;
+  bool _isFetchingMore = false;
   String? _errorMessage;
-  List<Datum> _orders =[];
+  int _page = 1;
+  static const _perPage = 10;
 
   @override
   void initState() {
     super.initState();
-    _fetchPurchases();
+    _fetchPurchases(firstLoad: true);
+    _scrollController.addListener(_onScroll);
   }
 
-  Future<void> _fetchPurchases() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-   try {
-  final allData = await _profileApiService.fetchUserPurchases();
-// Sort orders by paidOn (or createdAt if paidOn is null), most recent first
-allData.sort((a, b) {
-  final aDate = a.paidOn ?? a.createdAt;
-  final bDate = b.paidOn ?? b.createdAt;
-  if (aDate == null && bDate == null) return 0;
-  if (aDate == null) return 1;
-  if (bDate == null) return -1;
-  return bDate.compareTo(aDate); // Descending order
-});
-setState(() {
-  _orders = allData;
-  _isLoading = false;
-});
-  setState(() {
-    _orders = allData;
-    _isLoading = false;
-  });
-} catch (e) {
-  setState(() {
-    _errorMessage = 'Failed to load purchases: $e';
-    _isLoading = false;
-  });
-}
-
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
- Widget _buildStatusBadge(String? status) {
-  Color bgColor;
-  String displayStatus = (status ?? 'PAID').isNotEmpty ? status! : 'PAID';
-  switch (displayStatus.toUpperCase()) {
-    case 'SENT':
-      bgColor = Colors.lightBlue;
-      break;
-    case 'DELIVERED':
-      bgColor = Colors.green;
-      break;
-    case 'PAID':
-      bgColor = Colors.deepPurple;
-      break;
-    default:
-      bgColor = Colors.deepPurple;
-      displayStatus = 'PAID'; // Default status is PAID
-  }
-
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-    decoration: BoxDecoration(
-      color: bgColor,
-      borderRadius: BorderRadius.circular(6),
-    ),
-    child: Text(
-      displayStatus.toUpperCase(),
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: 12,
-      ),
-    ),
-  );
-}
- Widget _buildItemCard(Item item) {
-  final imageUrl = item.itemId?.pictures?.isNotEmpty == true
-      ? item.itemId!.pictures!.first
-      : null;
-DateTime? paidOnDate;
-  for (final order in _orders) {
-    if (order.items != null && order.items!.contains(item)) {
-      paidOnDate = order.paidOn;
-      break;
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        _hasMore &&
+        !_isFetchingMore) {
+      _fetchPurchases();
     }
   }
-  String? formattedPaidOn;
-  if (paidOnDate != null) {
-    formattedPaidOn = DateFormat('dd MMM yyyy').format(paidOnDate);
+
+  Future<void> _fetchPurchases({bool firstLoad = false}) async {
+    if (firstLoad) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+        _page = 1;
+        _purchases.clear();
+        _hasMore = true;
+      });
+    } else {
+      if (!_hasMore || _isFetchingMore) return;
+      setState(() => _isFetchingMore = true);
+    }
+
+    try {
+      final list = await _repository.getPurchasedProducts(
+        page: _page,
+        perPage: _perPage,
+      );
+
+      setState(() {
+        _purchases.addAll(list);
+        _hasMore = list.length >= _perPage;
+        _page++;
+        _isLoading = false;
+        _isFetchingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+        _isFetchingMore = false;
+      });
+    }
   }
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Image with PDF Icon in Stack
-        Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: imageUrl != null
-                  ? Image.network(
-                      imageUrl,
-                      width: 100,
-                      height: 130,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: 100,
-                      height: 130,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image, size: 40),
-                    ),
-            ),
-            if ((item.invoiceLink ?? '').isNotEmpty)
-              Positioned(
-                top: 6,
-                right: 6,
-                child: GestureDetector(
-                  onTap: () => _openInvoiceInApp(item.invoiceLink!),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.picture_as_pdf,
-                      color: Colors.red,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(width: 12),
-
-        // Details
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Brand or Subtitle
-              Text(
-                item.itemId?.subtitle ?? item.name ?? '',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 4),
-
-              // Description
-              if ((item.itemId?.description ?? '').isNotEmpty)
-                ExpandableDescription(text: item.itemId!.description!),
-
-              const SizedBox(height: 6),
-
-              // Status Badge (shown below description)
-              
-                // Status Badge and Paid On Date in the same row
-Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    _buildStatusBadge(item.status),
-    if (formattedPaidOn != null) ...[
-      const SizedBox(width: 8),
-      Text(
-        formattedPaidOn,
-        style: const TextStyle(
-          fontSize: 12,
-          color: Colors.grey,
-        ),
-      ),
-    ],
-  ],
-),
-
-              const SizedBox(height: 10),
-
-              // Price
-              if ((item.promoPercent ?? 0) > 0) ...[
-                Row(
-                  children: [
-                    const Text('Prix réel',
-                        style: TextStyle(fontSize: 13, color: Colors.grey)),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${(item.initialPrice ?? 0).toStringAsFixed(2)}€',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Text('Prix Promo',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${(item.price ?? 0).toStringAsFixed(2)}€',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ] else
-                Row(
-                  children: [
-                    const Text('Prix réel',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${(item.price ?? 0).toStringAsFixed(2)}€',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              const SizedBox(height: 12),
-
-              // Delivery Button
-              if ((item.deliveryLink ?? '').isNotEmpty)
-                ElevatedButton(
-                  onPressed: () => _launchUrl(item.deliveryLink!),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: const Text("DELIVERY DETAILS"),
-                ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
- Widget _buildOrderCard(Datum order) {
-  final firstItem = order.items?.isNotEmpty == true ? order.items!.first : null;
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (firstItem != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
-          child: Text(
-            firstItem.name?.toUpperCase() ?? 'PRODUCT',
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.6,
-            ),
-          ),
-        ),
-      ...order.items!.map((item) => _buildItemCard(item)).toList(),
-      const Divider(thickness: 1, height: 30),
-    ],
-  );
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   title: const Text(
-      //     'MY ORDER',
-      //     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      //   ),
-      //   centerTitle: true,
-      //   backgroundColor: Colors.white,
-      //   elevation: 1,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back, color: Colors.black),
-      //     onPressed: () => Navigator.pop(context),
-      //   ),
-      // ),
       appBar: HapperAppBar(
         title: 'MES COMMANDES',
+        onBack: widget.fromCart
+            ? () => Navigator.of(context).popUntil((route) => route.isFirst)
+            : null,
         actions: [
           IconButton(
-            icon: SvgPicture.asset('assets/images/return_svg.svg', width: 20, height: 20),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ReturnRefundScreen()));
-            },
+            icon: SvgPicture.asset('assets/images/return_svg.svg',
+                width: 20, height: 20),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReturnRefundScreen()),
+            ),
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildShimmer()
           : _errorMessage != null
-              ? Center(child: Text(_errorMessage!))
-              : _orders.isEmpty
-                  ? const Center(child: Text('No purchases found.'))
-                  : ListView.builder(
-                      itemCount: _orders.length,
-                      itemBuilder: (context, index) {
-                        return _buildOrderCard(_orders[index]);
-                      },
+              ? _buildError()
+              : _purchases.isEmpty
+                  ? Center(
+                      child: Text(
+                        AppLocalizations.of(context).noPurchasesFound,
+                        style: const TextStyle(
+                          fontFamily: 'Lato',
+                          fontSize: 15,
+                          color: Color(0xFF8D8D8D),
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: () => _fetchPurchases(firstLoad: true),
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        itemCount:
+                            _purchases.length + (_isFetchingMore ? 1 : 0),
+                        separatorBuilder: (_, __) => const Divider(
+                            height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                        itemBuilder: (context, index) {
+                          if (index == _purchases.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          return _buildPurchaseCard(_purchases[index]);
+                        },
+                      ),
                     ),
     );
   }
-  
-  // Open invoice PDF in-app using custom viewer
-  void _openInvoiceInApp(String url) {
-    // Find the order title for the invoice
-    String? orderTitle;
-    for (final order in _orders) {
-      if (order.items != null) {
-        for (final item in order.items!) {
-          if (item.invoiceLink == url) {
-            orderTitle = item.name ?? item.itemId?.subtitle;
-            break;
-          }
-        }
-      }
-      if (orderTitle != null) break;
-    }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => InvoiceViewerScreen(
-          invoiceUrl: url,
-          orderTitle: orderTitle,
+  Widget _buildPurchaseCard(PurchasedProduct p) {
+    final imageUrl = p.displayImage;
+    final formattedDate =
+        p.paidAt != null ? DateFormat('dd MMM yyyy').format(p.paidAt!) : '';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Product image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: imageUrl.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 100,
+                    height: 130,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(
+                        width: 100, height: 130, color: Colors.grey.shade200),
+                    errorWidget: (_, __, ___) => Container(
+                      width: 100,
+                      height: 130,
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.image, color: Colors.grey),
+                    ),
+                  )
+                : Container(
+                    width: 100,
+                    height: 130,
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
+          ),
+          const SizedBox(width: 14),
+
+          // Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Brand row
+                if (p.brand != null)
+                  Row(
+                    children: [
+                      if ((p.brand!.picture ?? '').isNotEmpty) ...[
+                        ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: p.brand!.picture!,
+                            width: 20,
+                            height: 20,
+                            fit: BoxFit.cover,
+                            errorWidget: (_, __, ___) =>
+                                const Icon(Icons.store, size: 16),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(
+                        p.brand!.name,
+                        style: const TextStyle(
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          letterSpacing: 0.8,
+                          color: Color(0xFF8D8D8D),
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 4),
+
+                // Product name
+                Text(
+                  p.product?.name ?? '',
+                  style: const TextStyle(
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+
+                // Status + date row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildStatusBadge('PAID'),
+                    Text(
+                      formattedDate,
+                      style: const TextStyle(
+                        fontFamily: 'Lato',
+                        fontSize: 11,
+                        color: Color(0xFF8D8D8D),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // Price
+                if (p.displayCompareAtPrice != null &&
+                    p.displayCompareAtPrice! > p.displayPrice) ...[
+                  Text(
+                    '${p.displayCompareAtPrice!.toStringAsFixed(2)} ${p.currency}',
+                    style: const TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 13,
+                      color: Colors.grey,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                ],
+                Text(
+                  '${p.displayPrice.toStringAsFixed(2)} ${p.currency}',
+                  style: const TextStyle(
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+
+                // Qty
+                if (p.quantity > 1) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Qté : ${p.quantity}',
+                    style: const TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 12,
+                      color: Color(0xFF8D8D8D),
+                    ),
+                  ),
+                ],
+
+                // Affiliate
+                if (p.affiliate != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      if ((p.affiliate!.profileImage ?? '').isNotEmpty)
+                        ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: p.affiliate!.profileImage!,
+                            width: 18,
+                            height: 18,
+                            fit: BoxFit.cover,
+                            errorWidget: (_, __, ___) =>
+                                const Icon(Icons.person, size: 14),
+                          ),
+                        )
+                      else
+                        const Icon(Icons.person,
+                            size: 14, color: Color(0xFF8D8D8D)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '@${p.affiliate!.username}',
+                        style: const TextStyle(
+                          fontFamily: 'Lato',
+                          fontSize: 11,
+                          color: Color(0xFF8D8D8D),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                // Invoice button
+                if (p.invoiceUrl != null && p.invoiceUrl!.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            InvoiceWebViewScreen(url: p.invoiceUrl!),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.receipt_long_outlined,
+                              size: 14, color: Colors.black),
+                          SizedBox(width: 5),
+                          Text(
+                            'Facture',
+                            style: TextStyle(
+                              fontFamily: 'Lato',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    switch (status.toUpperCase()) {
+      case 'SENT':
+        bgColor = Colors.lightBlue;
+        break;
+      case 'DELIVERED':
+        bgColor = Colors.green;
+        break;
+      default:
+        bgColor = Colors.deepPurple;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: const TextStyle(
+          fontFamily: 'Lato',
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
         ),
       ),
     );
   }
 
-  // Open delivery tracking link in external browser
-  Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open the link')),
-        );
-      }
-    }
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        itemCount: 5,
+        separatorBuilder: (_, __) =>
+            const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+        itemBuilder: (_, __) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 100,
+                height: 130,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(height: 12, width: 80, color: Colors.white),
+                    const SizedBox(height: 8),
+                    Container(height: 14, width: 140, color: Colors.white),
+                    const SizedBox(height: 8),
+                    Container(height: 12, width: 60, color: Colors.white),
+                    const SizedBox(height: 10),
+                    Container(height: 16, width: 80, color: Colors.white),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
+  Widget _buildError() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _errorMessage!,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                fontFamily: 'Lato', fontSize: 14, color: Color(0xFF8D8D8D)),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+            onPressed: () => _fetchPurchases(firstLoad: true),
+            child:
+                const Text('Réessayer', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 }

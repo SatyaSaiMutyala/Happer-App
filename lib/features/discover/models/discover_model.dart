@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class DiscoverModel {
   final String id;
   final String state;
@@ -68,6 +66,7 @@ class UserModel {
   final int usersType;
   final String lastName;
   final String firstName;
+  final String? username;
   final String? instagramLink;
   final bool isFollowedByMe;
 
@@ -77,6 +76,7 @@ class UserModel {
     required this.usersType,
     required this.lastName,
     required this.firstName,
+    this.username,
     this.instagramLink,
     required this.isFollowedByMe,
   });
@@ -88,6 +88,7 @@ class UserModel {
       usersType: json['users_type'] ?? 0,
       lastName: json['last_name'] ?? '',
       firstName: json['first_name'] ?? '',
+      username: json['username'] as String?,
       instagramLink: json['instagram_link'],
       isFollowedByMe: json['isFollowedByMe'] ?? false,
     );
@@ -100,6 +101,7 @@ class UserModel {
       'users_type': usersType,
       'last_name': lastName,
       'first_name': firstName,
+      'username': username,
       'instagram_link': instagramLink,
       'isFollowedByMe': isFollowedByMe,
     };

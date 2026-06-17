@@ -40,7 +40,8 @@ class HapperAppBar extends StatelessWidget implements PreferredSizeWidget {
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFF6F6F6), width: 1.5),
+                    border:
+                        Border.all(color: const Color(0xFFF6F6F6), width: 1.5),
                   ),
                   child: const Icon(
                     Icons.arrow_back_ios_new_rounded,

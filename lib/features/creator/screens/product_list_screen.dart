@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/features/product/models/category_model.dart';
 import 'package:happer_app/features/product/models/product_model.dart';
-import 'package:happer_app/features/creator/api/product_api_service.dart';
-
 
 import 'package:happer_app/features/product/screens/product_detail_screen.dart';
 
@@ -17,7 +15,6 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
-  final ProductApiService _productApiService = ProductApiService();
   bool _isLoading = true;
   List<Product> _products = [];
   String _errorMessage = '';
@@ -34,21 +31,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
       _errorMessage = '';
     });
 
-    try {
-      final products = await _productApiService.getProductsByCategory(
-        widget.category.id,
-      );
-
-      setState(() {
-        _products = products;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to load products: $e';
-        _isLoading = false;
-      });
-    }
+    // Dummy data — no live API call
+    setState(() {
+      _products = [];
+      _isLoading = false;
+    });
   }
 
   

@@ -39,8 +39,7 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
-    
-    # Start of added configuration for image_picker and other plugins
+
     target.build_configurations.each do |config|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
@@ -48,13 +47,12 @@ post_install do |installer|
         'PERMISSION_PHOTOS=1',
         'PERMISSION_MICROPHONE=1',
       ]
-      
-      # Enable deployment on iOS 13+
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      
-      # Disable bitcode to avoid build errors
       config.build_settings['ENABLE_BITCODE'] = 'NO'
+
+      if target.name.start_with?('Stripe')
+        config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
+      end
     end
-    # End of added configuration
   end
 end

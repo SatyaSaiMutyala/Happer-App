@@ -1,107 +1,117 @@
 import 'package:flutter/material.dart';
-import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/auth/screens/reset_password_screen.dart';
-import 'package:happer_app/core/network/auth_service.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/core/constants/app_colors.dart';
+import 'package:happer_app/core/constants/app_dimensions.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/features/auth/controllers/auth_controller.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/shared/widgets/app_button.dart';
+import 'package:happer_app/shared/widgets/app_input_field.dart';
+import 'package:happer_app/shared/widgets/app_loader.dart';
+import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
+
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _emailController = TextEditingController();
+  late final AuthController _auth;
+
+  static final _emailRegex = RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
+
+  @override
+  void initState() {
+    super.initState();
+    _auth = Get.find<AuthController>();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  bool _validate() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      showAppSnackBar('Please enter your email', isSuccess: false);
+      return false;
+    }
+    if (!_emailRegex.hasMatch(email)) {
+      showAppSnackBar('Please enter a valid email address', isSuccess: false);
+      return false;
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: HapperAppBar(title: AppLocalizations.of(context).forgotPasswordTitle),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-              const Text(
-                // 'Forgot Password',
-                'Mot de passe oublié',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                // 'please enter your registered email to get\nyour new password',
-                'Veuillez saisir votre adresse e-mail enregistrée pour obtenir votre nouveau mot de passe',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+      backgroundColor: AppColors.background,
+      appBar: HapperAppBar(
+          title: AppLocalizations.of(context).forgotPasswordTitle),
+      body: Obx(() {
+        return Stack(
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimensions.p16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: AppDimensions.p40),
+                    const Text(
+                      'Mot de passe oublié',
+                      style: TextStyle(
+                        fontSize: AppDimensions.fontXXL,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  onPressed: () async {
-                    final authService = AuthService();
-                    final success = await authService.sendPasswordResetCode(
-                      emailController.text,
-                    );
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Password reset code sent to your email.',
-                          ),
-                        ),
-                      );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ResetPasswordScreen(email: emailController.text),
-                        ),
-                      );
-                    } else if (emailController.text.isEmpty) {
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Failed to send password reset code. Please try again.',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    // 'SEND CODE',
-                    'Envoyer le code',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: AppDimensions.p8),
+                    const Text(
+                      'Veuillez saisir votre adresse e-mail enregistrée pour obtenir votre nouveau mot de passe',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: AppDimensions.fontM,
+                          color: AppColors.textSecondary),
                     ),
-                  ),
+                    const SizedBox(height: AppDimensions.p40),
+                    AppInputField(
+                      controller: _emailController,
+                      hintText: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      onChanged: (v) {
+                        if (v != v.toLowerCase()) {
+                          _emailController.value = TextEditingValue(
+                            text: v.toLowerCase(),
+                            selection: TextSelection.collapsed(offset: v.length),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: AppDimensions.p24),
+                    AppButton(
+                      text: 'Envoyer le code',
+                      isLoading: _auth.isLoading.value,
+                      onPressed: () {
+                        if (!_validate()) return;
+                        _auth.forgotPassword(_emailController.text.trim());
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            if (_auth.isLoading.value) const AppLoader(),
+          ],
+        );
+      }),
     );
   }
 }

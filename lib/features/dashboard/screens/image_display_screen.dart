@@ -1,377 +1,382 @@
-// lib/screens/camera_flow/image_crop_screen.dart
 import 'dart:io';
-import 'dart:math' as Math;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:happer_app/features/creator/creator_tab_key.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
+import 'package:happer_app/features/selfies/bindings/selfie_binding.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/product/api/api_client.dart';
-import 'package:happer_app/features/dashboard/screens/dashboard_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:shimmer/shimmer.dart';
 
-class Product {
+class _Product {
   final String id;
+  final String brandId;
+  final String variantId;
   final String name;
-  final double price;
+  final String brandName;
   final String imageUrl;
-  bool isSelected;
+  bool isSelected = false;
 
-  Product({
+  _Product({
     required this.id,
+    required this.brandId,
+    required this.variantId,
     required this.name,
-    required this.price,
+    required this.brandName,
     required this.imageUrl,
-    this.isSelected = false,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    // Handle nested item_id structure from item_users/me endpoint
-    final itemData = json['item_id'] ?? json;
+  factory _Product.fromJson(Map<String, dynamic> json) {
+    final brandRaw = json['brand_id'];
+    final brandId = brandRaw is Map
+        ? (brandRaw['_id'] as String? ?? '')
+        : (brandRaw as String? ?? '');
+    final brandName =
+        brandRaw is Map ? (brandRaw['name'] as String? ?? '') : '';
 
-    return Product(
-      id: itemData['_id'] ?? json['_id'] ?? '',
-      name: itemData['name'] ?? json['name'] ?? 'Unknown',
-      price: (itemData['price'] ?? json['price'] ?? 0).toDouble(),
-      imageUrl: itemData['pictures'] != null &&
-              (itemData['pictures'] as List).isNotEmpty
-          ? itemData['pictures'][0]
-          : json['pictures'] != null && (json['pictures'] as List).isNotEmpty
-              ? json['pictures'][0]
-              : '',
+    // API returns variant_id as an object with an images array
+    final variantRaw = json['variant_id'];
+    final variantId = variantRaw is Map
+        ? (variantRaw['_id'] as String? ?? '')
+        : (variantRaw as String? ?? '');
+
+    // Prefer variant image; fall back to product_image
+    String imageUrl = '';
+    if (variantRaw is Map) {
+      final imgs = (variantRaw['images'] as List?)
+          ?.whereType<String>()
+          .where((s) => s.trim().isNotEmpty)
+          .toList();
+      if (imgs != null && imgs.isNotEmpty) imageUrl = imgs.first.trim();
+    }
+    if (imageUrl.isEmpty) {
+      imageUrl = (json['product_image'] as String? ?? '').trim();
+    }
+
+    return _Product(
+      id: json['_id'] as String? ?? '',
+      brandId: brandId,
+      variantId: variantId,
+      name: json['name'] as String? ?? 'Unknown',
+      brandName: brandName,
+      imageUrl: imageUrl,
     );
   }
+
+  Map<String, dynamic> toLinkedProduct() => {
+        'product_id': id,
+        'brand_id': brandId,
+        'variant_id': variantId,
+      };
 }
 
 class ImageCropScreen extends StatefulWidget {
   final File imageFile;
 
-  ImageCropScreen({required this.imageFile});
+  const ImageCropScreen({super.key, required this.imageFile});
 
   @override
-  _ImageCropScreenState createState() => _ImageCropScreenState();
+  State<ImageCropScreen> createState() => _ImageCropScreenState();
 }
 
 class _ImageCropScreenState extends State<ImageCropScreen> {
-  bool _isLoading = true;
-  bool _isUploading = false;
-  List<Product> _products = [];
-  Set<String> _selectedProductIds = {};
-  ApiClient apiClient = ApiClient();
-  int userType = 0; // Default userType, update this based on actual logic
+  bool _isLoadingProducts = false;
+  List<_Product> _products = [];
+  int _userType = 0;
+
+  late final SelfieController _selfieController;
 
   @override
   void initState() {
     super.initState();
-    _fetchAndStoreUserType();
-    _loadUserType();
-    _loadUserProducts();
-    print(
-        'User typeee: ' + userType.toString()); // Print user type for debugging
-  }
-
-  Future<void> _fetchAndStoreUserType() async {
-    final prefs = await SharedPreferences.getInstance();
-    try {
-      final token = prefs.getString('token');
-      if (token != null) {
-        final userData = await apiClient.getUserData(token);
-
-        final fetchedUserType =
-            userData['users_type'] ?? 0; // Updated to use 'users_type'
-        await prefs.setInt('userType', fetchedUserType);
-        setState(() {
-          userType = fetchedUserType;
-        });
-      } else {
-        setState(() {
-          userType = 0;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        userType = 0;
-      });
+    if (!Get.isRegistered<SelfieController>()) {
+      SelfieBinding().dependencies();
     }
+    _selfieController = Get.find<SelfieController>();
+    _loadUserTypeAndProducts();
   }
 
-  Future<void> _loadUserType() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _loadUserTypeAndProducts() async {
+    // Ensure user is loaded before checking type
+    if (_selfieController.currentUser.value == null) {
+      await _selfieController.fetchCurrentUser();
+    }
+    final userType = _selfieController.currentUser.value?.usersType ?? 0;
     setState(() {
-      userType = prefs.getInt('userType') ??
-          0; // Fetch userType from shared preferences
+      _userType = userType;
+      _isLoadingProducts = userType == 1;
+    });
+    if (userType != 1) return;
+
+    await _selfieController.fetchProductsList();
+    if (!mounted) return;
+    setState(() {
+      _products = _selfieController.productsList
+          .map((e) => _Product.fromJson(e))
+          .toList();
+      _isLoadingProducts = false;
     });
   }
 
-  Future<void> _loadUserProducts() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      if (token == null) {
-        print('No token found');
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      print('Fetching products from API...');
-      final productsData = await apiClient.getUserItems(token);
-      print('Received ${productsData.length} products from API');
-      print('Raw products data: $productsData');
-
-      final products = productsData.map((data) {
-        print('Parsing product: $data');
-        final product = Product.fromJson(data);
-        print(
-            'Parsed product: id=${product.id}, name=${product.name}, price=${product.price}, imageUrl=${product.imageUrl}');
-        return product;
-      }).toList();
-
-      print('Total products parsed: ${products.length}');
-
-      setState(() {
-        _products = products;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading products: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _toggleProductSelection(Product product) {
-    setState(() {
-      product.isSelected = !product.isSelected;
-      if (product.isSelected) {
-        _selectedProductIds.add(product.id);
-      } else {
-        _selectedProductIds.remove(product.id);
-      }
-    });
+  void _toggleProduct(_Product product) {
+    setState(() => product.isSelected = !product.isSelected);
   }
 
   Future<void> _uploadSelfie() async {
-    if (_isUploading) return;
+    final l10n = AppLocalizations.of(context);
+    final selected = _products.where((p) => p.isSelected).toList();
 
-    setState(() {
-      _isUploading = true;
-    });
+    if (_userType == 1 && selected.isEmpty) {
+      showAppSnackBar(l10n.selectAtLeastOneProduct, isSuccess: false);
+      return;
+    }
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+    final linkedProducts = selected.map((p) => p.toLinkedProduct()).toList();
 
-      if (token == null) {
-        setState(() {
-          _isUploading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).authErrorLogin)),
-        );
-        return;
-      }
-
-      final imageBytes = await widget.imageFile.readAsBytes();
-      final success = await apiClient.uploadSelfie(
-        token,
-        imageBytes,
-        _selectedProductIds.toList(),
-      );
-
-      setState(() {
-        _isUploading = false;
-      });
-
-      if (success) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).selfieUploadSuccess)),
-        );
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const DashboardScreen(refreshAfterUpload: true)),
-          (route) => false,
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).selfieUploadFailed)),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error uploading selfie: ${e.toString().substring(0, Math.min(e.toString().length, 100))}',
-          ),
-        ),
-      );
+    final success = await _selfieController.uploadAndSubmitSelfie(
+      widget.imageFile.path,
+      linkedProducts: linkedProducts,
+    );
+    if (success && mounted) {
+      _selfieController.fetchMySelfies(refresh: true);
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      creatorTabKey.currentState?.forceRefresh();
     }
   }
 
+  @override
   Widget build(BuildContext context) {
-    if (_isUploading) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: HapperAppBar(title: AppLocalizations.of(context).sharePhotoTitle),
-      body: Column(
+      appBar: HapperAppBar(title: l10n.sharePhotoTitle),
+      body: Stack(
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Image with grid overlay
-                  Container(
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Stack(
-                      children: [
-                        // Image
-                        Image.file(
-                          widget.imageFile,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
-                        // Grid overlay
-                        CustomPaint(
-                          size: Size(double.infinity, double.infinity),
-                          painter: GridPainter(),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (userType == 1) ...[
-                          Text(
-                            'Select Extra Products',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                        child: Stack(
+                          children: [
+                            Image.file(
+                              widget.imageFile,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
                             ),
+                            CustomPaint(
+                              size:
+                                  const Size(double.infinity, double.infinity),
+                              painter: _GridPainter(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_userType == 1)
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.linkProductsTitle,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Lato',
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (_isLoadingProducts)
+                                _buildShimmerCards()
+                              else
+                                _buildProductList(l10n),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          _isLoading
-                              ? Center(child: CircularProgressIndicator())
-                              : _buildProductList(),
-                        ],
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          // Share button at the bottom
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: _uploadSelfie,
-              child: Text(AppLocalizations.of(context).shareButton),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 16),
               ),
-            ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child: Obx(() {
+                  final isUploading = _selfieController.isSubmitting.value;
+                  return ElevatedButton(
+                    onPressed: isUploading ? null : _uploadSelfie,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(l10n.shareButton),
+                  );
+                }),
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
-          SizedBox(
-            height: 40,
-          ),
+          Obx(() {
+            if (!_selfieController.isSubmitting.value)
+              return const SizedBox.shrink();
+            return Container(
+              color: Colors.black.withValues(alpha: 0.55),
+              child: Center(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: CircularProgressIndicator(
+                          color: Colors.black,
+                          strokeWidth: 3,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        l10n.uploading,
+                        style: const TextStyle(
+                          fontFamily: 'Lato',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.pleaseWaitMoment,
+                        style: TextStyle(
+                          fontFamily: 'Lato',
+                          fontSize: 13,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildProductList() {
-    if (userType == 0) {
-      return Center(
-          child: Text(AppLocalizations.of(context).productsNotAvailable));
-    }
+  Widget _buildShimmerCards() {
+    return SizedBox(
+      height: 220,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 4,
+        itemBuilder: (_, __) => Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Container(
+            width: 150,
+            margin: const EdgeInsets.only(right: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child:
+                      Container(height: 150, width: 110, color: Colors.white),
+                ),
+                const SizedBox(height: 6),
+                Container(height: 12, width: 120, color: Colors.white),
+                const SizedBox(height: 4),
+                Container(height: 10, width: 80, color: Colors.white),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
+  Widget _buildProductList(AppLocalizations l10n) {
     if (_products.isEmpty) {
-      return Center(child: Text(AppLocalizations.of(context).noProductAvailable));
+      return Center(
+        child: Text(l10n.noProductAvailable),
+      );
     }
-
-    return Container(
+    return SizedBox(
       height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: _products.length,
         itemBuilder: (context, index) {
           final product = _products[index];
-          return Container(
-            width: 150,
-            margin: EdgeInsets.only(right: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: product.imageUrl.isNotEmpty
-                          ? Image.network(
-                              product.imageUrl,
-                              height: 150,
-                              width: 110,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 150,
-                                  width: 110,
-                                  color: Colors.grey.shade300,
-                                  child:
-                                      Icon(Icons.image_not_supported, size: 40),
-                                );
-                              },
-                            )
-                          : Container(
-                              height: 150,
-                              width: 110,
-                              color: Colors.grey.shade300,
-                              child: Icon(Icons.image_not_supported, size: 40),
+          return GestureDetector(
+            onTap: () => _toggleProduct(product),
+            child: Container(
+              width: 150,
+              margin: const EdgeInsets.only(right: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: product.imageUrl.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: product.imageUrl,
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                                errorWidget: (_, __, ___) =>
+                                    _imagePlaceholder(),
+                              )
+                            : _imagePlaceholder(),
+                      ),
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black,
+                          radius: 12,
+                          child: Text(
+                            '${index + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.black,
-                        radius: 12,
-                        child: Text(
-                          (index + 1).toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: () => _toggleProductSelection(product),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
                         child: Container(
                           width: 30,
                           height: 30,
@@ -383,49 +388,60 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                             border: Border.all(color: Colors.grey),
                           ),
                           child: product.isSelected
-                              ? Icon(Icons.check, color: Colors.white, size: 20)
+                              ? const Icon(Icons.check,
+                                  color: Colors.white, size: 20)
                               : null,
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    product.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Lato',
                     ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Text(
-                  product.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '${product.price.toStringAsFixed(2)}€',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
+                  ),
+                  Text(
+                    product.brandName,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontFamily: 'Lato',
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
     );
   }
+
+  Widget _imagePlaceholder() => Container(
+        height: 150,
+        width: 110,
+        color: Colors.grey.shade200,
+        child: const Icon(Icons.shopping_bag_outlined,
+            size: 40, color: Colors.grey),
+      );
 }
 
-class GridPainter extends CustomPainter {
+class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
+      ..color = Colors.white.withValues(alpha: 0.5)
       ..strokeWidth = 1.0;
-
-    // Draw horizontal lines
     for (int i = 1; i < 3; i++) {
-      double y = size.height * i / 3;
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-
-    // Draw vertical lines
-    for (int i = 1; i < 3; i++) {
-      double x = size.width * i / 3;
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+      canvas.drawLine(Offset(0, size.height * i / 3),
+          Offset(size.width, size.height * i / 3), paint);
+      canvas.drawLine(Offset(size.width * i / 3, 0),
+          Offset(size.width * i / 3, size.height), paint);
     }
   }
 
