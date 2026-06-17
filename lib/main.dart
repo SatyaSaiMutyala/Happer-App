@@ -23,7 +23,7 @@ import 'package:http/http.dart' as http;
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:app_links/app_links.dart';
-
+ 
 // Make this function accessible from other files
 Future<void> initializeStripe() async {
   await _initializeStripe();
