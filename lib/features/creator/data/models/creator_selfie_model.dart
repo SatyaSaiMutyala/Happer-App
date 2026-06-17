@@ -34,6 +34,7 @@ class CreatorSelfieModel {
   final List<String> images;
   final String status;
   final List<Map<String, dynamic>> productObjects;
+  final List<Map<String, dynamic>> linkedBrands;
   final CreatorSelfieUser? user;
   int likesCount;
   bool isLikedByMe;
@@ -45,6 +46,7 @@ class CreatorSelfieModel {
     required this.images,
     required this.status,
     required this.productObjects,
+    required this.linkedBrands,
     this.user,
     required this.likesCount,
     required this.isLikedByMe,
@@ -54,10 +56,16 @@ class CreatorSelfieModel {
   List<Map<String, dynamic>> get uniqueBrands {
     final seen = <String>{};
     final result = <Map<String, dynamic>>[];
-    for (final p in productObjects) {
-      final brand = p['brand_id'];
-      if (brand is Map<String, dynamic> &&
-          brand['_id'] != null &&
+    // Prefer the top-level `linked_brands` (already populated with logo/name);
+    // fall back to brand objects embedded in products when present.
+    final sources = linkedBrands.isNotEmpty
+        ? linkedBrands
+        : productObjects
+            .map((p) => p['brand_id'])
+            .whereType<Map<String, dynamic>>()
+            .toList();
+    for (final brand in sources) {
+      if (brand['_id'] != null &&
           brand['picture'] != null &&
           (brand['picture'] as String).isNotEmpty &&
           seen.add(brand['_id'] as String)) {
@@ -72,12 +80,16 @@ class CreatorSelfieModel {
     final productObjects = rawProducts
         .whereType<Map<String, dynamic>>()
         .toList();
+    final linkedBrands = (json['linked_brands'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .toList();
     return CreatorSelfieModel(
       id: json['_id'] as String? ?? '',
       userId: json['user_id'] as String? ?? '',
       images: (json['images'] as List<dynamic>? ?? []).cast<String>(),
       status: json['status'] as String? ?? '',
       productObjects: productObjects,
+      linkedBrands: linkedBrands,
       user: json['user'] != null
           ? CreatorSelfieUser.fromJson(json['user'] as Map<String, dynamic>)
           : null,

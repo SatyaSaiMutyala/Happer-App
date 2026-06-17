@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:happer_app/features/profile/bindings/address_binding.dart';
 import 'package:happer_app/features/profile/controllers/address_controller.dart';
 import 'package:happer_app/features/profile/models/address_model.dart';
-import 'package:happer_app/features/profile/screens/my_address_screen.dart';
+import 'package:happer_app/features/profile/widgets/address_form_sheet.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -33,11 +33,19 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
   }
 
   void _openAddAddress() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const MyAddressScreen()),
-    );
-    _controller.fetchAddresses();
+    final existingIds = _controller.addresses.map((a) => a.id).toSet();
+    final saved = await showAddressFormSheet(context, _controller);
+    if (saved != true || !mounted) return;
+    // The form's controller already refreshed the list; auto-select the
+    // newly added address (or fall back to the default / first one).
+    final added = _controller.addresses
+        .firstWhereOrNull((a) => !existingIds.contains(a.id));
+    final toSelect = added ??
+        _controller.addresses.firstWhereOrNull((a) => a.isDefault) ??
+        (_controller.addresses.isNotEmpty
+            ? _controller.addresses.first
+            : null);
+    if (toSelect != null) setState(() => _selectedId = toSelect.id);
   }
 
   @override

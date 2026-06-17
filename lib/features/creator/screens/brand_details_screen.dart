@@ -42,11 +42,36 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
   List<Map<String, dynamic>> _brandItems = [];
   final ScrollController _scrollController = ScrollController();
 
+  // Brand header data. Seeded from the navigation args (which, coming from the
+  // creator feed's `linked_brands`, lack a description) and then enriched from
+  // the products-list response, whose items embed the full `brand_id` object.
+  late String _brandName = widget.brandName;
+  late String _brandDescription = widget.brandDescription;
+  late String _brandLogo = widget.brandLogo;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
     _init();
+  }
+
+  /// Pulls the brand's own data from the first product's populated `brand_id`,
+  /// keeping existing values when the response omits a field.
+  void _applyBrandFromItems(List<Map<String, dynamic>> items) {
+    final brand = items
+        .map((p) => p['brand_id'])
+        .whereType<Map<String, dynamic>>()
+        .firstOrNull;
+    if (brand == null) return;
+    final name = brand['name'] as String?;
+    final description = brand['description'] as String?;
+    final picture = brand['picture'] as String?;
+    if (name != null && name.isNotEmpty) _brandName = name;
+    if (description != null && description.isNotEmpty) {
+      _brandDescription = description;
+    }
+    if (picture != null && picture.isNotEmpty) _brandLogo = picture;
   }
 
   @override
@@ -88,6 +113,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
       if (!mounted) return;
       setState(() {
         _brandItems = items;
+        _applyBrandFromItems(items);
         _currentPage = 2;
         _hasMoreItems = items.length >= _itemsPerPage;
         _isLoading = false;
@@ -341,7 +367,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                               padding: const EdgeInsets.all(12),
                               child: ClipOval(
                                 child: CachedNetworkImage(
-                                  imageUrl: widget.brandLogo,
+                                  imageUrl: _brandLogo,
                                   fit: BoxFit.contain,
                                   placeholder: (context, url) => Container(
                                     color: Colors.grey.shade200,
@@ -357,7 +383,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              widget.brandName.toUpperCase(),
+                              _brandName.toUpperCase(),
                               style: const TextStyle(
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w700,
@@ -368,7 +394,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              widget.brandDescription,
+                              _brandDescription,
                               style: const TextStyle(
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w300,

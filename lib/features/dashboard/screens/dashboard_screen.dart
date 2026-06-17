@@ -281,7 +281,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       _tabController.animateTo(_tabController.previousIndex);
                     }
                   },
-                  tabs: [Tab(text: "CRÉATEUR"), Tab(text: "COMMUNAUTÉ")],
+                  tabs: [Tab(text: "CRÉATEUR"), Tab(text: "DÉCOUVRIR")],
                 ),
               ),
             ),
@@ -357,6 +357,12 @@ class _DashboardScreenState extends State<DashboardScreen>
         currentIndex: _currentIndex,
         profileController: _profileController,
         onTap: (index) {
+          // Instagram-style: tapping the home icon while already on the home
+          // tab smoothly scrolls the active feed back to the top.
+          if (index == 0 && _currentIndex == 0 && _tabController.index == 0) {
+            creatorTabKey.currentState?.scrollToTop();
+            return;
+          }
           setState(() => _currentIndex = index);
           _onTabTapped(index);
         },

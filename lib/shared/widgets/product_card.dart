@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/features/creator/screens/product_details_screen.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
+import 'package:happer_app/shared/widgets/product_options_sheet.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProductCard extends StatefulWidget {
@@ -31,11 +32,12 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
-  bool _isAdding = false;
   bool _isRemoving = false;
   bool _isInCart = false;
   int _quantity = 1;
   String _cartItemId = '';
+  // The variant actually added to the cart (chosen in the options sheet).
+  String _selectedVariantId = '';
 
   String get _variantId {
     final variants = widget.product['variants'] as List<dynamic>? ?? [];
@@ -51,37 +53,40 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   void _syncFromCart() {
-    final variantId = _variantId;
-    if (variantId.isEmpty) return;
+    final variants = widget.product['variants'] as List<dynamic>? ?? [];
     try {
       final cartCtrl = Get.find<CartController>();
-      final existingItemId = cartCtrl.cartItemIdForVariant(variantId);
-      if (existingItemId != null) {
-        _isInCart = true;
-        _cartItemId = existingItemId;
+      // Any variant of this product already in the cart marks the card "added".
+      for (final v in variants.whereType<Map<String, dynamic>>()) {
+        final vid = v['_id'] as String? ?? '';
+        if (vid.isEmpty) continue;
+        final existingItemId = cartCtrl.cartItemIdForVariant(vid);
+        if (existingItemId != null) {
+          _isInCart = true;
+          _cartItemId = existingItemId;
+          _selectedVariantId = vid;
+          break;
+        }
       }
     } catch (_) {}
   }
 
+  // Opens the options sheet (size / color / quantity). The sheet performs the
+  // add-to-cart itself and returns the chosen variant on success.
   Future<void> _handleAdd() async {
-    if (_isAdding || widget.onAddToCart == null) return;
-    setState(() => _isAdding = true);
-    try {
-      final cartItemId = await widget.onAddToCart!();
-      if (mounted && cartItemId != null) {
-        // Persist into CartController so other cards + screens stay in sync
-        try {
-          Get.find<CartController>().markVariantAdded(_variantId, cartItemId);
-        } catch (_) {}
-        setState(() {
-          _isInCart = true;
-          _cartItemId = cartItemId;
-          _quantity = 1;
-        });
-      }
-    } finally {
-      if (mounted) setState(() => _isAdding = false);
-    }
+    if (_isRemoving) return;
+    final result = await showProductOptionsSheet(
+      context,
+      product: widget.product,
+      affiliateId: widget.affiliateId,
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _isInCart = true;
+      _cartItemId = result.cartItemId;
+      _selectedVariantId = result.variantId;
+      _quantity = result.quantity;
+    });
   }
 
   Future<void> _handleRemove() async {
@@ -91,7 +96,9 @@ class _ProductCardState extends State<ProductCard> {
     try {
       await widget.onRemoveFromCart!(_cartItemId);
       try {
-        Get.find<CartController>().markVariantRemoved(_variantId);
+        final vId =
+            _selectedVariantId.isNotEmpty ? _selectedVariantId : _variantId;
+        Get.find<CartController>().markVariantRemoved(vId);
       } catch (_) {}
       if (mounted) {
         setState(() {
@@ -128,9 +135,8 @@ class _ProductCardState extends State<ProductCard> {
     if (imageUrl.isEmpty)
       imageUrl = (widget.product['product_image'] as String? ?? '').trim();
 
-    final canAdd = productId.isNotEmpty &&
-        variantId.isNotEmpty &&
-        widget.onAddToCart != null;
+    // The options sheet handles the actual add, so a valid product is enough.
+    final canAdd = productId.isNotEmpty && variantId.isNotEmpty;
 
     return SizedBox(
       width: widget.cardWidth,
@@ -273,7 +279,7 @@ class _ProductCardState extends State<ProductCard> {
           const SizedBox(height: 6),
 
           // ── Button ─────────────────────────────────────────────────────────
-          _isAdding || _isRemoving
+          _isRemoving
               ? _buttonShell(
                   child: const SizedBox(
                   width: 14,

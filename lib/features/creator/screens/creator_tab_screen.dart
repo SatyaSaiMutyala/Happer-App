@@ -96,7 +96,11 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
     }
   }
 
-  void _scrollToTop() {
+  /// Smoothly scrolls the feed back to the top (Instagram-style: re-tapping
+  /// the home icon while already on this tab). Safe to call when the list
+  /// isn't attached yet.
+  void scrollToTop() {
+    if (!_scrollController.hasClients) return;
     _scrollController.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
   }
@@ -453,7 +457,7 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
               child: FloatingActionButton(
                 backgroundColor: Colors.black.withValues(alpha: 0.6),
                 mini: true,
-                onPressed: _scrollToTop,
+                onPressed: scrollToTop,
                 child: const Icon(Icons.arrow_upward, color: Colors.white),
               ),
             ),

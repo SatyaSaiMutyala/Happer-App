@@ -8,6 +8,7 @@ import 'package:happer_app/features/profile/screens/my_address_screen.dart';
 import 'package:happer_app/features/profile/screens/my_profile_screen.dart';
 import 'package:happer_app/core/utils/url_launcher_util.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
+import 'package:happer_app/shared/widgets/confirm_dialog.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 
 class MyAccountScreen extends StatefulWidget {
@@ -127,6 +128,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                   title: AppLocalizations.of(context).deleteMyAccount,
                   iconPath: 'assets/images/delete_account.svg',
                   onTap: () async {
+                    final l = AppLocalizations.of(context);
                     final userId = StorageService.getUserId();
 
                     if (userId == null) {
@@ -136,64 +138,21 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                       return;
                     }
 
-                    // Dummy: delete procedure will be wired when API is integrated
-
-                    // Step 2: Show dialog to enter verification code
-                    final TextEditingController codeController =
-                        TextEditingController();
-
-                    await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text(AppLocalizations.of(context).deleteMyAccount),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context).enterCodeAndNewPassword,
-                              ),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: codeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'Verification Code',
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: Text(AppLocalizations.of(context).cancel),
-                            ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final code = codeController.text.trim();
-                                if (code.isNotEmpty) {
-                                  if (context.mounted)
-                                    Navigator.of(context).pop();
-
-                                  // Dummy: deleteAccount API will be wired when integrated
-                                    StorageService.clearAuth();
-                                    Get.offAllNamed(AppRoutes.login);
-                                } else {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content:
-                                              Text('Please enter the code')),
-                                    );
-                                  }
-                                }
-                              },
-                              child: Text(AppLocalizations.of(context).delete),
-                            ),
-                          ],
-                        );
-                      },
+                    final confirmed = await showConfirmDialog(
+                      context,
+                      title: l.deleteMyAccount,
+                      message:
+                          'Cette action est définitive. Toutes vos données seront supprimées et ne pourront pas être récupérées.',
+                      confirmLabel: l.delete,
+                      cancelLabel: l.cancel,
+                      icon: Icons.delete_outline_rounded,
+                      type: ConfirmType.danger,
                     );
+                    if (!confirmed) return;
+
+                    // Dummy: deleteAccount API will be wired when integrated
+                    StorageService.clearAuth();
+                    Get.offAllNamed(AppRoutes.login);
                   },
                 ),
               ],
@@ -245,6 +204,17 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                 ),
               ),
               onPressed: () async {
+                final l = AppLocalizations.of(context);
+                final confirmed = await showConfirmDialog(
+                  context,
+                  title: l.logout,
+                  message: 'Voulez-vous vraiment vous déconnecter ?',
+                  confirmLabel: l.logout,
+                  cancelLabel: l.cancel,
+                  icon: Icons.logout_rounded,
+                  isDangerous: true,
+                );
+                if (!confirmed) return;
                 StorageService.clearAuth();
                 Get.offAllNamed(AppRoutes.login);
               },
