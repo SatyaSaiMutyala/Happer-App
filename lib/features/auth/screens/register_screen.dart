@@ -146,6 +146,7 @@ class RegisterScreen extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
+                        const SizedBox(width: 4),
                         GestureDetector(
                           onTap: () {
                             _saveIsGuestLogin(false);

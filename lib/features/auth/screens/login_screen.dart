@@ -228,6 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style:
                               const TextStyle(color: AppColors.textSecondary),
                         ),
+                        const SizedBox(width: AppDimensions.p4),
                         GestureDetector(
                           onTap: () => Get.toNamed(AppRoutes.signup),
                           child: Text(

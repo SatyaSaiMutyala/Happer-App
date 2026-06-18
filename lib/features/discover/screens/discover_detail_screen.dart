@@ -281,13 +281,36 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                       child: CircleAvatar(
                         radius: AppDimensions.p20,
                         backgroundColor: Colors.black54,
-                        child: IconButton(
-                          icon: const Icon(Icons.share, color: Colors.white, size: 20),
-                          onPressed: () => shareOutfit(
-                            username: selfieUser?.username ??
-                                fallbackUser?.username ?? '',
-                            selfieId: widget.selfieModel.id,
-                            creatorName: userName,
+                        child: Builder(
+                          builder: (btnContext) => IconButton(
+                            icon: const Icon(Icons.share,
+                                color: Colors.white, size: 20),
+                            onPressed: () {
+                              final username = selfieUser?.username ??
+                                  fallbackUser?.username ??
+                                  '';
+                              final selfieId = widget.selfieModel.id;
+                              if (username.isEmpty || selfieId.isEmpty) {
+                                showAppSnackBar(
+                                    'Partage indisponible pour le moment',
+                                    isSuccess: false);
+                                return;
+                              }
+                              // sharePositionOrigin is required for the share
+                              // sheet to anchor correctly on iPad.
+                              final box =
+                                  btnContext.findRenderObject() as RenderBox?;
+                              shareOutfit(
+                                username: username,
+                                selfieId: selfieId,
+                                creatorName: userName,
+                                sharePositionOrigin:
+                                    box != null && box.hasSize
+                                        ? box.localToGlobal(Offset.zero) &
+                                            box.size
+                                        : null,
+                              );
+                            },
                           ),
                         ),
                       ),

@@ -154,9 +154,10 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
                 child: ClipOval(
                   child: CachedNetworkImage(
                     imageUrl: picture,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
+                    placeholder: (_, __) => Container(color: Colors.grey.shade200),
                     errorWidget: (_, __, ___) =>
-                        const Icon(Icons.store, size: 20),
+                        const Icon(Icons.image, size: 24, color: Colors.grey),
                   ),
                 ),
               ),

@@ -10,7 +10,6 @@ import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/shared/widgets/cart_icon_button.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BrandDetailsScreen extends StatefulWidget {
@@ -302,12 +301,6 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
       extendBody: true,
       appBar: HapperAppBar(
         title: 'LA COLLECTION',
-        actions: [
-          Obx(() => CartIconButton(
-                cartItemCount: Get.find<CartController>().cartItemCount.value,
-                onNavigateBack: _fetchCartItemCount,
-              )),
-        ],
       ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,

@@ -8,7 +8,7 @@ class ReturnRefundScreen extends StatelessWidget {
   Future<void> _sendEmail() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'contact@happer.fr',
+      path: 'support@happer.fr',
       queryParameters: {
         'subject': 'Return and Refund Request',
       },
@@ -44,7 +44,7 @@ class ReturnRefundScreen extends StatelessWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 30),
             child: const Text(
-              'Pour toute question, besoin ou disfonctionnalité rencontré, merci de contacter le service client via contact@happer.fr.',
+              'Pour toute question, besoin ou disfonctionnalité rencontré, merci de contacter le service client via support@happer.fr.',
               style: TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 16,
