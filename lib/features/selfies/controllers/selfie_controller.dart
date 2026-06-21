@@ -115,7 +115,6 @@ class SelfieController extends GetxController {
     if (refresh) {
       _myPage = 1;
       hasMyMore.value = true;
-      mySelfies.clear();
     }
     myError.value = null;
     isMyLoading.value = mySelfies.isEmpty;
@@ -157,9 +156,11 @@ class SelfieController extends GetxController {
     if (refresh) {
       _discoverPage = 1;
       hasDiscoverMore.value = true;
-      discoverSelfies.clear();
     }
     discoverError.value = null;
+    // Don't clear the list before the new data arrives — the old content
+    // (and RefreshIndicator's own spinner) stays visible during a refresh
+    // instead of flashing the full-screen shimmer placeholder.
     isDiscoverLoading.value = discoverSelfies.isEmpty;
     try {
       final data = await _repo.getNormalUserSelfies(

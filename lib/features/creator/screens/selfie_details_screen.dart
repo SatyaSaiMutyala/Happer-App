@@ -711,18 +711,37 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                       size: 24, color: Colors.white),
                                   onPressed: () {
                                     final selfieId = _selfie?.sId ?? '';
-                                    final username = _selfie?.user?.userName ?? '';
-                                    if (selfieId.isNotEmpty && username.isNotEmpty) {
-                                      final box = context.findRenderObject() as RenderBox?;
-                                      shareOutfit(
-                                        username: username,
-                                        selfieId: selfieId,
-                                        creatorName: '${_selfie?.user?.firstName ?? ''} ${_selfie?.user?.lastName ?? ''}'.trim(),
-                                        sharePositionOrigin: box != null && box.hasSize
-                                            ? box.localToGlobal(Offset.zero) & box.size
-                                            : null,
-                                      );
+                                    if (selfieId.isEmpty) {
+                                      showAppSnackBar(
+                                          'Partage indisponible pour le moment',
+                                          isSuccess: false);
+                                      return;
                                     }
+                                    // The username segment in the share link is
+                                    // cosmetic — the app opens the outfit using
+                                    // selfieId alone. Fall back to the user's id
+                                    // so sharing still works for creators who
+                                    // haven't set a username.
+                                    final username =
+                                        _selfie?.user?.userName?.isNotEmpty ==
+                                                true
+                                            ? _selfie!.user!.userName!
+                                            : (_selfie?.user?.sId ?? '');
+                                    if (username.isEmpty) {
+                                      showAppSnackBar(
+                                          'Partage indisponible pour le moment',
+                                          isSuccess: false);
+                                      return;
+                                    }
+                                    final box = context.findRenderObject() as RenderBox?;
+                                    shareOutfit(
+                                      username: username,
+                                      selfieId: selfieId,
+                                      creatorName: '${_selfie?.user?.firstName ?? ''} ${_selfie?.user?.lastName ?? ''}'.trim(),
+                                      sharePositionOrigin: box != null && box.hasSize
+                                          ? box.localToGlobal(Offset.zero) & box.size
+                                          : null,
+                                    );
                                   },
                                 ),
                               ),

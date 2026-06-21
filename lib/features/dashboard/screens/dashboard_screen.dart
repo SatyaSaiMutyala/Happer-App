@@ -7,6 +7,7 @@ import 'package:happer_app/features/profile/bindings/user_profile_binding.dart';
 import 'package:happer_app/features/profile/controllers/user_profile_controller.dart';
 import 'package:happer_app/features/creator/screens/creator_tab_screen.dart';
 import 'package:happer_app/features/creator/creator_tab_key.dart';
+import 'package:happer_app/features/discover/discover_tab_key.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
 import 'package:happer_app/features/dashboard/screens/image_display_screen.dart';
@@ -156,7 +157,17 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
-      appBar: AppBar(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        // Tapping anywhere on the bar scrolls the active tab to top
+        // (Instagram-style). HitTestBehavior.opaque makes the whole bar
+        // tappable, but the Jeu Concours button (and any other button in
+        // `actions`) still wins the gesture arena for taps directly on it,
+        // so its own onPressed keeps firing independently.
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _scrollActiveTabToTop,
+          child: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -248,6 +259,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                 )
               : const _GameContestButton(),
         ],
+          ),
+        ),
       ),
       //   controller: _tabController,
       //   physics: AppManager.isLoginAsGuest
@@ -345,7 +358,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       : _tabPhysics,
                   children: [
                     CreatorTabScreen(key: creatorTabKey),
-                    DiscoverTabScreen(),
+                    DiscoverTabScreen(key: discoverTabKey),
                   ],
                 ),
               ),
@@ -368,6 +381,15 @@ class _DashboardScreenState extends State<DashboardScreen>
         },
       ),
     );
+  }
+
+  void _scrollActiveTabToTop() {
+    if (_currentIndex != 0) return;
+    if (_tabController.index == 0) {
+      creatorTabKey.currentState?.scrollToTop();
+    } else {
+      discoverTabKey.currentState?.scrollToTop();
+    }
   }
 
   void _onTabTapped(int index) async {

@@ -127,7 +127,12 @@ class _ProductCardState extends State<ProductCard> {
     final variantImages =
         (variant['images'] as List<dynamic>? ?? []).cast<String>();
     final price = (variant['price'] as num?)?.toInt() ?? 0;
-    final promoPrice = (widget.product['promo_price'] as num?)?.toInt() ?? 0;
+    final compareAtPriceRaw = variant['compare_at_price'];
+    final compareAtPrice = compareAtPriceRaw is num
+        ? compareAtPriceRaw.toInt()
+        : (compareAtPriceRaw is String
+            ? int.tryParse(compareAtPriceRaw)
+            : null);
     final imageHeight = widget.cardWidth * (180 / 125);
 
     String imageUrl =
@@ -242,11 +247,11 @@ class _ProductCardState extends State<ProductCard> {
           const SizedBox(height: 2),
 
           // ── Price ──────────────────────────────────────────────────────────
-          if (promoPrice > 0)
+          if (compareAtPrice != null && compareAtPrice > price)
             RichText(
               text: TextSpan(children: [
                 TextSpan(
-                  text: '$promoPrice€ ',
+                  text: '$price€ ',
                   style: const TextStyle(
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
@@ -254,14 +259,14 @@ class _ProductCardState extends State<ProductCard> {
                       color: Colors.black),
                 ),
                 TextSpan(
-                  text: '$price€',
-                  style: const TextStyle(
+                  text: '$compareAtPrice€',
+                  style: TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
                     fontSize: 12,
-                    color: Colors.black,
+                    color: Colors.grey.shade500,
                     decoration: TextDecoration.lineThrough,
-                    decorationColor: Colors.black,
+                    decorationColor: Colors.grey.shade500,
                   ),
                 ),
               ]),

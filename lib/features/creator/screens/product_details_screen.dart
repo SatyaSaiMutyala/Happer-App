@@ -20,6 +20,7 @@ class _Variant {
   final String id;
   final List<String> images;
   final double price;
+  final double? compareAtPrice;
   final String color;
   final String size;
   final int quantity;
@@ -28,6 +29,7 @@ class _Variant {
     required this.id,
     required this.images,
     required this.price,
+    required this.compareAtPrice,
     required this.color,
     required this.size,
     required this.quantity,
@@ -47,6 +49,12 @@ class _Variant {
             .map((o) => o['value'] as String? ?? '')
             .firstOrNull ??
         '';
+    final compareAtPriceRaw = json['compare_at_price'];
+    final compareAtPrice = compareAtPriceRaw is num
+        ? compareAtPriceRaw.toDouble()
+        : (compareAtPriceRaw is String
+            ? double.tryParse(compareAtPriceRaw)
+            : null);
     return _Variant(
       id: json['_id'] as String? ?? '',
       images: (json['images'] as List<dynamic>? ?? [])
@@ -55,6 +63,7 @@ class _Variant {
           .where((s) => s.isNotEmpty)
           .toList(),
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      compareAtPrice: compareAtPrice,
       color: color,
       size: size,
       quantity: json['quantity'] as int? ?? 0,
@@ -132,6 +141,29 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     if (_allVariants.isNotEmpty) return _allVariants.first.price;
     return 0;
   }
+
+  // Original (struck-through) price, mirroring _displayPrice's fallback chain.
+  double? get _displayCompareAtPrice {
+    final sv = _selectedVariant;
+    if (sv != null) return sv.compareAtPrice;
+    final forColor = _variantsForSelectedColor;
+    if (forColor.isNotEmpty) return forColor.first.compareAtPrice;
+    if (_allVariants.isNotEmpty) return _allVariants.first.compareAtPrice;
+    return null;
+  }
+
+  // Discount percentage off the original price, rounded — null when there's
+  // no compare-at price to discount from.
+  int? get _discountPercent {
+    final compareAt = _displayCompareAtPrice;
+    if (compareAt == null || compareAt <= 0 || compareAt <= _displayPrice) {
+      return null;
+    }
+    return (((compareAt - _displayPrice) / compareAt) * 100).round();
+  }
+
+  String _formatPrice(double value) =>
+      value.toStringAsFixed(2).replaceAll('.', ',');
 
   static const Map<String, Color> _colorMap = {
     'black': Colors.black,
@@ -336,11 +368,46 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         if (_description.isNotEmpty)
                           ExpandableDescription(text: _description),
                         const SizedBox(height: 10),
-                        Text(
-                          '${_displayPrice.round()}€',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
+                        if (_displayCompareAtPrice != null &&
+                            _displayCompareAtPrice! > _displayPrice)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${_formatPrice(_displayPrice)} €',
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${_formatPrice(_displayCompareAtPrice!)}€',
+                                style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15,
+                                    decoration: TextDecoration.lineThrough,
+                                    decorationColor: Colors.grey.shade500),
+                              ),
+                              if (_discountPercent != null) ...[
+                                const SizedBox(width: 8),
+                                Text(
+                                  '-$_discountPercent%',
+                                  style: const TextStyle(
+                                      color: Color(0xFFE53935),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14),
+                                ),
+                              ],
+                            ],
+                          )
+                        else
+                          Text(
+                            '${_formatPrice(_displayPrice)} €',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
                         const SizedBox(height: 20),
                         if (_distinctColors.any((c) => c.isNotEmpty)) ...[
                           const Text(

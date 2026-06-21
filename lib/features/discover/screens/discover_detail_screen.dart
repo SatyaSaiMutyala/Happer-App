@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:happer_app/core/utils/deep_link_utils.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/core/constants/app_colors.dart';
@@ -90,11 +91,13 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
         content: Text(l.deleteImageConfirm),
         actions: [
           TextButton(
-            child: Text(l.cancel, style: const TextStyle(color: AppColors.textPrimary)),
+            child: Text(l.cancel,
+                style: const TextStyle(color: AppColors.textPrimary)),
             onPressed: () => Navigator.pop(ctx, false),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.textPrimary),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.textPrimary),
             child: Text(l.delete, style: const TextStyle(color: Colors.white)),
             onPressed: () => Navigator.pop(ctx, true),
           ),
@@ -157,7 +160,8 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
     return CircleAvatar(
       radius: AppDimensions.p20,
       backgroundColor: Colors.grey.shade300,
-      child: Icon(Icons.person, color: Colors.grey.shade600, size: AppDimensions.p20),
+      child: Icon(Icons.person,
+          color: Colors.grey.shade600, size: AppDimensions.p20),
     );
   }
 
@@ -166,7 +170,9 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
     final first = user.firstName?.isNotEmpty == true ? user.firstName![0] : '';
     final last = user.lastName?.isNotEmpty == true ? user.lastName![0] : '';
     if (first.isEmpty && last.isEmpty) {
-      return (user.username?.isNotEmpty == true) ? user.username![0].toUpperCase() : '?';
+      return (user.username?.isNotEmpty == true)
+          ? user.username![0].toUpperCase()
+          : '?';
     }
     return '$first$last'.toUpperCase();
   }
@@ -214,10 +220,18 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
         final selfieUser = selfie?.user;
         final fallbackUser = widget.selfieModel.user;
         final userId = selfieUser?.id ?? fallbackUser?.id ?? '';
-        final fallbackName = '${fallbackUser?.firstName ?? ''} ${fallbackUser?.lastName ?? ''}'.trim();
+        final fallbackName =
+            '${fallbackUser?.firstName ?? ''} ${fallbackUser?.lastName ?? ''}'
+                .trim();
+        final selfieUserName = selfieUser != null
+            ? '${selfieUser.firstName ?? ''} ${selfieUser.lastName ?? ''}'
+                .trim()
+            : '';
         final userName = selfieUser?.displayName.isNotEmpty == true
             ? selfieUser!.displayName
-            : (selfieUser?.username ?? fallbackName);
+            : (selfieUser?.username?.isNotEmpty == true
+                ? selfieUser!.username!
+                : (selfieUserName.isNotEmpty ? selfieUserName : fallbackName));
 
         return SingleChildScrollView(
           child: Column(
@@ -233,11 +247,21 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                       height: MediaQuery.of(context).size.height * 0.5,
                       child: PinchZoom(
                         maxScale: 4.0,
-                        child: Image.network(
-                          imageUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Center(
-                            child: Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                          placeholder: (_, __) => Container(
+                            color: Colors.grey.shade200,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.textPrimary,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (_, __, ___) => const Center(
+                            child: Icon(Icons.broken_image,
+                                size: 100, color: Colors.grey),
                           ),
                         ),
                       ),
@@ -286,11 +310,26 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                             icon: const Icon(Icons.share,
                                 color: Colors.white, size: 20),
                             onPressed: () {
-                              final username = selfieUser?.username ??
-                                  fallbackUser?.username ??
-                                  '';
                               final selfieId = widget.selfieModel.id;
-                              if (username.isEmpty || selfieId.isEmpty) {
+                              if (selfieId.isEmpty) {
+                                showAppSnackBar(
+                                    'Partage indisponible pour le moment',
+                                    isSuccess: false);
+                                return;
+                              }
+                              // The username segment in the share link is
+                              // cosmetic — the app opens the outfit using
+                              // selfieId alone. Fall back to userId so
+                              // sharing still works for creators without a
+                              // username.
+                              final username =
+                                  selfieUser?.username?.isNotEmpty == true
+                                      ? selfieUser!.username!
+                                      : (fallbackUser?.username?.isNotEmpty ==
+                                              true
+                                          ? fallbackUser!.username!
+                                          : userId);
+                              if (username.isEmpty) {
                                 showAppSnackBar(
                                     'Partage indisponible pour le moment',
                                     isSuccess: false);
@@ -304,11 +343,9 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                                 username: username,
                                 selfieId: selfieId,
                                 creatorName: userName,
-                                sharePositionOrigin:
-                                    box != null && box.hasSize
-                                        ? box.localToGlobal(Offset.zero) &
-                                            box.size
-                                        : null,
+                                sharePositionOrigin: box != null && box.hasSize
+                                    ? box.localToGlobal(Offset.zero) & box.size
+                                    : null,
                               );
                             },
                           ),
@@ -330,7 +367,10 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                                   Icons.favorite,
                                   color: Colors.white,
                                   size: 100,
-                                  shadows: [Shadow(blurRadius: 20, color: Colors.black38)],
+                                  shadows: [
+                                    Shadow(
+                                        blurRadius: 20, color: Colors.black38)
+                                  ],
                                 ),
                               ),
                             ),
@@ -340,7 +380,6 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                   ],
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.all(AppDimensions.p16),
                 child: Column(
@@ -369,11 +408,16 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                               const SizedBox(width: AppDimensions.p4),
                               IconButton(
                                 icon: Icon(
-                                  isLiked ? Icons.favorite : Icons.favorite_border,
-                                  color: isLiked ? Colors.red : AppColors.textSecondary,
+                                  isLiked
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: isLiked
+                                      ? Colors.red
+                                      : AppColors.textSecondary,
                                   size: AppDimensions.p20,
                                 ),
-                                onPressed: () => _controller.toggleLike(widget.selfieModel.id),
+                                onPressed: () => _controller
+                                    .toggleLike(widget.selfieModel.id),
                               ),
                             ],
                           ),

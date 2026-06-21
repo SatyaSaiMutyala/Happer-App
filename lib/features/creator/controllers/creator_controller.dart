@@ -29,14 +29,20 @@ class CreatorController extends GetxController {
     _fetching = true;
     if (firstLoad) {
       _page = 1;
-      selfies.clear();
       hasMore.value = true;
       errorMessage.value = null;
     }
-    isLoading.value = true;
+    // Don't clear the list before the new data arrives — keeps existing
+    // content visible during a refresh instead of flashing the full-screen
+    // shimmer placeholder.
+    isLoading.value = selfies.isEmpty;
     try {
       final result = await _repo.getCreatorSelfies(page: _page, perPage: _perPage);
-      selfies.addAll(result);
+      if (firstLoad) {
+        selfies.assignAll(result);
+      } else {
+        selfies.addAll(result);
+      }
       hasMore.value = result.length >= _perPage;
       _page++;
     } catch (e) {

@@ -176,12 +176,11 @@ class _CartScreenState extends State<CartScreen> {
       final repo = Get.find<CartRepository>();
       await repo.removeCartItem(item.id);
       if (!mounted) return false;
-      setState(() {
-        _items.removeWhere((i) => i.id == item.id);
-        _subtotal =
-            (_subtotal - item.price * item.quantity).clamp(0, double.infinity);
-        _total = _subtotal + _shippingAmount;
-      });
+      // Re-fetch instead of patching totals locally — shipping fee depends on
+      // server-side rules (e.g. free-shipping thresholds, per-brand fees) that
+      // can change once an item is removed, not just the subtotal.
+      await _fetchCart();
+      if (!mounted) return false;
       showAppSnackBar(AppLocalizations.of(context).itemRemovedFromCart,
           isSuccess: true);
       return true;
@@ -404,10 +403,8 @@ class _CartScreenState extends State<CartScreen> {
           : _items.isEmpty
               ? const _EmptyCartView()
               : ListView(
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(top: 16, bottom: 24),
                   children: [
-                    _DeliveryBanner(itemCount: _items.length),
-                    const SizedBox(height: 10),
                     Center(
                       child: Text(
                         '${_items.length} Produit${_items.length > 1 ? 's' : ''} Ajouté${_items.length > 1 ? 's' : ''}',
@@ -435,77 +432,6 @@ class _CartScreenState extends State<CartScreen> {
                         confirmDismiss: (_) => _removeItem(item),
                         child: _CartItemCard(item: item),
                       ),
-                    const SizedBox(height: 16),
-                    // Price summary
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          _CartPriceRow(
-                              title: 'Sous-total TTC',
-                              value: '${_subtotal.toStringAsFixed(2)} €',
-                              isItalic: false),
-                          _CartPriceRow(
-                              title: 'Frais de Livraison',
-                              value: _shippingAmount > 0
-                                  ? '${_shippingAmount.toStringAsFixed(2)} €'
-                                  : 'Gratuit',
-                              isItalic: true),
-                          const Divider(),
-                          _CartPriceRow(
-                              title: 'Total TTC',
-                              value: '${_total.toStringAsFixed(2)} €',
-                              isItalic: false,
-                              isBold: true),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Terms checkbox
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: Checkbox(
-                              value: _isTermsAccepted,
-                              onChanged: (v) =>
-                                  setState(() => _isTermsAccepted = v ?? false),
-                              activeColor: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text.rich(
-                              TextSpan(
-                                text: "J'accepte les ",
-                                style: const TextStyle(
-                                    fontSize: 13, color: Colors.black87),
-                                children: [
-                                  TextSpan(
-                                    text: 'Conditions générales de vente',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const CgvWebViewScreen()),
-                                        );
-                                      },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
       bottomNavigationBar: _isLoading || _items.isEmpty
@@ -615,6 +541,75 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                           ],
                         ),
+                      ),
+                    ),
+                    // ── Price summary ─────────────────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Column(
+                        children: [
+                          _CartPriceRow(
+                              title: 'Sous-total TTC',
+                              value: '${_subtotal.toStringAsFixed(2)} €',
+                              isItalic: false),
+                          _CartPriceRow(
+                              title: 'Frais de Livraison',
+                              value: _shippingAmount > 0
+                                  ? '${_shippingAmount.toStringAsFixed(2)} €'
+                                  : 'Gratuit',
+                              isItalic: true),
+                          const Divider(),
+                          _CartPriceRow(
+                              title: 'Total TTC',
+                              value: '${_total.toStringAsFixed(2)} €',
+                              isItalic: false,
+                              isBold: true),
+                        ],
+                      ),
+                    ),
+                    // ── Terms checkbox ────────────────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Checkbox(
+                              value: _isTermsAccepted,
+                              onChanged: (v) =>
+                                  setState(() => _isTermsAccepted = v ?? false),
+                              activeColor: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text.rich(
+                              TextSpan(
+                                text: "J'accepte les ",
+                                style: const TextStyle(
+                                    fontSize: 13, color: Colors.black87),
+                                children: [
+                                  TextSpan(
+                                    text: 'Conditions générales de vente',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const CgvWebViewScreen()),
+                                        );
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     // ── Payment + Order row ──────────────────────────────
@@ -845,47 +840,6 @@ class _EmptyCartView extends StatelessWidget {
           Text(
             'Ajoutez des produits pour commencer',
             style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DeliveryBanner extends StatelessWidget {
-  final int itemCount;
-  const _DeliveryBanner({required this.itemCount});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-          color: Colors.black, borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children: [
-          const Icon(Icons.local_shipping_outlined,
-              color: Colors.white, size: 24),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Livraison estimée : 2-5 jours',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    fontFamily: 'Lato'),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Expédition de $itemCount article${itemCount > 1 ? 's' : ''}',
-                style: const TextStyle(
-                    color: Colors.white70, fontSize: 12, fontFamily: 'Lato'),
-              ),
-            ],
           ),
         ],
       ),

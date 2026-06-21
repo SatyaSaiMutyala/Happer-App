@@ -17,10 +17,10 @@ class DiscoverTabScreen extends StatefulWidget {
   const DiscoverTabScreen({Key? key}) : super(key: key);
 
   @override
-  State<DiscoverTabScreen> createState() => _DiscoverTabScreenState();
+  State<DiscoverTabScreen> createState() => DiscoverTabScreenState();
 }
 
-class _DiscoverTabScreenState extends State<DiscoverTabScreen> {
+class DiscoverTabScreenState extends State<DiscoverTabScreen> {
   late final SelfieController _controller;
   final ScrollController _scrollController = ScrollController();
   bool _hasShownGuestSnackBar = false;
@@ -67,7 +67,7 @@ class _DiscoverTabScreenState extends State<DiscoverTabScreen> {
     }
   }
 
-  void _scrollToTop() {
+  void scrollToTop() {
     _scrollController.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.easeOut);
   }
@@ -253,7 +253,7 @@ class _DiscoverTabScreenState extends State<DiscoverTabScreen> {
               child: FloatingActionButton(
                 backgroundColor: Colors.black.withValues(alpha: 0.6),
                 mini: true,
-                onPressed: _scrollToTop,
+                onPressed: scrollToTop,
                 child: const Icon(Icons.arrow_upward, color: Colors.white),
               ),
             ),
