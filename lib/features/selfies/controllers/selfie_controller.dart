@@ -283,12 +283,12 @@ class SelfieController extends GetxController {
 
   // ─── Submit ──────────────────────────────────────────────────────────────
 
-  Future<bool> uploadAndSubmitSelfie(String filePath, {List<Map<String, dynamic>> linkedProducts = const []}) async {
+  Future<bool> uploadAndSubmitSelfie(String filePath, {List<Map<String, dynamic>> linkedProducts = const [], String? caption}) async {
     isSubmitting.value = true;
     try {
       final url = await _repo.uploadSelfieImage(filePath);
       if (url.isEmpty) throw Exception('Upload returned empty URL');
-      await _repo.submitSelfie([url], linkedProducts: linkedProducts);
+      await _repo.submitSelfie([url], linkedProducts: linkedProducts, caption: caption);
       _showSuccess('Selfie posted successfully!');
       return true;
     } on UnauthorizedException {

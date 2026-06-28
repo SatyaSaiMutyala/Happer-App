@@ -259,7 +259,7 @@ class _ProductCardState extends State<ProductCard> {
                       color: Colors.black),
                 ),
                 TextSpan(
-                  text: '$compareAtPrice€',
+                  text: '$compareAtPrice€ ',
                   style: TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
@@ -267,6 +267,16 @@ class _ProductCardState extends State<ProductCard> {
                     color: Colors.grey.shade500,
                     decoration: TextDecoration.lineThrough,
                     decorationColor: Colors.grey.shade500,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                      '-${(((compareAtPrice - price) / compareAtPrice) * 100).round()}%',
+                  style: const TextStyle(
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Color(0xFFE53935),
                   ),
                 ),
               ]),

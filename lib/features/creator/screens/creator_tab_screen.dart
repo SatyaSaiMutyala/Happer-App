@@ -77,7 +77,12 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
   Future<void> forceRefresh() => _controller.refresh();
 
   void searchCreators(String query) {
-    _controller.searchQuery.value = query.toLowerCase();
+    _controller.setSearchQuery(query);
+  }
+
+  /// Filter the feed to a single brand's selfies (from a search suggestion).
+  void applyBrandFilter(String brandId) {
+    _controller.applyBrandFilter(brandId);
   }
 
   void _onScroll() {
@@ -230,14 +235,10 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Obx(() {
+      // Search is performed server-side (see CreatorController.setSearchQuery),
+      // so the list already reflects the active query.
       final allSelfies = _controller.selfies;
-      final selfies = _controller.searchQuery.value.isEmpty
-          ? allSelfies
-          : allSelfies.where((s) {
-              final name =
-                  (s.user?.username ?? s.user?.fullname ?? '').toLowerCase();
-              return name.contains(_controller.searchQuery.value);
-            }).toList();
+      final selfies = allSelfies;
       final isLoading = _controller.isLoading.value;
       final errorMessage = _controller.errorMessage.value;
 

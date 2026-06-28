@@ -85,6 +85,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   bool _isLoadingProducts = false;
   List<_Product> _products = [];
   int _userType = 0;
+  final TextEditingController _captionController = TextEditingController();
 
   late final SelfieController _selfieController;
 
@@ -96,6 +97,12 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     }
     _selfieController = Get.find<SelfieController>();
     _loadUserTypeAndProducts();
+  }
+
+  @override
+  void dispose() {
+    _captionController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserTypeAndProducts() async {
@@ -138,6 +145,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     final success = await _selfieController.uploadAndSubmitSelfie(
       widget.imageFile.path,
       linkedProducts: linkedProducts,
+      caption: _captionController.text,
     );
     if (success && mounted) {
       _selfieController.fetchMySelfies(refresh: true);
@@ -177,6 +185,39 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                               size:
                                   const Size(double.infinity, double.infinity),
                               painter: _GridPainter(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.captionLabel,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Lato',
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _captionController,
+                              minLines: 1,
+                              maxLines: 4,
+                              maxLength: 300,
+                              textCapitalization: TextCapitalization.sentences,
+                              style: const TextStyle(fontFamily: 'Lato'),
+                              decoration: InputDecoration(
+                                hintText: l10n.captionHint,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 12),
+                              ),
                             ),
                           ],
                         ),

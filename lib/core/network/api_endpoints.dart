@@ -56,6 +56,7 @@ class ApiEndpoints {
   // Selfies
   static const String getLikedSelfies = '/user/selfies/get-liked-selfies';
   static const String getCreatorSelfies = '/user/selfies/get-creator-selfies';
+  static const String getSuggestions = '/user/selfies/get-suggestions';
   static const String getNormalUserSelfies = '/user/selfies/get-normal-user-selfies';
   static const String submitSelfie = '/user/selfies/submit-selfie';
   static const String getOwnSelfies = '/user/selfies/get-own-selfies';

@@ -473,6 +473,8 @@
   "posts": "Publications",
   "profileLoadFailed": "Impossible de charger le profil",
   "linkProductsTitle": "Lier des produits",
+  "captionLabel": "Légende",
+  "captionHint": "Ajouter une légende...",
   "selectAtLeastOneProduct": "Veuillez lier au moins un produit à votre selfie",
   "noFavoritesYet": "Aucun favori pour le moment",
   "favoritesWillAppearHere": "Les looks que vous aimez apparaîtront ici",

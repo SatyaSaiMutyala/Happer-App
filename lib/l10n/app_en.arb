@@ -550,6 +550,8 @@
   "posts": "Posts",
   "profileLoadFailed": "Failed to load profile",
   "linkProductsTitle": "Link Products",
+  "captionLabel": "Caption",
+  "captionHint": "Add a caption...",
   "selectAtLeastOneProduct": "Please link at least one product to your selfie",
   "noFavoritesYet": "No favorites yet",
   "favoritesWillAppearHere": "Looks you like will appear here",

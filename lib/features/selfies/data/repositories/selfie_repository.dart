@@ -65,9 +65,16 @@ class SelfieRepository {
     );
   }
 
-  Future<void> submitSelfie(List<String> imageUrls, {List<Map<String, dynamic>> linkedProducts = const []}) async {
+  Future<void> submitSelfie(
+    List<String> imageUrls, {
+    List<Map<String, dynamic>> linkedProducts = const [],
+    String? caption,
+  }) async {
     final body = <String, dynamic>{'images': imageUrls};
     if (linkedProducts.isNotEmpty) body['linked_products'] = linkedProducts;
+    if (caption != null && caption.trim().isNotEmpty) {
+      body['caption'] = caption.trim();
+    }
     await _client.post(
       ApiEndpoints.submitSelfie,
       requiresAuth: true,

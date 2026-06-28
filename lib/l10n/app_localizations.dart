@@ -2840,6 +2840,18 @@ abstract class AppLocalizations {
   /// **'Link Products'**
   String get linkProductsTitle;
 
+  /// No description provided for @captionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption'**
+  String get captionLabel;
+
+  /// No description provided for @captionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a caption...'**
+  String get captionHint;
+
   /// No description provided for @selectAtLeastOneProduct.
   ///
   /// In en, this message translates to:

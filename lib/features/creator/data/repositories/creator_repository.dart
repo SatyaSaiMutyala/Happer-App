@@ -1,6 +1,7 @@
 import 'package:happer_app/core/network/api_client.dart';
 import 'package:happer_app/core/network/api_endpoints.dart';
 import 'package:happer_app/features/creator/data/models/creator_selfie_model.dart';
+import 'package:happer_app/features/creator/data/models/suggestion_model.dart';
 import 'package:happer_app/features/creator/models/creator_model.dart';
 
 class CreatorRepository {
@@ -11,11 +12,24 @@ class CreatorRepository {
   Future<List<CreatorSelfieModel>> getCreatorSelfies({
     int page = 1,
     int perPage = 20,
+    String? search,
+    String? userId,
+    String? brandId,
   }) async {
+    final queryParams = <String, String>{'page': '$page', 'perPage': '$perPage'};
+    if (search != null && search.trim().isNotEmpty) {
+      queryParams['search'] = search.trim();
+    }
+    if (userId != null && userId.trim().isNotEmpty) {
+      queryParams['user_id'] = userId.trim();
+    }
+    if (brandId != null && brandId.trim().isNotEmpty) {
+      queryParams['brand_id'] = brandId.trim();
+    }
     final response = await _client.get(
       ApiEndpoints.getCreatorSelfies,
       requiresAuth: true,
-      queryParams: {'page': '$page', 'perPage': '$perPage'},
+      queryParams: queryParams,
     );
     final raw = response['data'];
     final List<dynamic> list;
@@ -140,6 +154,35 @@ class CreatorRepository {
       requiresAuth: true,
     );
     return response['data'] as Map<String, dynamic>? ?? {};
+  }
+
+  /// Autocomplete suggestions (creators + brands) for the given [search] text.
+  Future<List<SuggestionModel>> getSuggestions(
+    String search, {
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    final query = search.trim();
+    if (query.isEmpty) return [];
+    final response = await _client.get(
+      ApiEndpoints.getSuggestions,
+      requiresAuth: true,
+      queryParams: {'search': query, 'page': '$page', 'perPage': '$perPage'},
+    );
+    final raw = response['data'];
+    final List<dynamic> list;
+    if (raw is Map) {
+      list = (raw['data'] as List<dynamic>?) ?? [];
+    } else if (raw is List) {
+      list = raw;
+    } else {
+      list = [];
+    }
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(SuggestionModel.fromJson)
+        .where((s) => s.id.isNotEmpty && s.title.isNotEmpty)
+        .toList();
   }
 
   Future<void> likeSelfie(String selfieId) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:happer_app/features/creator/data/models/creator_selfie_model.dart';
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
@@ -14,13 +16,64 @@ class CreatorController extends GetxController {
   final searchQuery = ''.obs;
   final showScrollToTop = false.obs;
 
+  // Optional server-side filters (set when viewing a specific creator/brand).
+  String? filterUserId;
+  String? filterBrandId;
+
   int _page = 1;
   static const _perPage = 20;
   bool _fetching = false;
+  Timer? _searchDebounce;
 
   @override
   void onReady() {
     super.onReady();
+    fetchSelfies(firstLoad: true);
+  }
+
+  @override
+  void onClose() {
+    _searchDebounce?.cancel();
+    super.onClose();
+  }
+
+  /// Updates the search query and re-fetches from the server (debounced so we
+  /// don't fire a request on every keystroke). A free-text search clears any
+  /// active creator/brand filter.
+  void setSearchQuery(String query) {
+    filterUserId = null;
+    filterBrandId = null;
+    searchQuery.value = query.trim();
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+      fetchSelfies(firstLoad: true);
+    });
+  }
+
+  /// Shows only the selfies linked to [brandId] (suggestion → brand tap).
+  void applyBrandFilter(String brandId) {
+    _searchDebounce?.cancel();
+    searchQuery.value = '';
+    filterUserId = null;
+    filterBrandId = brandId;
+    fetchSelfies(firstLoad: true);
+  }
+
+  /// Shows only the selfies posted by [userId] (suggestion → creator tap).
+  void applyUserFilter(String userId) {
+    _searchDebounce?.cancel();
+    searchQuery.value = '';
+    filterBrandId = null;
+    filterUserId = userId;
+    fetchSelfies(firstLoad: true);
+  }
+
+  /// Clears search and any active filter, returning to the full feed.
+  void clearFilters() {
+    _searchDebounce?.cancel();
+    searchQuery.value = '';
+    filterUserId = null;
+    filterBrandId = null;
     fetchSelfies(firstLoad: true);
   }
 
@@ -37,7 +90,13 @@ class CreatorController extends GetxController {
     // shimmer placeholder.
     isLoading.value = selfies.isEmpty;
     try {
-      final result = await _repo.getCreatorSelfies(page: _page, perPage: _perPage);
+      final result = await _repo.getCreatorSelfies(
+        page: _page,
+        perPage: _perPage,
+        search: searchQuery.value,
+        userId: filterUserId,
+        brandId: filterBrandId,
+      );
       if (firstLoad) {
         selfies.assignAll(result);
       } else {

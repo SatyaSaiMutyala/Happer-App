@@ -1478,6 +1478,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get linkProductsTitle => 'Lier des produits';
 
   @override
+  String get captionLabel => 'Légende';
+
+  @override
+  String get captionHint => 'Ajouter une légende...';
+
+  @override
   String get selectAtLeastOneProduct =>
       'Veuillez lier au moins un produit à votre selfie';
 

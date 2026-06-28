@@ -14,6 +14,8 @@ import 'package:happer_app/features/dashboard/screens/image_display_screen.dart'
 import 'package:happer_app/features/discover/screens/discover_tab_screen.dart';
 import 'package:happer_app/features/auth/screens/esign_popup.dart';
 import 'package:happer_app/features/profile/screens/liked_images_screen.dart';
+import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
+import 'package:happer_app/features/creator/data/models/suggestion_model.dart';
 import 'package:happer_app/features/auth/screens/register_screen.dart';
 import 'package:happer_app/core/utils/search_service.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
@@ -450,6 +452,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         onSearch: (query) {
           _performCreatorSearch(query);
         },
+        onSelectSuggestion: _onSelectSuggestion,
       );
     }
   }
@@ -479,6 +482,23 @@ class _DashboardScreenState extends State<DashboardScreen>
         SnackBar(
           content: Text('Searching for creator: $query'),
           duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  // Handle a tapped autocomplete suggestion: open the creator's profile, or
+  // filter the creator feed by the selected brand.
+  void _onSelectSuggestion(SuggestionModel item) {
+    if (item.id.isEmpty) return;
+    if (item.isBrand) {
+      if (_tabController.index == 1) _tabController.animateTo(0);
+      creatorTabKey.currentState?.applyBrandFilter(item.id);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ImageGridScreen(userId: item.id),
         ),
       );
     }

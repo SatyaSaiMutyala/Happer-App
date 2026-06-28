@@ -1449,6 +1449,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkProductsTitle => 'Link Products';
 
   @override
+  String get captionLabel => 'Caption';
+
+  @override
+  String get captionHint => 'Add a caption...';
+
+  @override
   String get selectAtLeastOneProduct =>
       'Please link at least one product to your selfie';
 
