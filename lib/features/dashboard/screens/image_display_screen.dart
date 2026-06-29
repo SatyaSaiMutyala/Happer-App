@@ -206,8 +206,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                             TextField(
                               controller: _captionController,
                               minLines: 1,
-                              maxLines: 4,
-                              maxLength: 300,
+                              maxLines: 2,
+                              maxLength: 150,
                               textCapitalization: TextCapitalization.sentences,
                               style: const TextStyle(fontFamily: 'Lato'),
                               decoration: InputDecoration(

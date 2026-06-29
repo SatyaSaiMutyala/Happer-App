@@ -108,6 +108,7 @@ class CreatorRepository {
     final selfie = CreatorModel(
       sId: data['_id'] as String? ?? '',
       picture: images.isNotEmpty ? images.first : null,
+      caption: data['caption'] as String?,
       createdAt: data['created_at'] as String?,
       isLikedByMe: data['is_liked_by_me'] as bool? ?? false,
       nbLike: data['likes_count'] as int? ?? 0,

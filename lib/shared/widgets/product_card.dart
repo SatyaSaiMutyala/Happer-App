@@ -233,8 +233,9 @@ class _ProductCardState extends State<ProductCard> {
           // ── Name ───────────────────────────────────────────────────────────
           Text(
             name,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            softWrap: false,
             style: const TextStyle(
               fontFamily: 'Lato',
               fontWeight: FontWeight.w500,
@@ -249,6 +250,8 @@ class _ProductCardState extends State<ProductCard> {
           // ── Price ──────────────────────────────────────────────────────────
           if (compareAtPrice != null && compareAtPrice > price)
             RichText(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               text: TextSpan(children: [
                 TextSpan(
                   text: '$price€ ',

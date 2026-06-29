@@ -882,6 +882,27 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                     ),
                   ),
 
+                  // ── Caption ───────────────────────────────────────────
+                  if ((_selfie!.caption ?? '').trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        _selfie!.caption!.trim(),
+                        style: const TextStyle(
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14,
+                          height: 1.4,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 8),
+
                   // ── "Look composé avec" brand names ───────────────────
                   if (_linkedProducts.any((p) =>
                       p['brand_id'] is Map &&

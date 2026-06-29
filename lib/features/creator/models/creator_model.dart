@@ -7,6 +7,7 @@ class CreatorModel {
   final User? user;
   final List<ItemsId>? itemsId; // Updated type to List<ItemsId>
   final String? picture;
+  final String? caption;
   int? nbLike;
   bool? isLikedByMe;
 
@@ -19,6 +20,7 @@ class CreatorModel {
     this.user,
     this.itemsId,
     this.picture,
+    this.caption,
     this.nbLike,
     this.isLikedByMe,
   });
@@ -40,6 +42,7 @@ class CreatorModel {
           }
         }).toList(), // Parse items_id as List<ItemsId>
         picture: json['picture'],
+        caption: json['caption'],
         nbLike: json['nb_like'],
         isLikedByMe: json['isLikedByMe'],
       );
@@ -59,6 +62,7 @@ class CreatorModel {
       'user': user?.toJson(),
       'items_id': itemsId?.map((item) => item.toJson()).toList(),
       'picture': picture,
+      'caption': caption,
       'nb_like': nbLike,
       'isLikedByMe': isLikedByMe,
     };
