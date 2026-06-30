@@ -1,6 +1,7 @@
 import 'package:happer_app/core/network/api_client.dart';
 import 'package:happer_app/core/network/api_endpoints.dart';
 import 'package:happer_app/features/creator/data/models/creator_selfie_model.dart';
+import 'package:happer_app/features/creator/data/models/liked_product_model.dart';
 import 'package:happer_app/features/creator/data/models/suggestion_model.dart';
 import 'package:happer_app/features/creator/models/creator_model.dart';
 
@@ -184,6 +185,70 @@ class CreatorRepository {
         .map(SuggestionModel.fromJson)
         .where((s) => s.id.isNotEmpty && s.title.isNotEmpty)
         .toList();
+  }
+
+  // ─── Product like / unlike (keyed by variant id) ──────────────────────────
+
+  Future<void> likeProduct(String variantId) {
+    return _client.post(ApiEndpoints.likeProduct(variantId), requiresAuth: true);
+  }
+
+  Future<void> unlikeProduct(String variantId) {
+    return _client.post(ApiEndpoints.unlikeProduct(variantId),
+        requiresAuth: true);
+  }
+
+  /// Returns one page of the user's liked products for display.
+  Future<({List<LikedProductModel> items, bool hasMore})> getLikedProducts({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _client.get(
+      ApiEndpoints.getLikedProducts,
+      requiresAuth: true,
+      queryParams: {'page': '$page', 'perPage': '$perPage'},
+    );
+    final outer = response['data'] as Map<String, dynamic>? ?? {};
+    final list = (outer['data'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map(LikedProductModel.fromJson)
+        .where((m) => m.productId.isNotEmpty)
+        .toList();
+    final totalPages = (outer['totalPages'] as num?)?.toInt() ??
+        (outer['total_pages'] as num?)?.toInt() ??
+        page;
+    return (items: list, hasMore: page < totalPages);
+  }
+
+  /// Returns the set of variant ids the current user has liked, so the UI can
+  /// seed its heart state. Paginates until all liked products are collected.
+  Future<Set<String>> getLikedVariantIds({int perPage = 50}) async {
+    final ids = <String>{};
+    var page = 1;
+    while (true) {
+      final response = await _client.get(
+        ApiEndpoints.getLikedProducts,
+        requiresAuth: true,
+        queryParams: {'page': '$page', 'perPage': '$perPage'},
+      );
+      final outer = response['data'] as Map<String, dynamic>? ?? {};
+      final list = (outer['data'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .toList();
+      for (final item in list) {
+        final variant = item['variant_id'];
+        final id = variant is Map
+            ? (variant['_id']?.toString() ?? '')
+            : (variant?.toString() ?? '');
+        if (id.isNotEmpty) ids.add(id);
+      }
+      final totalPages = (outer['total_pages'] as num?)?.toInt() ??
+          (outer['totalPages'] as num?)?.toInt() ??
+          page;
+      if (page >= totalPages || list.isEmpty) break;
+      page++;
+    }
+    return ids;
   }
 
   Future<void> likeSelfie(String selfieId) {

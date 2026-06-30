@@ -286,7 +286,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: HapperAppBar(title: l.monCompteTitleLabel),
+      appBar: HapperAppBar(title: l.monEspaceTitleLabel),
       body: RefreshIndicator(
         onRefresh: _controller.fetchProfile,
         color: Colors.black,

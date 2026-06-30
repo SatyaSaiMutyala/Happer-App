@@ -12,10 +12,9 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
-import 'package:happer_app/features/dashboard/screens/dashboard_screen.dart';
+import 'package:happer_app/features/splash/screens/splash_screen.dart';
 import 'package:happer_app/firebase_options.dart';
 import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
-import 'package:happer_app/features/auth/screens/register_screen.dart';
 // import 'package:happer_app/core/services/websocket_notification_service.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/core/network/profile_api.dart';
@@ -349,7 +348,7 @@ class _MyAppState extends State<MyApp> {
       ),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       getPages: AppPages.routes,
-      home: widget.isLoggedIn ? const DashboardScreen() : RegisterScreen(),
+      home: SplashScreen(isLoggedIn: widget.isLoggedIn),
     );
   }
 }

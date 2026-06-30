@@ -283,12 +283,27 @@ class SelfieController extends GetxController {
 
   // ─── Submit ──────────────────────────────────────────────────────────────
 
-  Future<bool> uploadAndSubmitSelfie(String filePath, {List<Map<String, dynamic>> linkedProducts = const [], String? caption}) async {
+  Future<bool> uploadAndSubmitSelfie(String filePath,
+          {List<Map<String, dynamic>> linkedProducts = const [],
+          String? caption}) =>
+      uploadAndSubmitSelfieImages([filePath],
+          linkedProducts: linkedProducts, caption: caption);
+
+  /// Uploads up to several images and submits them as a single selfie.
+  Future<bool> uploadAndSubmitSelfieImages(List<String> filePaths,
+      {List<Map<String, dynamic>> linkedProducts = const [],
+      String? caption}) async {
+    if (filePaths.isEmpty) return false;
     isSubmitting.value = true;
     try {
-      final url = await _repo.uploadSelfieImage(filePath);
-      if (url.isEmpty) throw Exception('Upload returned empty URL');
-      await _repo.submitSelfie([url], linkedProducts: linkedProducts, caption: caption);
+      // Upload all images concurrently, preserving order.
+      final urls = await Future.wait(
+        filePaths.map((p) => _repo.uploadSelfieImage(p)),
+      );
+      final validUrls = urls.where((u) => u.isNotEmpty).toList();
+      if (validUrls.isEmpty) throw Exception('Upload returned empty URL');
+      await _repo.submitSelfie(validUrls,
+          linkedProducts: linkedProducts, caption: caption);
       _showSuccess('Selfie posted successfully!');
       return true;
     } on UnauthorizedException {

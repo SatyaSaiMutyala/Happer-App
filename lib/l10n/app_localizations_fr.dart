@@ -1024,6 +1024,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get monCompteTitleLabel => 'MON COMPTE';
 
   @override
+  String get monEspaceTitleLabel => 'MON ESPACE';
+
+  @override
   String get loginToSeeContent =>
       'Veuillez vous connecter pour voir plus de contenu';
 
@@ -1482,6 +1485,24 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get captionHint => 'Ajouter une légende...';
+
+  @override
+  String maxImagesReached(int count) {
+    return 'Vous pouvez ajouter jusqu\'à $count images';
+  }
+
+  @override
+  String get addImage => 'Ajouter une image';
+
+  @override
+  String get likedProductsTitle => 'PRODUITS AIMÉS';
+
+  @override
+  String get noLikedProducts => 'Aucun produit aimé pour le moment';
+
+  @override
+  String get noLikedProductsDesc =>
+      'Les produits que vous aimez apparaîtront ici';
 
   @override
   String get selectAtLeastOneProduct =>

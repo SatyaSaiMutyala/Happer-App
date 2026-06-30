@@ -45,6 +45,10 @@ class ApiEndpoints {
   static const String getProductsList = '/user/products/get-products-list';
   static String getProductDetail(String id) => '/user/products/get-product/$id';
   static const String getLinkedProducts = '/user/products/get-linked-products';
+  static const String getLikedProducts = '/user/products/get-liked-products';
+  // Like/unlike are keyed by the product VARIANT id (not the product id).
+  static String likeProduct(String variantId) => '/user/products/$variantId/like';
+  static String unlikeProduct(String variantId) => '/user/products/$variantId/unlike';
 
   // Cart
   static const String addToCart = '/user/carts/add-to-cart';

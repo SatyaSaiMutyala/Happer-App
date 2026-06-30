@@ -1994,6 +1994,12 @@ abstract class AppLocalizations {
   /// **'MY ACCOUNT'**
   String get monCompteTitleLabel;
 
+  /// No description provided for @monEspaceTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'MY SPACE'**
+  String get monEspaceTitleLabel;
+
   /// No description provided for @loginToSeeContent.
   ///
   /// In en, this message translates to:
@@ -2851,6 +2857,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a caption...'**
   String get captionHint;
+
+  /// No description provided for @maxImagesReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to {count} images'**
+  String maxImagesReached(int count);
+
+  /// No description provided for @addImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add image'**
+  String get addImage;
+
+  /// No description provided for @likedProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'LIKED PRODUCTS'**
+  String get likedProductsTitle;
+
+  /// No description provided for @noLikedProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'No liked products yet'**
+  String get noLikedProducts;
+
+  /// No description provided for @noLikedProductsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Products you like will appear here'**
+  String get noLikedProductsDesc;
 
   /// No description provided for @selectAtLeastOneProduct.
   ///

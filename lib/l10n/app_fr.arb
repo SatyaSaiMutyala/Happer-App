@@ -331,6 +331,7 @@
   "enterCurrentPassword": "Entrez votre mot de passe actuel",
   "codeCreditTitle": "CODE CRÉDIT",
   "monCompteTitleLabel": "MON COMPTE",
+  "monEspaceTitleLabel": "MON ESPACE",
   "loginToSeeContent": "Veuillez vous connecter pour voir plus de contenu",
   "loginToTakeSelfie": "Veuillez vous connecter pour prendre un selfie",
   "loginToCheckout": "Veuillez vous connecter pour procéder au paiement",
@@ -475,6 +476,16 @@
   "linkProductsTitle": "Lier des produits",
   "captionLabel": "Légende",
   "captionHint": "Ajouter une légende...",
+  "maxImagesReached": "Vous pouvez ajouter jusqu'à {count} images",
+  "@maxImagesReached": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "addImage": "Ajouter une image",
+  "likedProductsTitle": "PRODUITS AIMÉS",
+  "noLikedProducts": "Aucun produit aimé pour le moment",
+  "noLikedProductsDesc": "Les produits que vous aimez apparaîtront ici",
   "selectAtLeastOneProduct": "Veuillez lier au moins un produit à votre selfie",
   "noFavoritesYet": "Aucun favori pour le moment",
   "favoritesWillAppearHere": "Les looks que vous aimez apparaîtront ici",

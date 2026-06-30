@@ -408,6 +408,7 @@
   "enterCurrentPassword": "Enter your current password",
   "codeCreditTitle": "CODE CREDIT",
   "monCompteTitleLabel": "MY ACCOUNT",
+  "monEspaceTitleLabel": "MY SPACE",
   "loginToSeeContent": "Please log in to see more content",
   "loginToTakeSelfie": "Please login to take a selfie",
   "loginToCheckout": "Please login to proceed to checkout",
@@ -552,6 +553,16 @@
   "linkProductsTitle": "Link Products",
   "captionLabel": "Caption",
   "captionHint": "Add a caption...",
+  "maxImagesReached": "You can add up to {count} images",
+  "@maxImagesReached": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "addImage": "Add image",
+  "likedProductsTitle": "LIKED PRODUCTS",
+  "noLikedProducts": "No liked products yet",
+  "noLikedProductsDesc": "Products you like will appear here",
   "selectAtLeastOneProduct": "Please link at least one product to your selfie",
   "noFavoritesYet": "No favorites yet",
   "favoritesWillAppearHere": "Looks you like will appear here",

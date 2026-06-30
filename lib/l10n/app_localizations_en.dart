@@ -1014,6 +1014,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monCompteTitleLabel => 'MY ACCOUNT';
 
   @override
+  String get monEspaceTitleLabel => 'MY SPACE';
+
+  @override
   String get loginToSeeContent => 'Please log in to see more content';
 
   @override
@@ -1453,6 +1456,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captionHint => 'Add a caption...';
+
+  @override
+  String maxImagesReached(int count) {
+    return 'You can add up to $count images';
+  }
+
+  @override
+  String get addImage => 'Add image';
+
+  @override
+  String get likedProductsTitle => 'LIKED PRODUCTS';
+
+  @override
+  String get noLikedProducts => 'No liked products yet';
+
+  @override
+  String get noLikedProductsDesc => 'Products you like will appear here';
 
   @override
   String get selectAtLeastOneProduct =>

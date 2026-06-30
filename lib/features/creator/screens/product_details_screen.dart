@@ -4,6 +4,7 @@ import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/features/creator/bindings/creator_binding.dart';
+import 'package:happer_app/features/creator/controllers/product_like_controller.dart';
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
 import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
@@ -100,6 +101,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   String? _selectedSize;
   int _currentPage = 0;
   PageController? _pageController;
+  late final ProductLikeController _likeController;
 
   // Unique colors across all variants, preserving first-seen order.
   List<String> get _distinctColors {
@@ -187,8 +189,32 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    CreatorBinding().dependencies();
+    _likeController = Get.find<ProductLikeController>();
     // Always fetch from API — initialData may have unpopulated option_ids (string IDs only).
     _fetchProductDetails();
+  }
+
+  // The variant the heart applies to: selected variant → first for color →
+  // first overall (mirrors the price/image fallback chain).
+  String get _currentVariantId {
+    final sv = _selectedVariant;
+    if (sv != null) return sv.id;
+    final forColor = _variantsForSelectedColor;
+    if (forColor.isNotEmpty) return forColor.first.id;
+    if (_allVariants.isNotEmpty) return _allVariants.first.id;
+    return '';
+  }
+
+  void _onToggleLike() {
+    if (AppManager.isLoginAsGuest) {
+      showAppSnackBar(AppLocalizations.of(context).loginToAddToCart,
+          isSuccess: false);
+      return;
+    }
+    final variantId = _currentVariantId;
+    if (variantId.isEmpty) return;
+    _likeController.toggleLike(variantId);
   }
 
   @override
@@ -520,6 +546,37 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ),
               ),
+            // Like (wishlist) heart — toggles the like for the current variant.
+            Positioned(
+              top: 12,
+              right: 12,
+              child: GestureDetector(
+                onTap: _onToggleLike,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Obx(() {
+                    final liked = _likeController.isLiked(_currentVariantId);
+                    return Icon(
+                      liked ? Icons.favorite : Icons.favorite_border,
+                      color: liked ? Colors.red : Colors.black,
+                      size: 24,
+                    );
+                  }),
+                ),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 12),

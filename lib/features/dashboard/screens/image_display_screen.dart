@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:happer_app/features/creator/creator_tab_key.dart';
 import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/selfies/bindings/selfie_binding.dart';
@@ -9,6 +11,9 @@ import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:shimmer/shimmer.dart';
+
+/// Maximum number of images a single selfie post can contain.
+const int kMaxSelfieImages = 5;
 
 class _Product {
   final String id;
@@ -87,16 +92,107 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   int _userType = 0;
   final TextEditingController _captionController = TextEditingController();
 
+  // Selected images (up to [kMaxSelfieImages]). The first one is the cover.
+  final List<File> _images = [];
+  int _previewIndex = 0;
+
   late final SelfieController _selfieController;
 
   @override
   void initState() {
     super.initState();
+    _images.add(widget.imageFile);
     if (!Get.isRegistered<SelfieController>()) {
       SelfieBinding().dependencies();
     }
     _selfieController = Get.find<SelfieController>();
     _loadUserTypeAndProducts();
+  }
+
+  bool get _canAddMore => _images.length < kMaxSelfieImages;
+
+  Future<void> _addImage() async {
+    if (!_canAddMore) {
+      showAppSnackBar(
+        AppLocalizations.of(context).maxImagesReached(kMaxSelfieImages),
+        isSuccess: false,
+      );
+      return;
+    }
+    final source = await _pickImageSource();
+    if (source == null) return;
+
+    final picked = await ImagePicker().pickImage(source: source);
+    if (picked == null) return;
+
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      maxWidth: 800,
+      maxHeight: 1000,
+      compressQuality: 50,
+      compressFormat: ImageCompressFormat.jpg,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Recadrez votre photo',
+          toolbarColor: Colors.white,
+          backgroundColor: Colors.black,
+          aspectRatioPresets: const [_Portrait4x5()],
+          lockAspectRatio: true,
+          initAspectRatio: const _Portrait4x5(),
+        ),
+        IOSUiSettings(
+          title: 'Recadrez votre photo',
+          aspectRatioPresets: const [_Portrait4x5()],
+          aspectRatioLockEnabled: true,
+          aspectRatioPickerButtonHidden: true,
+          resetAspectRatioEnabled: false,
+          rotateButtonsHidden: true,
+        ),
+      ],
+    );
+    if (cropped == null || !mounted) return;
+    setState(() {
+      _images.add(File(cropped.path));
+      _previewIndex = _images.length - 1;
+    });
+  }
+
+  Future<ImageSource?> _pickImageSource() {
+    final l10n = AppLocalizations.of(context);
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: Text(l10n.prendreUnePhoto),
+              onTap: () => Navigator.pop(sheetCtx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(l10n.chooseFromGallery),
+              onTap: () => Navigator.pop(sheetCtx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _removeImage(int index) {
+    if (_images.length <= 1) return; // keep at least one image
+    setState(() {
+      _images.removeAt(index);
+      if (_previewIndex >= _images.length) {
+        _previewIndex = _images.length - 1;
+      }
+    });
   }
 
   @override
@@ -142,8 +238,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
 
     final linkedProducts = selected.map((p) => p.toLinkedProduct()).toList();
 
-    final success = await _selfieController.uploadAndSubmitSelfie(
-      widget.imageFile.path,
+    final success = await _selfieController.uploadAndSubmitSelfieImages(
+      _images.map((f) => f.path).toList(),
       linkedProducts: linkedProducts,
       caption: _captionController.text,
     );
@@ -176,7 +272,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                         child: Stack(
                           children: [
                             Image.file(
-                              widget.imageFile,
+                              _images[_previewIndex],
+                              key: ValueKey(_images[_previewIndex].path),
                               width: double.infinity,
                               height: double.infinity,
                               fit: BoxFit.cover,
@@ -189,6 +286,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                           ],
                         ),
                       ),
+                      _buildThumbnailStrip(l10n),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                         child: Column(
@@ -327,6 +425,99 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
             );
           }),
         ],
+      ),
+    );
+  }
+
+  // Horizontal strip of selected images with a remove badge + an "add" tile.
+  Widget _buildThumbnailStrip(AppLocalizations l10n) {
+    const double thumbW = 56;
+    const double thumbH = 70;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: SizedBox(
+        height: thumbH + 8,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            for (int i = 0; i < _images.length; i++)
+              GestureDetector(
+                onTap: () => setState(() => _previewIndex = i),
+                child: Container(
+                  width: thumbW,
+                  margin: const EdgeInsets.only(right: 8),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: i == _previewIndex
+                                  ? Colors.black
+                                  : Colors.grey.shade300,
+                              width: i == _previewIndex ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.file(
+                              _images[i],
+                              width: thumbW,
+                              height: thumbH,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_images.length > 1)
+                        Positioned(
+                          top: -6,
+                          right: -6,
+                          child: GestureDetector(
+                            onTap: () => _removeImage(i),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(2),
+                              child: const Icon(Icons.close,
+                                  size: 14, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            if (_canAddMore)
+              GestureDetector(
+                onTap: _addImage,
+                child: Container(
+                  width: thumbW,
+                  height: thumbH,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.add, size: 22, color: Colors.black),
+                      Text(
+                        '${_images.length}/$kMaxSelfieImages',
+                        style: const TextStyle(
+                            fontSize: 10, fontFamily: 'Lato', color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -488,4 +679,13 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// 4:5 portrait crop ratio used for selfie images.
+class _Portrait4x5 implements CropAspectRatioPresetData {
+  const _Portrait4x5();
+  @override
+  String get name => '4x5';
+  @override
+  (int, int)? get data => (4, 5);
 }
