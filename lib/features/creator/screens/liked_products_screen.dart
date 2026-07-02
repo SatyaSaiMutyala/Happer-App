@@ -348,15 +348,15 @@ class _LikedProductCard extends StatelessWidget {
             decorationColor: Colors.grey.shade500,
           ),
         ),
-        TextSpan(
-          text: '-${item.discountPercent}%',
-          style: const TextStyle(
-            fontFamily: 'Lato',
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: Color(0xFFE53935),
-          ),
-        ),
+        // TextSpan(
+        //   text: '-${item.discountPercent}%',
+        //   style: const TextStyle(
+        //     fontFamily: 'Lato',
+        //     fontWeight: FontWeight.bold,
+        //     fontSize: 12,
+        //     color: Color(0xFFE53935),
+        //   ),
+        // ),
       ]),
     );
   }

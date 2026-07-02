@@ -46,28 +46,65 @@ class _ProductCardState extends State<ProductCard> {
     return variant['_id'] as String? ?? '';
   }
 
+  // Keeps the card's "in cart" state in sync when the cart changes elsewhere
+  // (e.g. the item is removed from the cart screen).
+  Worker? _cartWorker;
+
   @override
   void initState() {
     super.initState();
     _syncFromCart();
+    try {
+      _cartWorker = ever(
+        Get.find<CartController>().cartItemsByVariant,
+        (_) {
+          if (mounted) setState(_syncFromCart);
+        },
+      );
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _cartWorker?.dispose();
+    super.dispose();
   }
 
   void _syncFromCart() {
-    final variants = widget.product['variants'] as List<dynamic>? ?? [];
     try {
       final cartCtrl = Get.find<CartController>();
-      // Any variant of this product already in the cart marks the card "added".
-      for (final v in variants.whereType<Map<String, dynamic>>()) {
-        final vid = v['_id'] as String? ?? '';
-        if (vid.isEmpty) continue;
-        final existingItemId = cartCtrl.cartItemIdForVariant(vid);
-        if (existingItemId != null) {
-          _isInCart = true;
-          _cartItemId = existingItemId;
-          _selectedVariantId = vid;
-          break;
+      // Recompute fully so the card reflects both additions and removals made
+      // elsewhere. Check the explicitly-chosen variant first (it may not be in
+      // widget.product['variants'], which often only holds the linked variant),
+      // then fall back to any of the product's known variants.
+      String? foundItemId;
+      String foundVid = '';
+
+      if (_selectedVariantId.isNotEmpty) {
+        final id = cartCtrl.cartItemIdForVariant(_selectedVariantId);
+        if (id != null) {
+          foundItemId = id;
+          foundVid = _selectedVariantId;
         }
       }
+
+      if (foundItemId == null) {
+        final variants = widget.product['variants'] as List<dynamic>? ?? [];
+        for (final v in variants.whereType<Map<String, dynamic>>()) {
+          final vid = v['_id'] as String? ?? '';
+          if (vid.isEmpty) continue;
+          final existingItemId = cartCtrl.cartItemIdForVariant(vid);
+          if (existingItemId != null) {
+            foundItemId = existingItemId;
+            foundVid = vid;
+            break;
+          }
+        }
+      }
+
+      _isInCart = foundItemId != null;
+      _cartItemId = foundItemId ?? '';
+      if (foundVid.isNotEmpty) _selectedVariantId = foundVid;
     } catch (_) {}
   }
 
@@ -262,7 +299,7 @@ class _ProductCardState extends State<ProductCard> {
                       color: Colors.black),
                 ),
                 TextSpan(
-                  text: '$compareAtPrice€ ',
+                  text: '$compareAtPrice€',
                   style: TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
@@ -270,16 +307,6 @@ class _ProductCardState extends State<ProductCard> {
                     color: Colors.grey.shade500,
                     decoration: TextDecoration.lineThrough,
                     decorationColor: Colors.grey.shade500,
-                  ),
-                ),
-                TextSpan(
-                  text:
-                      '-${(((compareAtPrice - price) / compareAtPrice) * 100).round()}%',
-                  style: const TextStyle(
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Color(0xFFE53935),
                   ),
                 ),
               ]),

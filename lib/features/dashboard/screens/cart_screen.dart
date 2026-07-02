@@ -180,6 +180,12 @@ class _CartScreenState extends State<CartScreen> {
       // server-side rules (e.g. free-shipping thresholds, per-brand fees) that
       // can change once an item is removed, not just the subtotal.
       await _fetchCart();
+      // Refresh the global cart state so the pill and every ProductCard's
+      // "in cart" indicator update (the card that added this item elsewhere
+      // must revert to "Ajouter").
+      if (Get.isRegistered<CartController>()) {
+        await Get.find<CartController>().fetchCartItemCount();
+      }
       if (!mounted) return false;
       showAppSnackBar(AppLocalizations.of(context).itemRemovedFromCart,
           isSuccess: true);
@@ -199,7 +205,16 @@ class _CartScreenState extends State<CartScreen> {
       final data = await repo.getMyCart();
       if (!mounted) return;
       if (data == null) {
-        setState(() => _isLoading = false);
+        // getMyCart() returns null when the cart is empty — clear local state
+        // so the empty-cart view shows immediately (e.g. after removing the
+        // last item).
+        setState(() {
+          _items = [];
+          _subtotal = 0;
+          _shippingAmount = 0;
+          _total = 0;
+          _isLoading = false;
+        });
         return;
       }
       final rawItems = (data['items'] as List<dynamic>? ?? [])
@@ -262,11 +277,30 @@ class _CartScreenState extends State<CartScreen> {
           ),
         );
       } else if (_selectedPaymentMethod == _PaymentMethod.googlePay) {
+        // Match Google Pay's environment to the Stripe key mode: a test key
+        // (pk_test_…) must use the Google Pay test environment, otherwise the
+        // sheet never appears / fails silently.
+        final useTestEnv = publishableKey.startsWith('pk_test');
+
+        // Bail out with a clear message if the device can't do Google Pay
+        // (no Play Services / no cards set up), instead of failing silently.
+        final supported = await Stripe.instance.isPlatformPaySupported(
+          googlePay: IsGooglePaySupportedParams(testEnv: useTestEnv),
+        );
+        if (!supported) {
+          if (mounted) {
+            showAppSnackBar(
+                "Google Pay n'est pas disponible sur cet appareil",
+                isSuccess: false);
+          }
+          return;
+        }
+
         await Stripe.instance.confirmPlatformPayPaymentIntent(
           clientSecret: clientSecret,
           confirmParams: PlatformPayConfirmParams.googlePay(
             googlePay: GooglePayParams(
-              testEnv: false,
+              testEnv: useTestEnv,
               merchantCountryCode: 'FR',
               currencyCode: currency,
               merchantName: 'Happer',
@@ -274,33 +308,49 @@ class _CartScreenState extends State<CartScreen> {
           ),
         );
       } else {
-        // Klarna and Card — use the standard payment sheet
-        // Pre-fill billing details so Klarna can appear (it requires email + country)
+        // Pre-fill billing details (Klarna requires email + country).
         final addr = _selectedAddress;
-        await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
+        final billingDetails = addr != null
+            ? BillingDetails(
+                email: addr.email,
+                name: '${addr.firstName} ${addr.lastName}'.trim(),
+                phone: addr.mobileNumber,
+                address: Address(
+                  city: addr.city,
+                  postalCode: addr.postalCode,
+                  line1: addr.streetAddress,
+                  line2: '',
+                  state: '',
+                  country: 'FR',
+                ),
+              )
+            : null;
+
+        if (_selectedPaymentMethod == _PaymentMethod.klarna) {
+          // Klarna was already chosen in-app — confirm the intent directly with
+          // Klarna instead of opening the payment sheet (which would ask the
+          // user to pick a method all over again).
+          await Stripe.instance.confirmPayment(
             paymentIntentClientSecret: clientSecret,
-            merchantDisplayName: 'Happer',
-            style: ThemeMode.light,
-            paymentMethodOrder: [_selectedPaymentMethod.stripeKey],
-            billingDetails: addr != null
-                ? BillingDetails(
-                    email: addr.email,
-                    name: '${addr.firstName} ${addr.lastName}'.trim(),
-                    phone: addr.mobileNumber,
-                    address: Address(
-                      city: addr.city,
-                      postalCode: addr.postalCode,
-                      line1: addr.streetAddress,
-                      line2: '',
-                      state: '',
-                      country: 'FR',
-                    ),
-                  )
-                : null,
-          ),
-        );
-        await Stripe.instance.presentPaymentSheet();
+            data: PaymentMethodParams.klarna(
+              paymentMethodData: PaymentMethodData(
+                billingDetails: billingDetails,
+              ),
+            ),
+          );
+        } else {
+          // Card — the sheet is needed to collect card details.
+          await Stripe.instance.initPaymentSheet(
+            paymentSheetParameters: SetupPaymentSheetParameters(
+              paymentIntentClientSecret: clientSecret,
+              merchantDisplayName: 'Happer',
+              style: ThemeMode.light,
+              paymentMethodOrder: [_selectedPaymentMethod.stripeKey],
+              billingDetails: billingDetails,
+            ),
+          );
+          await Stripe.instance.presentPaymentSheet();
+        }
       }
 
       if (!mounted) return;
