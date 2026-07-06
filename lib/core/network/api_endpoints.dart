@@ -84,4 +84,12 @@ class ApiEndpoints {
 
   // Change password
   static const String changePassword = '/user/auth/change-password';
+
+  // Notifications
+  static const String getNotifications = '/user/notifications/fetch-list';
+  static String getNotification(String id) => '/user/notifications/fetch/$id';
+  static const String markAllNotificationsRead =
+      '/user/notifications/mark-all-read';
+  static String deleteNotification(String id) =>
+      '/user/notifications/delete/$id';
 }

@@ -1475,6 +1475,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noLikedProductsDesc => 'Products you like will appear here';
 
   @override
+  String get favTabPosts => 'Posts';
+
+  @override
+  String get favTabProducts => 'Products';
+
+  @override
   String get selectAtLeastOneProduct =>
       'Please link at least one product to your selfie';
 

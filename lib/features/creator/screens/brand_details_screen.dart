@@ -281,17 +281,21 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
         : <String, dynamic>{};
     final variantId = variant['_id'] as String? ?? '';
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return ProductCard(
-        product: item,
-        cardWidth: constraints.maxWidth,
-        affiliateId: widget.affiliateId,
-        onAddToCart: productId.isEmpty || variantId.isEmpty
-            ? null
-            : () => _addProductToCart(productId, variantId),
-        onRemoveFromCart: _removeProductFromCart,
-      );
-    });
+    // Keep each built card alive so scrolling back up doesn't rebuild it and
+    // reload its image.
+    return _KeepAlive(
+      child: LayoutBuilder(builder: (context, constraints) {
+        return ProductCard(
+          product: item,
+          cardWidth: constraints.maxWidth,
+          affiliateId: widget.affiliateId,
+          onAddToCart: productId.isEmpty || variantId.isEmpty
+              ? null
+              : () => _addProductToCart(productId, variantId),
+          onRemoveFromCart: _removeProductFromCart,
+        );
+      }),
+    );
   }
 
   @override
@@ -521,5 +525,28 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
               ],
             ),
     );
+  }
+}
+
+/// Keeps its [child] alive when scrolled off-screen in a lazy sliver list, so
+/// it isn't rebuilt (and its images reloaded) when scrolled back into view.
+class _KeepAlive extends StatefulWidget {
+  final Widget child;
+
+  const _KeepAlive({required this.child});
+
+  @override
+  State<_KeepAlive> createState() => _KeepAliveState();
+}
+
+class _KeepAliveState extends State<_KeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

@@ -2888,6 +2888,18 @@ abstract class AppLocalizations {
   /// **'Products you like will appear here'**
   String get noLikedProductsDesc;
 
+  /// No description provided for @favTabPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get favTabPosts;
+
+  /// No description provided for @favTabProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get favTabProducts;
+
   /// No description provided for @selectAtLeastOneProduct.
   ///
   /// In en, this message translates to:

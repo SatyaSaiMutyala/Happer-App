@@ -563,6 +563,8 @@
   "likedProductsTitle": "LIKED PRODUCTS",
   "noLikedProducts": "No liked products yet",
   "noLikedProductsDesc": "Products you like will appear here",
+  "favTabPosts": "Posts",
+  "favTabProducts": "Products",
   "selectAtLeastOneProduct": "Please link at least one product to your selfie",
   "noFavoritesYet": "No favorites yet",
   "favoritesWillAppearHere": "Looks you like will appear here",

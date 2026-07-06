@@ -32,6 +32,7 @@ Future<ProductSheetResult?> showProductOptionsSheet(
   BuildContext context, {
   required Map<String, dynamic> product,
   String affiliateId = '',
+  String? preselectVariantId,
 }) {
   return showModalBottomSheet<ProductSheetResult>(
     context: context,
@@ -43,6 +44,7 @@ Future<ProductSheetResult?> showProductOptionsSheet(
     builder: (_) => _ProductOptionsSheet(
       product: product,
       affiliateId: affiliateId,
+      preselectVariantId: preselectVariantId,
     ),
   );
 }
@@ -70,16 +72,16 @@ class _Variant {
     final options = (json['option_ids'] as List<dynamic>? ?? [])
         .whereType<Map<String, dynamic>>()
         .toList();
-    final color = options
-            .where((o) => o['name'] == 'Color')
+    // Match option names the same way the backend does — case-insensitive and
+    // both EN/FR ("Color"/"Couleur", "Size"/"Taille") — so products whose
+    // options use French names (e.g. pure cachemire) still show colours/sizes.
+    String optionValue(bool Function(String) matches) => options
+            .where((o) => matches((o['name'] as String? ?? '').trim().toLowerCase()))
             .map((o) => o['value'] as String? ?? '')
             .firstOrNull ??
         '';
-    final size = options
-            .where((o) => o['name'] == 'Size')
-            .map((o) => o['value'] as String? ?? '')
-            .firstOrNull ??
-        '';
+    final color = optionValue((n) => n == 'color' || n == 'couleur');
+    final size = optionValue((n) => n == 'size' || n == 'taille');
     return _Variant(
       id: json['_id'] as String? ?? '',
       images: (json['images'] as List<dynamic>? ?? [])
@@ -98,8 +100,15 @@ class _Variant {
 class _ProductOptionsSheet extends StatefulWidget {
   final Map<String, dynamic> product;
   final String affiliateId;
+  // Variant shown on the card (e.g. the linked variant). Its colour is
+  // pre-selected so the sheet opens on the same colour the user tapped.
+  final String? preselectVariantId;
 
-  const _ProductOptionsSheet({required this.product, this.affiliateId = ''});
+  const _ProductOptionsSheet({
+    required this.product,
+    this.affiliateId = '',
+    this.preselectVariantId,
+  });
 
   @override
   State<_ProductOptionsSheet> createState() => _ProductOptionsSheetState();
@@ -215,6 +224,17 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
           .whereType<Map<String, dynamic>>()
           .map(_Variant.fromJson)
           .toList();
+      // Pre-select the colour of the variant shown on the card (the linked
+      // variant), falling back to the first variant's colour.
+      String selectedColor = variants.isNotEmpty ? variants.first.color : '';
+      final preId = widget.preselectVariantId;
+      if (preId != null && preId.isNotEmpty) {
+        final matched = variants.where((v) => v.id == preId).firstOrNull;
+        if (matched != null && matched.color.isNotEmpty) {
+          selectedColor = matched.color;
+        }
+      }
+
       setState(() {
         _productName = data['name'] as String? ?? '';
         _brandName = brandRaw is Map ? (brandRaw['name'] as String? ?? '') : '';
@@ -222,7 +242,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
             ? (brandRaw['_id'] as String? ?? '')
             : (brandRaw as String? ?? '');
         _allVariants = variants;
-        _selectedColor = variants.isNotEmpty ? variants.first.color : '';
+        _selectedColor = selectedColor;
         _selectedSize = null;
         _quantity = 1;
         _isLoading = false;
@@ -452,17 +472,84 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
         ),
       );
 
+  // Whether the colour name maps to a real swatch colour. Unknown names (which
+  // would otherwise fall back to grey) show the variant's picture instead.
+  bool _isKnownColor(String color) =>
+      _colorMap.containsKey(color.split('/').first.trim().toLowerCase());
+
+  // First available image for a colour, used as its swatch when the colour name
+  // isn't a known swatch colour.
+  String _imageForColor(String color) {
+    for (final v in _allVariants.where((v) => v.color == color)) {
+      if (v.images.isNotEmpty) return v.images.first;
+    }
+    return '';
+  }
+
   Widget _buildColorSelector() {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children: _distinctColors.map((color) {
-        final colorValue = _colorFromName(color);
         final isSelected = _selectedColor == color;
-        final isLight = colorValue == Colors.white ||
-            colorValue == const Color(0xFFD4AF37) ||
-            colorValue == const Color(0xFFF5F0DC) ||
-            colorValue == Colors.yellow;
+        final image = _imageForColor(color);
+        final useImage = !_isKnownColor(color) && image.isNotEmpty;
+
+        Widget swatch;
+        if (useImage) {
+          swatch = Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isSelected ? Colors.black : Colors.grey.shade300,
+                width: isSelected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: image,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(color: Colors.grey.shade200),
+                  errorWidget: (_, __, ___) =>
+                      Container(color: Colors.grey.shade200),
+                ),
+                if (isSelected)
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    child: const Icon(Icons.check, color: Colors.white, size: 20),
+                  ),
+              ],
+            ),
+          );
+        } else {
+          final colorValue = _colorFromName(color);
+          final isLight = colorValue == Colors.white ||
+              colorValue == const Color(0xFFD4AF37) ||
+              colorValue == const Color(0xFFF5F0DC) ||
+              colorValue == Colors.yellow;
+          swatch = Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colorValue,
+              border: Border.all(
+                color: isSelected ? Colors.black : Colors.grey.shade300,
+                width: isSelected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: isSelected
+                ? Icon(Icons.check,
+                    color: isLight ? Colors.black : Colors.white, size: 20)
+                : null,
+          );
+        }
+
         return GestureDetector(
           onTap: () => setState(() {
             _selectedColor = color;
@@ -472,22 +559,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: colorValue,
-                  border: Border.all(
-                    color: isSelected ? Colors.black : Colors.grey.shade300,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: isSelected
-                    ? Icon(Icons.check,
-                        color: isLight ? Colors.black : Colors.white, size: 20)
-                    : null,
-              ),
+              swatch,
               const SizedBox(height: 5),
               Text(
                 color.split('/').first.trim(),

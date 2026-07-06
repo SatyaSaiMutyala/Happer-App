@@ -1505,6 +1505,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les produits que vous aimez apparaîtront ici';
 
   @override
+  String get favTabPosts => 'Publications';
+
+  @override
+  String get favTabProducts => 'Produits';
+
+  @override
   String get selectAtLeastOneProduct =>
       'Veuillez lier au moins un produit à votre selfie';
 

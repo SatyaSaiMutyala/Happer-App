@@ -10,14 +10,30 @@ import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 
-class LikedProductsScreen extends StatefulWidget {
+class LikedProductsScreen extends StatelessWidget {
   const LikedProductsScreen({super.key});
 
   @override
-  State<LikedProductsScreen> createState() => _LikedProductsScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar:
+          HapperAppBar(title: AppLocalizations.of(context).likedProductsTitle),
+      body: const LikedProductsView(),
+    );
+  }
 }
 
-class _LikedProductsScreenState extends State<LikedProductsScreen> {
+/// Reusable liked-products grid (no Scaffold) so it can be embedded standalone
+/// or inside a tab (e.g. the favourites screen toggle).
+class LikedProductsView extends StatefulWidget {
+  const LikedProductsView({super.key});
+
+  @override
+  State<LikedProductsView> createState() => _LikedProductsViewState();
+}
+
+class _LikedProductsViewState extends State<LikedProductsView> {
   late final LikedProductsController _controller;
   final ScrollController _scrollController = ScrollController();
 
@@ -50,41 +66,37 @@ class _LikedProductsScreenState extends State<LikedProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: HapperAppBar(title: l.likedProductsTitle),
-      body: Obx(() {
-        final items = _controller.products;
-        final isLoading = _controller.isLoading.value;
+    return Obx(() {
+      final items = _controller.products;
+      final isLoading = _controller.isLoading.value;
 
-        if (isLoading && items.isEmpty) return _buildShimmerGrid();
-        if (items.isEmpty) return _buildEmptyState(l);
+      if (isLoading && items.isEmpty) return _buildShimmerGrid();
+      if (items.isEmpty) return _buildEmptyState(l);
 
-        return RefreshIndicator(
-          color: Colors.black,
-          onRefresh: _controller.refresh,
-          child: GridView.builder(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.56,
-            ),
-            itemCount: items.length + (_controller.isLoadingMore.value ? 2 : 0),
-            itemBuilder: (context, index) {
-              if (index >= items.length) return _buildCardSkeleton();
-              return _LikedProductCard(
-                item: items[index],
-                onUnlike: () => _controller.unlike(items[index]),
-              );
-            },
+      return RefreshIndicator(
+        color: Colors.black,
+        onRefresh: _controller.refresh,
+        child: GridView.builder(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.56,
           ),
-        );
-      }),
-    );
+          itemCount: items.length + (_controller.isLoadingMore.value ? 2 : 0),
+          itemBuilder: (context, index) {
+            if (index >= items.length) return _buildCardSkeleton();
+            return _LikedProductCard(
+              item: items[index],
+              onUnlike: () => _controller.unlike(items[index]),
+            );
+          },
+        ),
+      );
+    });
   }
 
   Widget _buildEmptyState(AppLocalizations l) {

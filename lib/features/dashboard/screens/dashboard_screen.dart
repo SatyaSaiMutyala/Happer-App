@@ -16,6 +16,7 @@ import 'package:happer_app/features/auth/screens/esign_popup.dart';
 import 'package:happer_app/features/profile/screens/liked_images_screen.dart';
 import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
 import 'package:happer_app/features/creator/data/models/suggestion_model.dart';
+import 'package:happer_app/features/creator/screens/brand_inspirations_screen.dart';
 import 'package:happer_app/features/auth/screens/register_screen.dart';
 import 'package:happer_app/core/utils/search_service.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
@@ -487,13 +488,20 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
-  // Handle a tapped autocomplete suggestion: open the creator's profile, or
-  // filter the creator feed by the selected brand.
+  // Handle a tapped autocomplete suggestion: a creator opens their profile,
+  // a brand opens its dedicated "Inspirations" screen (selfies for that brand).
   void _onSelectSuggestion(SuggestionModel item) {
     if (item.id.isEmpty) return;
     if (item.isBrand) {
-      if (_tabController.index == 1) _tabController.animateTo(0);
-      creatorTabKey.currentState?.applyBrandFilter(item.id);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BrandInspirationsScreen(
+            brandId: item.id,
+            brandName: item.title,
+          ),
+        ),
+      );
     } else {
       Navigator.push(
         context,

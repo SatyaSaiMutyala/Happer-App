@@ -11,6 +11,10 @@ import 'package:happer_app/firebase_options.dart';
 // Must be a top-level function — called when app is terminated
 @pragma('vm:entry-point')
 Future<void> _onBackgroundMessage(RemoteMessage message) async {
+  // When a message carries a `notification` payload, the OS already displays it
+  // in the tray while the app is backgrounded/terminated. Showing it again here
+  // would produce a duplicate, so only handle data-only messages manually.
+  if (message.notification != null) return;
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -28,6 +32,11 @@ class NotificationService {
   final _messaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+  // Ensures the FCM stream listeners are attached only once per app process —
+  // re-running initialize() (e.g. the dashboard being recreated) would
+  // otherwise add duplicate onMessage listeners and show each notification
+  // multiple times.
+  bool _handlersRegistered = false;
 
   static const _channelId = 'happer_notifications';
   static const _channelName = 'Happer Notifications';
@@ -36,12 +45,16 @@ class NotificationService {
   // ─── Public entry point ──────────────────────────────────────────────────
 
   Future<void> initialize() async {
-    FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
     await _requestPermission();
     await setupFlutterNotifications();
-    await _setupMessageHandlers();
+    // Attach stream listeners only once, even if initialize() runs again.
+    if (!_handlersRegistered) {
+      _handlersRegistered = true;
+      FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
+      await _setupMessageHandlers();
+      _messaging.onTokenRefresh.listen(_onTokenRefresh);
+    }
     await _fetchAndSaveToken();
-    _messaging.onTokenRefresh.listen(_onTokenRefresh);
   }
 
   // ─── Token ───────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:happer_app/features/creator/screens/liked_products_screen.dart';
 import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
 import 'package:happer_app/features/profile/bindings/liked_selfies_binding.dart';
 import 'package:happer_app/features/profile/controllers/liked_selfies_controller.dart';
@@ -17,6 +18,7 @@ class LikedImagesScreen extends StatefulWidget {
 class _LikedImagesScreenState extends State<LikedImagesScreen> {
   late final LikedSelfiesController _controller;
   final _scrollController = ScrollController();
+  int _tab = 0; // 0 = liked posts (selfies), 1 = liked products
 
   @override
   void initState() {
@@ -61,7 +63,75 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(title: l.mesFavorisTitle),
-      body: Obx(() {
+      body: Column(
+        children: [
+          _buildToggle(l),
+          Expanded(
+            child: IndexedStack(
+              index: _tab,
+              children: [
+                _buildSelfiesTab(l),
+                const LikedProductsView(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Segmented pill toggle: Posts | Products.
+  Widget _buildToggle(AppLocalizations l) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F2F2),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          _segment(l.favTabPosts, 0),
+          _segment(l.favTabProducts, 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _segment(String label, int index) {
+    final selected = _tab == index;
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (_tab != index) setState(() => _tab = index);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? Colors.black : Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Lato',
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              letterSpacing: 0.3,
+              color: selected ? Colors.white : const Color(0xFF8D8D8D),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelfiesTab(AppLocalizations l) {
+    return Obx(() {
         final isLoading = _controller.isLoading.value;
         final selfies = _controller.selfies;
         final isLoadingMore = _controller.isLoadingMore.value;
@@ -162,8 +232,7 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
             },
           ),
         );
-      }),
-    );
+      });
   }
 }
 

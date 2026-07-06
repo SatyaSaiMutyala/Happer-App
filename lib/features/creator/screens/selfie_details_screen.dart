@@ -534,7 +534,10 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 400, width: double.infinity, color: Colors.white),
+            AspectRatio(
+              aspectRatio: 4 / 5,
+              child: Container(width: double.infinity, color: Colors.white),
+            ),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -637,10 +640,15 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                           maxScale: 4.0,
                           onZoomStart: () {},
                           onZoomEnd: () {},
-                          child: _buildNetworkImage(
-                            _selfie?.picture ?? '',
-                            height: 400,
-                            width: double.infinity,
+                          // Match the feed's image size: full-width 4:5 portrait
+                          // instead of a fixed (shorter) height.
+                          child: AspectRatio(
+                            aspectRatio: 4 / 5,
+                            child: _buildNetworkImage(
+                              _selfie?.picture ?? '',
+                              height: double.infinity,
+                              width: double.infinity,
+                            ),
                           ),
                         ),
                         // User avatar + name row

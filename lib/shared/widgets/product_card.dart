@@ -116,6 +116,8 @@ class _ProductCardState extends State<ProductCard> {
       context,
       product: widget.product,
       affiliateId: widget.affiliateId,
+      // Open the sheet on the same variant/colour shown on this card.
+      preselectVariantId: _variantId,
     );
     if (!mounted || result == null) return;
     setState(() {

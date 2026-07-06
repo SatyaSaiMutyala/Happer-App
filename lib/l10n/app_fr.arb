@@ -486,6 +486,8 @@
   "likedProductsTitle": "PRODUITS AIMÉS",
   "noLikedProducts": "Aucun produit aimé pour le moment",
   "noLikedProductsDesc": "Les produits que vous aimez apparaîtront ici",
+  "favTabPosts": "Publications",
+  "favTabProducts": "Produits",
   "selectAtLeastOneProduct": "Veuillez lier au moins un produit à votre selfie",
   "noFavoritesYet": "Aucun favori pour le moment",
   "favoritesWillAppearHere": "Les looks que vous aimez apparaîtront ici",
