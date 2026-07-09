@@ -104,6 +104,7 @@ class CreatorSelfieModel {
     return cm.CreatorModel(
       sId: id,
       picture: images.isNotEmpty ? images.first : null,
+      images: images,
       createdAt: createdAt,
       isLikedByMe: isLikedByMe,
       nbLike: likesCount,

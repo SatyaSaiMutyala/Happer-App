@@ -10,7 +10,7 @@ import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
-import 'package:pinch_zoom/pinch_zoom.dart';
+import 'package:happer_app/shared/widgets/image_carousel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -253,38 +253,6 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
   }
 
   // ─── Shared image builders ────────────────────────────────────────────────
-
-  Widget _buildNetworkImage(String url,
-      {double height = 180, double width = 125}) {
-    if (url.isEmpty) {
-      return Container(
-        height: height,
-        width: width,
-        color: Colors.grey.shade200,
-        child: const Center(child: Icon(Icons.image, color: Colors.grey)),
-      );
-    }
-    if (url.startsWith('assets/')) {
-      return Image.asset(url, height: height, width: width, fit: BoxFit.cover);
-    }
-    return CachedNetworkImage(
-      imageUrl: url,
-      height: height,
-      width: width,
-      fit: BoxFit.cover,
-      placeholder: (_, __) => Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
-        child: Container(height: height, width: width, color: Colors.white),
-      ),
-      errorWidget: (_, __, ___) => Container(
-        height: height,
-        width: width,
-        color: Colors.grey.shade200,
-        child: const Center(child: Icon(Icons.broken_image, size: 36)),
-      ),
-    );
-  }
 
   ImageProvider _profileProvider(String path) {
     if (path.startsWith('assets/')) return AssetImage(path);
@@ -635,21 +603,18 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                     onDoubleTap: _onDoubleTap,
                     child: Stack(
                       children: [
-                        PinchZoom(
-                          zoomEnabled: true,
-                          maxScale: 4.0,
-                          onZoomStart: () {},
-                          onZoomEnd: () {},
-                          // Match the feed's image size: full-width 4:5 portrait
-                          // instead of a fixed (shorter) height.
-                          child: AspectRatio(
-                            aspectRatio: 4 / 5,
-                            child: _buildNetworkImage(
-                              _selfie?.picture ?? '',
-                              height: double.infinity,
-                              width: double.infinity,
-                            ),
-                          ),
+                        // Full-width 4:5 portrait carousel: pages through all
+                        // images with dots + arrows, falling back to the single
+                        // `picture` when the images list isn't populated yet.
+                        ImageCarousel(
+                          images: (_selfie?.images != null &&
+                                  _selfie!.images!.isNotEmpty)
+                              ? _selfie!.images!
+                              : [_selfie?.picture ?? ''],
+                          // Details page: swipe to change images, dots only,
+                          // no side arrows.
+                          enableSwipe: true,
+                          showArrows: false,
                         ),
                         // User avatar + name row
                         Padding(

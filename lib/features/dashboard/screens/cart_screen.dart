@@ -25,6 +25,7 @@ class _CartItem {
   final String brandPicture;
   final String imageUrl;
   final double price;
+  final double? compareAtPrice;
   final int quantity;
   final String color;
   final String size;
@@ -36,6 +37,7 @@ class _CartItem {
     required this.brandPicture,
     required this.imageUrl,
     required this.price,
+    required this.compareAtPrice,
     required this.quantity,
     required this.color,
     required this.size,
@@ -76,6 +78,20 @@ class _CartItem {
             : null) ??
         0.0;
 
+    // compare_at_price is the pre-discount ("original") price and lives on the
+    // variant (matching the rest of the app). It may arrive as a num or a
+    // string, so parse defensively and fall back to the item/product level.
+    double? parseCompare(dynamic v) {
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+    final compareAtPrice = (variantRaw is Map
+            ? parseCompare(variantRaw['compare_at_price'])
+            : null) ??
+        parseCompare(json['compare_at_price']) ??
+        (productRaw is Map ? parseCompare(productRaw['compare_at_price']) : null);
+
     return _CartItem(
       id: json['_id'] as String? ?? '',
       productName: productName,
@@ -83,6 +99,7 @@ class _CartItem {
       brandPicture: brandPicture,
       imageUrl: imageUrl,
       price: price,
+      compareAtPrice: compareAtPrice,
       quantity: json['quantity'] as int? ?? 1,
       color: '',
       size: '',
@@ -136,6 +153,7 @@ class _CartScreenState extends State<CartScreen> {
   double _subtotal = 0;
   double _total = 0;
   double _shippingAmount = 0;
+  double _avantages = 0;
   // Apple Pay on iOS, Google Pay on Android
   _PaymentMethod _selectedPaymentMethod =
       Platform.isIOS ? _PaymentMethod.applePay : _PaymentMethod.googlePay;
@@ -213,6 +231,7 @@ class _CartScreenState extends State<CartScreen> {
           _subtotal = 0;
           _shippingAmount = 0;
           _total = 0;
+          _avantages = 0;
           _isLoading = false;
         });
         return;
@@ -226,11 +245,26 @@ class _CartScreenState extends State<CartScreen> {
         _subtotal = (data['subtotal'] as num?)?.toDouble() ?? 0.0;
         _shippingAmount = (data['shipping_amount'] as num?)?.toDouble() ?? 0.0;
         _total = (data['total'] as num?)?.toDouble() ?? 0.0;
+        _avantages = _computeAvantages(rawItems);
         _isLoading = false;
       });
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  // "Avantages Happer" = the total saved versus the original prices: the sum of
+  // (compare_at_price - price) * quantity across items whose original price is
+  // genuinely higher than the Happer price.
+  double _computeAvantages(List<_CartItem> items) {
+    double total = 0;
+    for (final item in items) {
+      final compare = item.compareAtPrice;
+      if (compare != null && compare > item.price) {
+        total += (compare - item.price) * item.quantity;
+      }
+    }
+    return total;
   }
 
   Future<void> _pay() async {
@@ -362,6 +396,7 @@ class _CartScreenState extends State<CartScreen> {
         _subtotal = 0;
         _shippingAmount = 0;
         _total = 0;
+        _avantages = 0;
       });
       if (Get.isRegistered<CartController>()) {
         Get.find<CartController>().clearCart();
@@ -600,8 +635,14 @@ class _CartScreenState extends State<CartScreen> {
                         children: [
                           _CartPriceRow(
                               title: 'Sous-total TTC',
-                              value: '${_subtotal.toStringAsFixed(2)} €',
+                              value:
+                                  '${(_subtotal + _avantages).toStringAsFixed(2)} €',
                               isItalic: false),
+                          if (_avantages > 0)
+                            _CartPriceRow(
+                                title: 'Avantages Happer',
+                                value: '- ${_avantages.toStringAsFixed(2)} €',
+                                isItalic: false),
                           _CartPriceRow(
                               title: 'Frais de Livraison',
                               value: _shippingAmount > 0

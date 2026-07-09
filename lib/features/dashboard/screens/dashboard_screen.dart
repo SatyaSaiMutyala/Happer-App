@@ -308,7 +308,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                 if (notification.metrics.axis != Axis.vertical) return false;
                 if (notification is ScrollUpdateNotification) {
                   final delta = notification.scrollDelta ?? 0;
-                  if (delta > 2 && _tabBarVisible) {
+                  // Only hide when genuinely scrolling down past the top. The
+                  // pull-to-refresh overscroll (and its spring-back to 0) happens
+                  // at pixels <= 0 and produces a positive delta, so guarding on
+                  // pixels > 0 keeps the bars visible during a refresh.
+                  if (delta > 2 && _tabBarVisible &&
+                      notification.metrics.pixels > 0) {
                     setState(() => _tabBarVisible = false);
                   } else if (delta < -2 && !_tabBarVisible) {
                     setState(() => _tabBarVisible = true);
@@ -369,19 +374,31 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ],
       ),
-      bottomNavigationBar: _DashboardBottomNav(
-        currentIndex: _currentIndex,
-        profileController: _profileController,
-        onTap: (index) {
-          // Instagram-style: tapping the home icon while already on the home
-          // tab smoothly scrolls the active feed back to the top.
-          if (index == 0 && _currentIndex == 0 && _tabController.index == 0) {
-            creatorTabKey.currentState?.scrollToTop();
-            return;
-          }
-          setState(() => _currentIndex = index);
-          _onTabTapped(index);
-        },
+      // Bottom nav hides on scroll down and reappears on scroll up, in sync
+      // with the top tab bar (both driven by _tabBarVisible). AnimatedAlign
+      // collapses the height to 0 without hardcoding it, so the cart pill and
+      // safe-area inset are handled automatically.
+      bottomNavigationBar: ClipRect(
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          heightFactor: _tabBarVisible ? 1.0 : 0.0,
+          child: _DashboardBottomNav(
+            currentIndex: _currentIndex,
+            profileController: _profileController,
+            onTap: (index) {
+              // Instagram-style: tapping the home icon while already on the home
+              // tab smoothly scrolls the active feed back to the top.
+              if (index == 0 && _currentIndex == 0 && _tabController.index == 0) {
+                creatorTabKey.currentState?.scrollToTop();
+                return;
+              }
+              setState(() => _currentIndex = index);
+              _onTabTapped(index);
+            },
+          ),
+        ),
       ),
     );
   }

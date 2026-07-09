@@ -10,6 +10,7 @@ import 'package:happer_app/features/creator/data/models/creator_selfie_model.dar
 import 'package:happer_app/features/creator/screens/brand_details_screen.dart';
 import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
 import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
+import 'package:happer_app/shared/widgets/image_carousel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CreatorShimmer extends StatelessWidget {
@@ -187,30 +188,6 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
     );
   }
 
-  Widget _buildMainImage(String url) {
-    if (url.isEmpty) {
-      return AspectRatio(
-        aspectRatio: 4 / 5,
-        child: Container(
-          width: double.infinity,
-          color: Colors.grey.shade200,
-          child: const Icon(Icons.image, size: 50, color: Colors.grey),
-        ),
-      );
-    }
-    return AspectRatio(
-      aspectRatio: 4 / 5,
-      child: CachedNetworkImage(
-        imageUrl: url,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        placeholder: (_, __) => Container(color: Colors.grey.shade200),
-        errorWidget: (_, __, ___) =>
-            const Center(child: Icon(Icons.broken_image)),
-      ),
-    );
-  }
-
   String _getTimeDifference(String? createdAt, AppLocalizations l) {
     if (createdAt == null) return '';
     try {
@@ -315,8 +292,6 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
                 }
 
                 final selfie = selfies[index];
-                final imageUrl =
-                    selfie.images.isNotEmpty ? selfie.images.first : '';
                 final user = selfie.user;
                 final displayName = user?.username.isNotEmpty == true
                     ? user!.username
@@ -399,20 +374,7 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
                       ),
                       Stack(
                         children: [
-                          Builder(builder: (context) {
-                            final tc = TransformationController();
-                            return InteractiveViewer(
-                              transformationController: tc,
-                              panEnabled: true,
-                              scaleEnabled: true,
-                              minScale: 1.0,
-                              maxScale: 4.0,
-                              clipBehavior: Clip.none,
-                              onInteractionEnd: (_) =>
-                                  tc.value = Matrix4.identity(),
-                              child: _buildMainImage(imageUrl),
-                            );
-                          }),
+                          ImageCarousel(images: selfie.images),
                           if (selfie.uniqueBrands.isNotEmpty)
                             Positioned(
                               bottom: 12,

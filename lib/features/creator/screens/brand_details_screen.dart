@@ -396,7 +396,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w300,
                                 fontSize: 12,
-                                color: Color(0xFFAAAAAA),
+                                color: Colors.black,
                                 fontStyle: FontStyle.italic,
                                 height: 1.5,
                               ),

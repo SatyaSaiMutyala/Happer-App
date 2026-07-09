@@ -18,6 +18,13 @@ class PurchasedProduct {
   final double total;
   final String? invoiceUrl;
 
+  /// Order/delivery status (e.g. confirmed / shipped / delivered). Parsed
+  /// defensively from several possible keys — see [fromJson].
+  final String orderStatus;
+
+  /// Delivery/tracking link shown by the "LIEN LIVRAISON" button.
+  final String? deliveryLink;
+
   PurchasedProduct({
     required this.paymentReference,
     this.paidAt,
@@ -37,6 +44,8 @@ class PurchasedProduct {
     required this.shippingPrice,
     required this.total,
     this.invoiceUrl,
+    required this.orderStatus,
+    this.deliveryLink,
   });
 
   factory PurchasedProduct.fromJson(Map<String, dynamic> json) {
@@ -77,6 +86,18 @@ class PurchasedProduct {
       shippingPrice: ((json['shipping_price'] as num?) ?? 0).toDouble(),
       total: ((json['total'] as num?) ?? 0).toDouble(),
       invoiceUrl: json['invoice_url'] as String? ?? json['invoice_link'] as String?,
+      // Order/delivery status — try the likely keys (confirm exact key against
+      // the live response).
+      orderStatus: (json['order_status'] ??
+              json['delivery_status'] ??
+              json['status'] ??
+              '') as String,
+      // Delivery/tracking link for the "LIEN LIVRAISON" button.
+      deliveryLink: (json['delivery_link'] ??
+          json['delivery_url'] ??
+          json['tracking_url'] ??
+          json['tracking_link'] ??
+          json['shipping_link']) as String?,
     );
   }
 
@@ -151,11 +172,13 @@ class PurchasedVariant {
   final String id;
   final double price;
   final List<String> images;
+  final String? size;
 
   PurchasedVariant({
     required this.id,
     required this.price,
     required this.images,
+    this.size,
   });
 
   factory PurchasedVariant.fromJson(Map<String, dynamic> json) {
@@ -163,6 +186,7 @@ class PurchasedVariant {
       id: json['_id'] as String? ?? '',
       price: ((json['price'] as num?) ?? 0).toDouble(),
       images: (json['images'] as List<dynamic>? ?? []).cast<String>(),
+      size: (json['size'] ?? json['variant_size'] ?? json['option']) as String?,
     );
   }
 }
