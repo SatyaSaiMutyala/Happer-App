@@ -67,6 +67,13 @@ class CreatorRepository {
       final product = item['product_id'] as Map<String, dynamic>? ?? {};
       final variant = item['variant_id'] as Map<String, dynamic>? ?? {};
       final brand = brandOverride ?? (item['brand_id'] as Map<String, dynamic>? ?? {});
+      // TEMP DEBUG: does the linked product carry ALL its variants (all sizes),
+      // or just the single tagged variant? Remove once sizes are wired up.
+      // ignore: avoid_print
+      print('=== LINKED PRODUCT keys: ${product.keys.toList()} '
+          '| product.variants=${product['variants'] is List ? (product['variants'] as List).length : product['variants']} '
+          '| variant_ids=${product['variant_ids']} '
+          '| item.keys=${item.keys.toList()} ===');
       final images = (variant['images'] as List<dynamic>? ?? [])
           .map((e) => (e as String).trim())
           .where((e) => e.isNotEmpty)

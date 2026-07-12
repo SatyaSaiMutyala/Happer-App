@@ -91,7 +91,7 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
       ),
       child: Row(
         children: [
-          _segment(l.favTabPosts, 0),
+          _segment('Look', 0),
           _segment(l.favTabProducts, 1),
         ],
       ),
@@ -173,12 +173,15 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
           color: Colors.black,
           child: GridView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             itemCount: selfies.length + (isLoadingMore ? 2 : 0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 6,
-              mainAxisSpacing: 6,
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 16,
+              // Match the *image* area of the products tab (0.56 is the whole
+              // card incl. price/text below; the image itself is ~0.7).
+              childAspectRatio: 0.7,
             ),
             itemBuilder: (context, index) {
               if (index >= selfies.length) return _ShimmerCell();
@@ -190,7 +193,7 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
                   children: [
                     Positioned.fill(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(10),
                         child: selfie.hasImage
                             ? CachedNetworkImage(
                                 imageUrl: selfie.primaryImage,
@@ -240,14 +243,15 @@ class _ShimmerGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: 12,
+        itemCount: 6,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.7,
         ),
         itemBuilder: (_, __) => _ShimmerCell(),
       ),
@@ -262,7 +266,7 @@ class _ShimmerCell extends StatelessWidget {
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(10),
         child: Container(color: Colors.white),
       ),
     );

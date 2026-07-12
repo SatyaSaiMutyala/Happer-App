@@ -180,6 +180,12 @@ void main() async {
   try {
     Stripe.publishableKey =
         'pk_live_51RJuR0046lfAB8p8NvHnmRemc8OSqnmTxbkfc9uhhIVeRe6EibAIASIOR0c9H2gxqdGScuAhqK21kKZ0JDmpvtiz00moL7MXTY';
+    // Required for redirect-based payment methods (e.g. Klarna): after the user
+    // authorizes in the external Klarna flow, Stripe redirects back to the app
+    // via this scheme. Must be registered natively (iOS Info.plist
+    // CFBundleURLSchemes + Android intent-filter). Without it, confirmPayment
+    // for Klarna fails with "There was an unexpected error -- try again".
+    Stripe.urlScheme = 'happerapp';
     // Apply settings and configure for Apple Pay
     await Stripe.instance.applySettings();
     // IMPORTANT: Must match the merchant identifier in Runner.entitlements

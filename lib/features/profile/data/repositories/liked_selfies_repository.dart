@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:happer_app/core/network/api_client.dart';
 import 'package:happer_app/core/network/api_endpoints.dart';
 import 'package:happer_app/features/profile/models/liked_selfie_model.dart';
@@ -18,6 +20,14 @@ class LikedSelfiesRepository {
     );
     final outer = (response['data'] as Map<String, dynamic>?) ?? {};
     final list = (outer['data'] as List?) ?? [];
+    // TEMP DEBUG: dump the first liked-selfie item so we can see whether the
+    // response carries a brand logo field (and under what key). Remove once
+    // the brand icon is wired up.
+    if (kDebugMode && list.isNotEmpty) {
+      debugPrint('=== LIKED SELFIE RAW ITEM ===');
+      debugPrint(const JsonEncoder.withIndent('  ').convert(list.first));
+      debugPrint('=== keys: ${(list.first as Map).keys.toList()} ===');
+    }
     final totalPages = (outer['total_pages'] as num?)?.toInt() ?? 1;
     final selfies = list
         .whereType<Map<String, dynamic>>()

@@ -123,20 +123,6 @@ extension _PaymentMethodExt on _PaymentMethod {
         return 'Carte';
     }
   }
-
-  // Stripe paymentMethodOrder key for this method
-  String get stripeKey {
-    switch (this) {
-      case _PaymentMethod.applePay:
-        return 'apple_pay';
-      case _PaymentMethod.googlePay:
-        return 'google_pay';
-      case _PaymentMethod.klarna:
-        return 'klarna';
-      case _PaymentMethod.card:
-        return 'card';
-    }
-  }
 }
 
 class CartScreen extends StatefulWidget {
@@ -391,17 +377,30 @@ class _CartScreenState extends State<CartScreen> {
             ),
           );
         } else {
-          // Card — the sheet is needed to collect card details.
-          await Stripe.instance.initPaymentSheet(
-            paymentSheetParameters: SetupPaymentSheetParameters(
-              paymentIntentClientSecret: clientSecret,
-              merchantDisplayName: 'Happer',
-              style: ThemeMode.light,
-              paymentMethodOrder: [_selectedPaymentMethod.stripeKey],
+          // Card — collect the card in a card-only sheet and confirm the
+          // intent directly. We deliberately avoid Stripe's PaymentSheet here:
+          // the intent is created server-side with automatic payment methods
+          // (card + Klarna), and `paymentMethodOrder` only reorders methods, it
+          // does NOT filter them — so the sheet would also surface Klarna (seen
+          // on Android). Confirming card directly keeps this flow strictly
+          // card-only on both platforms.
+          if (!mounted) return;
+          final confirmed = await showModalBottomSheet<bool>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (_) => _CardEntrySheet(
+              clientSecret: clientSecret,
               billingDetails: billingDetails,
+              amountLabel: '${_total.toStringAsFixed(2)} €',
             ),
           );
-          await Stripe.instance.presentPaymentSheet();
+          // Sheet pops `true` only after the payment is confirmed. Anything
+          // else (dismissed / cancelled) means we must not run the success flow.
+          if (confirmed != true) return;
         }
       }
 
@@ -899,6 +898,131 @@ class _PaymentMethodIcon extends StatelessWidget {
       case _PaymentMethod.card:
         return const Icon(Icons.credit_card, size: 18, color: Colors.black);
     }
+  }
+}
+
+/// Card-only payment sheet. Collects the card with Stripe's [CardField] and
+/// confirms the PaymentIntent directly via [Stripe.confirmPayment], so no other
+/// payment methods (e.g. Klarna) enabled on the intent can appear. Pops `true`
+/// once the payment is confirmed; pops nothing / stays open otherwise.
+class _CardEntrySheet extends StatefulWidget {
+  final String clientSecret;
+  final BillingDetails? billingDetails;
+  final String amountLabel;
+
+  const _CardEntrySheet({
+    required this.clientSecret,
+    required this.billingDetails,
+    required this.amountLabel,
+  });
+
+  @override
+  State<_CardEntrySheet> createState() => _CardEntrySheetState();
+}
+
+class _CardEntrySheetState extends State<_CardEntrySheet> {
+  bool _cardComplete = false;
+  bool _isProcessing = false;
+
+  Future<void> _confirm() async {
+    if (!_cardComplete || _isProcessing) return;
+    setState(() => _isProcessing = true);
+    try {
+      await Stripe.instance.confirmPayment(
+        paymentIntentClientSecret: widget.clientSecret,
+        data: PaymentMethodParams.card(
+          paymentMethodData: PaymentMethodData(
+            billingDetails: widget.billingDetails,
+          ),
+        ),
+      );
+      if (mounted) Navigator.pop(context, true);
+    } on StripeException catch (e) {
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+      // Let the user retry on failure; only surface non-cancel errors.
+      if (e.error.code != FailureCode.Canceled) {
+        showAppSnackBar(
+            e.error.localizedMessage ?? e.error.message ?? 'Erreur de paiement',
+            isSuccess: false);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isProcessing = false);
+      showAppSnackBar(e.toString(), isSuccess: false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Payer par carte',
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Lato'),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: CardField(
+              onCardChanged: (card) =>
+                  setState(() => _cardComplete = card?.complete ?? false),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  _cardComplete ? Colors.black : Colors.grey.shade400,
+              minimumSize: const Size(double.infinity, 54),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: (_cardComplete && !_isProcessing) ? _confirm : null,
+            child: _isProcessing
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                        color: Colors.white, strokeWidth: 2),
+                  )
+                : Text(
+                    'Payer ${widget.amountLabel}',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        fontFamily: 'Lato'),
+                  ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

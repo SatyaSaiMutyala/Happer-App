@@ -402,7 +402,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     MaterialPageRoute(builder: (_) => MyPurchasesScreen())),
               ),
               ProfileMenuItem(
-                title: l.mesLooksTitle,
+                // Renamed for the profile menu only; the target screens keep
+                // "Ma boutique" (l.mesLooksTitle) as their title.
+                title: 'Mes Sélections',
                 svgPath: 'assets/images/styles_Svg.svg',
                 onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => StylesScreen())),
