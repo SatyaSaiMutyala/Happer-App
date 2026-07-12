@@ -365,7 +365,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ? const NeverScrollableScrollPhysics()
                       : _tabPhysics,
                   children: [
-                    CreatorTabScreen(key: creatorTabKey),
+                    CreatorTabScreen(
+                      key: creatorTabKey,
+                      // Swiping past the last image of a post moves to Discover.
+                      onSwipeToDiscover: () => _tabController.animateTo(1),
+                    ),
                     DiscoverTabScreen(key: discoverTabKey),
                   ],
                 ),

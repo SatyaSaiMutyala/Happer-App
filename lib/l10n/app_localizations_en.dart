@@ -951,7 +951,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mesCommandesTitle => 'My Orders';
 
   @override
-  String get mesLooksTitle => 'My Looks';
+  String get mesLooksTitle => 'My Boutique';
 
   @override
   String get mesFavorisTitle => 'My Favorites';

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 import 'package:happer_app/features/auth/screens/register_screen.dart';
 import 'package:happer_app/features/dashboard/screens/dashboard_screen.dart';
 
-/// Animated brand splash: the Happer "H" mark fades and scales in with a white
-/// circular loader spinning around it, then routes to the right entry screen
-/// after 3 seconds.
+/// Brand splash: plays the Lottie intro animation, then routes to the right
+/// entry screen when the animation finishes (with a safety-net timeout).
 class SplashScreen extends StatefulWidget {
   final bool isLoggedIn;
 
@@ -17,40 +17,19 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  // Intro: logo fade + scale.
-  late final AnimationController _introController;
-  late final Animation<double> _logoFade;
-  late final Animation<double> _logoScale;
-
-  // Continuous rotation for the loader ring.
-  late final AnimationController _spinController;
-
+  late final AnimationController _controller;
   bool _navigated = false;
 
   @override
   void initState() {
     super.initState();
-
-    _introController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1100),
-    );
-    _logoFade = CurvedAnimation(parent: _introController, curve: Curves.easeIn);
-    _logoScale = Tween<double>(begin: 0.65, end: 1.0).animate(
-      CurvedAnimation(parent: _introController, curve: Curves.easeOutBack),
-    );
-
-    _spinController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
-
-    _introController.forward();
-    _scheduleNavigation();
+    _controller = AnimationController(vsync: this);
+    // Safety net: if the animation fails to load, still route after 6 seconds
+    // (it plays in 4s and routes on completion before this fires).
+    Future.delayed(const Duration(seconds: 6), _goNext);
   }
 
-  Future<void> _scheduleNavigation() async {
-    await Future.delayed(const Duration(seconds: 3));
+  void _goNext() {
     if (!mounted || _navigated) return;
     _navigated = true;
     Navigator.of(context).pushReplacement(
@@ -66,8 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _introController.dispose();
-    _spinController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -82,70 +60,37 @@ class _SplashScreenState extends State<SplashScreen>
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Center(
-          child: SizedBox(
-            width: 180,
-            height: 180,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Rotating white loader ring around the logo.
-                FadeTransition(
-                  opacity: _logoFade,
-                  child: RotationTransition(
-                    turns: _spinController,
-                    child: CustomPaint(
-                      size: const Size(170, 170),
-                      painter: _ArcLoaderPainter(),
-                    ),
-                  ),
-                ),
-                // The logo mark (fades + scales in).
-                FadeTransition(
-                  opacity: _logoFade,
-                  child: ScaleTransition(
-                    scale: _logoScale,
-                    child: Image.asset(
-                      'assets/images/singleLogo.png',
-                      width: 92,
-                      height: 92,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          child: Lottie.asset(
+            'assets/animations/splash.json',
+            controller: _controller,
+            // contain (not cover) keeps the full frame visible and centered on
+            // every aspect ratio — iPhone, Android, tablets — with no cropping.
+            // The frame's own black background blends into the scaffold, so the
+            // letterbox is invisible.
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+            width: double.infinity,
+            height: double.infinity,
+            onLoaded: (composition) {
+              // Play the full animation compressed into 4 seconds (the source
+              // is ~7s) by driving the controller with a fixed 4s duration.
+              _controller
+                ..duration = const Duration(seconds: 4)
+                ..forward();
+              // Route as soon as the animation finishes playing once.
+              _controller.addStatusListener((status) {
+                if (status == AnimationStatus.completed) _goNext();
+              });
+            },
+            errorBuilder: (context, error, stackTrace) {
+              // If the animation can't be decoded, don't block the user.
+              WidgetsBinding.instance
+                  .addPostFrameCallback((_) => _goNext());
+              return const SizedBox.shrink();
+            },
           ),
         ),
       ),
     );
   }
-}
-
-/// Draws a faint full track plus a brighter white sweeping arc — the arc spins
-/// (via RotationTransition) to read as a loader.
-class _ArcLoaderPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    // Faint background track.
-    final track = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..color = Colors.white.withValues(alpha: 0.12);
-    canvas.drawCircle(center, radius, track);
-
-    // Bright sweeping arc (~90°).
-    final arc = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round
-      ..color = Colors.white;
-    canvas.drawArc(rect, -1.5708, 1.6, false, arc); // start at top, sweep ~92°
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

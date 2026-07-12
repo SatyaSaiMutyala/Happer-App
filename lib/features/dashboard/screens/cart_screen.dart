@@ -17,6 +17,7 @@ import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/shared/widgets/confirm_dialog.dart';
 
 class _CartItem {
   final String id;
@@ -186,6 +187,23 @@ class _CartScreenState extends State<CartScreen> {
     } catch (e) {
       debugPrint('Failed to load default address: $e');
     }
+  }
+
+  // Ask for confirmation before a swipe removes the item. Returns true (and
+  // removes) only if the user confirms; false leaves the item in place.
+  Future<bool> _confirmAndRemove(_CartItem item) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Retirer l\'article',
+      message:
+          'Voulez-vous retirer cet article de votre panier ?',
+      confirmLabel: 'Retirer',
+      cancelLabel: 'Annuler',
+      icon: Icons.delete_outline_rounded,
+      type: ConfirmType.danger,
+    );
+    if (!confirmed) return false;
+    return _removeItem(item);
   }
 
   Future<bool> _removeItem(_CartItem item) async {
@@ -514,7 +532,7 @@ class _CartScreenState extends State<CartScreen> {
                           child: const Icon(Icons.delete_outline,
                               color: Colors.white, size: 28),
                         ),
-                        confirmDismiss: (_) => _removeItem(item),
+                        confirmDismiss: (_) => _confirmAndRemove(item),
                         child: _CartItemCard(item: item),
                       ),
                   ],

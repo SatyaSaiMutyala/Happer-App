@@ -960,7 +960,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mesCommandesTitle => 'Mes Commandes';
 
   @override
-  String get mesLooksTitle => 'Mes Looks';
+  String get mesLooksTitle => 'Ma boutique';
 
   @override
   String get mesFavorisTitle => 'Mes Favoris';

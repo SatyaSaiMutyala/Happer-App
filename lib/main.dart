@@ -21,7 +21,8 @@ import 'package:happer_app/core/network/profile_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
-import 'package:app_links/app_links.dart'; 
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:app_links/app_links.dart';
  
 // White status bar background with black icons/text, applied app-wide.
 const SystemUiOverlayStyle kAppStatusBarStyle = SystemUiOverlayStyle(
@@ -36,6 +37,18 @@ Future<void> initializeStripe() async {
 }
 
 StreamSubscription? _sub;
+
+// True only when the token is a JWT we can confirm has expired. A token we can't
+// decode is treated as still valid so we never force out a session that uses a
+// non-JWT token format.
+bool _isTokenExpired(String token) {
+  final raw = token.startsWith('Bearer ') ? token.substring(7) : token;
+  try {
+    return JwtDecoder.isExpired(raw);
+  } catch (_) {
+    return false;
+  }
+}
 
 final _appLinks = AppLinks();
 
@@ -189,8 +202,16 @@ void main() async {
   // Initialize storage service (must be before any ApiClient usage)
   await StorageService.init();
 
-  // Check if user is already logged in
-  final token = StorageService.getToken();
+  // Check if user is already logged in. A token that is present but expired must
+  // count as logged-out — otherwise the app launches into the dashboard and the
+  // 401 handler immediately bounces it back to the register screen (a visible
+  // home → register flash on first open). Validate the JWT's expiry up front and
+  // clear the stale auth so we route straight to the register screen.
+  var token = StorageService.getToken();
+  if (token != null && _isTokenExpired(token)) {
+    await StorageService.clearAuth();
+    token = null;
+  }
   final isGuestLogin = StorageService.isGuestLogin();
   AppManager.isLoginAsGuest = isGuestLogin;
   final isLoggedIn = token != null;

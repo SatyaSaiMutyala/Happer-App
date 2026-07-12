@@ -426,16 +426,29 @@ class _ProfileHeader extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Full name
-          Text(
-            user.fullName.isNotEmpty ? user.fullName : '—',
-            style: const TextStyle(
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-              color: AppColors.textPrimary,
-              letterSpacing: 0.2,
-            ),
+          // Full name (+ verified badge for creators only)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  user.fullName.isNotEmpty ? user.fullName : '—',
+                  style: const TextStyle(
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    color: AppColors.textPrimary,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+              if (user.role == 1) ...[
+                const SizedBox(width: 5),
+                const Icon(Icons.verified,
+                    size: 20, color: AppColors.textPrimary),
+              ],
+            ],
           ),
 
           const SizedBox(height: 4),

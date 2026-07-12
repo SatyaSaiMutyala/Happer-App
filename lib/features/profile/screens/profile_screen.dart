@@ -366,13 +366,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      fullName.isNotEmpty ? fullName : '—',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            fullName.isNotEmpty ? fullName : '—',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        // Verified badge shown only for creators (role == 1).
+                        if (user?.role == 1) ...[
+                          const SizedBox(width: 4),
+                          const Icon(Icons.verified,
+                              size: 18, color: Colors.black),
+                        ],
+                      ],
                     ),
                   ],
                 );

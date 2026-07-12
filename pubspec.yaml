@@ -2,7 +2,7 @@ name: happer_app
 description: "A new Flutter project."
 publish_to: "none"
 
-version: 26.04.20+48
+version: 26.04.20+52
 
 environment:
   sdk: ^3.6.1
@@ -50,6 +50,7 @@ dependencies:
   font_awesome_flutter: ^11.0.0
   gal: ^2.3.2
   get: ^4.7.3
+  lottie: ^3.1.2
 
  
 
@@ -82,6 +83,7 @@ flutter:
   assets:
     - assets/images/
     - assets/html/
+    - assets/animations/
   fonts:
     - family: Lato
       fonts:

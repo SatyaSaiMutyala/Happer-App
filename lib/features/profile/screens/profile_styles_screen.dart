@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
-import 'package:happer_app/features/creator/screens/liked_products_screen.dart';
 import 'package:happer_app/features/profile/screens/liked_images_screen.dart';
 import 'package:happer_app/features/profile/screens/my_images_screen.dart'; // Add import for MyImagesScreen
 import 'package:happer_app/l10n/app_localizations.dart';
@@ -36,21 +35,6 @@ class StylesScreen extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => LikedImagesScreen()),
-                );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
-            ),
-            _buildListTile(
-              title: AppLocalizations.of(context).likedProductsTitle,
-              icon: const Icon(Icons.favorite_border,
-                  size: 24, color: Color(0xFF5C5C5C)),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (context) => const LikedProductsScreen()),
                 );
               },
             ),

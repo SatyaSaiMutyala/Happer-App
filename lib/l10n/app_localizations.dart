@@ -1877,7 +1877,7 @@ abstract class AppLocalizations {
   /// No description provided for @mesLooksTitle.
   ///
   /// In en, this message translates to:
-  /// **'My Looks'**
+  /// **'My Boutique'**
   String get mesLooksTitle;
 
   /// No description provided for @mesFavorisTitle.

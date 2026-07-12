@@ -47,7 +47,11 @@ class CreatorShimmer extends StatelessWidget {
 }
 
 class CreatorTabScreen extends StatefulWidget {
-  const CreatorTabScreen({Key? key}) : super(key: key);
+  /// Called when the user swipes past the last image of a post, so the parent
+  /// can move to the next (Discover) tab.
+  final VoidCallback? onSwipeToDiscover;
+
+  const CreatorTabScreen({super.key, this.onSwipeToDiscover});
 
   @override
   CreatorTabScreenState createState() => CreatorTabScreenState();
@@ -374,7 +378,14 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
                       ),
                       Stack(
                         children: [
-                          ImageCarousel(images: selfie.images),
+                          ImageCarousel(
+                            images: selfie.images,
+                            // Feed: swipe through images (no arrows), and once
+                            // past the last image hand off to the Discover tab.
+                            enableSwipe: true,
+                            showArrows: false,
+                            onOverscrollNext: widget.onSwipeToDiscover,
+                          ),
                           if (selfie.uniqueBrands.isNotEmpty)
                             Positioned(
                               bottom: 12,

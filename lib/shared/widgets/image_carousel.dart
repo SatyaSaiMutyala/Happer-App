@@ -21,6 +21,11 @@ class ImageCarousel extends StatefulWidget {
   /// When true, left/right slide arrows are shown for multi-image posts.
   final bool showArrows;
 
+  /// Called when the user swipes past the last image (a forward overscroll).
+  /// Used by the feed to hand the gesture off to the parent tab so that
+  /// swiping beyond the final image moves to the next tab.
+  final VoidCallback? onOverscrollNext;
+
   const ImageCarousel({
     super.key,
     required this.images,
@@ -28,6 +33,7 @@ class ImageCarousel extends StatefulWidget {
     this.enableZoom = true,
     this.enableSwipe = false,
     this.showArrows = true,
+    this.onOverscrollNext,
   });
 
   @override
@@ -37,6 +43,10 @@ class ImageCarousel extends StatefulWidget {
 class _ImageCarouselState extends State<ImageCarousel> {
   late final PageController _controller;
   int _current = 0;
+  // Accumulated forward drag past the last image during the current gesture,
+  // and whether we've already handed off to the parent tab this gesture.
+  double _overscrollAccum = 0;
+  bool _handedOff = false;
 
   @override
   void initState() {
@@ -48,6 +58,31 @@ class _ImageCarouselState extends State<ImageCarousel> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  // Hands off to [onOverscrollNext] (e.g. switch to the next tab) mid-drag, as
+  // soon as the user pulls clearly past the last image — so the tab starts
+  // sliding in while the finger is still moving, instead of bouncing back
+  // first and animating afterwards. Only a forward (past the end) drag counts.
+  bool _onScroll(ScrollNotification n) {
+    if (widget.onOverscrollNext == null) return false;
+    if (n.metrics.axis != Axis.horizontal) return false;
+    if (n is ScrollStartNotification) {
+      _overscrollAccum = 0;
+      _handedOff = false;
+    } else if (n is OverscrollNotification &&
+        n.overscroll > 0 &&
+        n.dragDetails != null) {
+      _overscrollAccum += n.overscroll;
+      if (!_handedOff && _overscrollAccum > 48) {
+        _handedOff = true;
+        widget.onOverscrollNext!();
+      }
+    } else if (n is ScrollEndNotification) {
+      _overscrollAccum = 0;
+      _handedOff = false;
+    }
+    return false;
   }
 
   void _goTo(int page) {
@@ -103,14 +138,17 @@ class _ImageCarouselState extends State<ImageCarousel> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: PageView.builder(
-              controller: _controller,
-              physics: widget.enableSwipe
-                  ? const BouncingScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
-              itemCount: images.length,
-              onPageChanged: (i) => setState(() => _current = i),
-              itemBuilder: (_, i) => _buildImage(images[i]),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: PageView.builder(
+                controller: _controller,
+                physics: widget.enableSwipe
+                    ? const BouncingScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
+                itemCount: images.length,
+                onPageChanged: (i) => setState(() => _current = i),
+                itemBuilder: (_, i) => _buildImage(images[i]),
+              ),
             ),
           ),
           if (widget.showArrows && hasMultiple && _current > 0)
