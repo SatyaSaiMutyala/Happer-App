@@ -12,6 +12,7 @@ import 'package:happer_app/core/network/api_exceptions.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:happer_app/features/auth/data/models/auth_models.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/auth/data/repositories/auth_repository.dart';
 
 class AuthController extends GetxController {
@@ -593,6 +594,10 @@ class AuthController extends GetxController {
       // Proceed with local logout even if API call fails
     } finally {
       await StorageService.clearAuth();
+      // Wipe the previous user's cached selfies/profile so the next login
+      // doesn't briefly show their images (SelfieController is fenix:true and
+      // survives logout).
+      SelfieController.clearIfRegistered();
       isLoading.value = false;
       Get.offAllNamed(AppRoutes.register);
     }

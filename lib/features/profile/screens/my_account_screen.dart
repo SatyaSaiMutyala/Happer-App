@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/app/routes/app_routes.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:happer_app/features/profile/screens/change_password_screen.dart';
@@ -152,6 +153,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
 
                     // Dummy: deleteAccount API will be wired when integrated
                     StorageService.clearAuth();
+                    SelfieController.clearIfRegistered();
                     Get.offAllNamed(AppRoutes.login);
                   },
                 ),
@@ -216,6 +218,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                 );
                 if (!confirmed) return;
                 StorageService.clearAuth();
+                SelfieController.clearIfRegistered();
                 Get.offAllNamed(AppRoutes.login);
               },
               child: Text(

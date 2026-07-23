@@ -109,7 +109,11 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     _loadUserTypeAndProducts();
   }
 
-  bool get _canAddMore => _images.length < kMaxSelfieImages;
+  // Only creators post multi-image + captioned selfies. Normal users are
+  // limited to a single image with no caption.
+  bool get _isCreator => _userType == 1;
+
+  bool get _canAddMore => _isCreator && _images.length < kMaxSelfieImages;
 
   Future<void> _addImage() async {
     if (!_canAddMore) {
@@ -202,10 +206,11 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   }
 
   Future<void> _loadUserTypeAndProducts() async {
-    // Ensure user is loaded before checking type
-    if (_selfieController.currentUser.value == null) {
-      await _selfieController.fetchCurrentUser();
-    }
+    // Always fetch fresh: SelfieController persists across account switches, so
+    // a cached currentUser can be stale (e.g. the previous normal user). Using
+    // it would wrongly hide the creator-only caption + multi-image UI when a
+    // creator logs in after a normal user.
+    await _selfieController.fetchCurrentUser();
     final userType = _selfieController.currentUser.value?.usersType ?? 0;
     setState(() {
       _userType = userType;
@@ -241,7 +246,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     final success = await _selfieController.uploadAndSubmitSelfieImages(
       _images.map((f) => f.path).toList(),
       linkedProducts: linkedProducts,
-      caption: _captionController.text,
+      caption: _isCreator ? _captionController.text : '',
     );
     if (success && mounted) {
       _selfieController.fetchMySelfies(refresh: true);
@@ -286,41 +291,46 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                           ],
                         ),
                       ),
-                      _buildThumbnailStrip(l10n),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.captionLabel,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Lato',
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _captionController,
-                              minLines: 1,
-                              maxLines: 2,
-                              maxLength: 150,
-                              textCapitalization: TextCapitalization.sentences,
-                              style: const TextStyle(fontFamily: 'Lato'),
-                              decoration: InputDecoration(
-                                hintText: l10n.captionHint,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                      // Creators can add up to 5 images; normal users keep the
+                      // single cover image, so the strip is hidden for them.
+                      if (_isCreator) _buildThumbnailStrip(l10n),
+                      // Caption is a creator-only field.
+                      if (_isCreator)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.captionLabel,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Lato',
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 12),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _captionController,
+                                minLines: 1,
+                                maxLines: 2,
+                                maxLength: 150,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                style: const TextStyle(fontFamily: 'Lato'),
+                                decoration: InputDecoration(
+                                  hintText: l10n.captionHint,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 12),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      if (_userType == 1)
+                      if (_isCreator)
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(

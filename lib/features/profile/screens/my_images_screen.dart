@@ -136,16 +136,17 @@ class _MyImagesScreenState extends State<MyImagesScreen> {
           onRefresh: _onRefresh,
           color: Colors.black,
           child: Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: GridView.builder(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.7,
               ),
-              itemCount: selfies.length + (isLoadingMore ? 3 : 0),
+              itemCount: selfies.length + (isLoadingMore ? 2 : 0),
               itemBuilder: (context, index) {
                 // Show shimmer placeholders at the bottom while loading more
                 if (index >= selfies.length) {
@@ -170,7 +171,7 @@ class _MyImagesScreenState extends State<MyImagesScreen> {
                     });
                   },
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child: CachedNetworkImage(
                       imageUrl: selfie.primaryImage,
                       fit: BoxFit.cover,
@@ -201,19 +202,20 @@ class _ShimmerGrid extends StatelessWidget {
       baseColor: const Color(0xFFE8E8E8),
       highlightColor: const Color(0xFFF5F5F5),
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         child: GridView.builder(
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 16,
+            childAspectRatio: 0.7,
           ),
-          itemCount: 12,
+          itemCount: 6,
           itemBuilder: (_, __) => Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -231,7 +233,7 @@ class _ShimmerCell extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );

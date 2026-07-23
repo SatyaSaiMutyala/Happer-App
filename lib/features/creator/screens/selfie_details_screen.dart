@@ -1093,6 +1093,24 @@ class _LookLineItem {
 
   int get selectedStock => _selected?.stock ?? (hasSizes ? 0 : 9999);
 
+  // Standard letter-size order; anything outside it falls back to numeric
+  // ordering (34, 36, 38…) and otherwise keeps the API's order.
+  static const _sizeLadder = [
+    'xxs', 'xs', 's', 'm', 'l', 'xl', 'xxl', '2xl', '3xl', 'xxxl'
+  ];
+
+  static void _sortSizes(List<_LookSizeOption> sizes) {
+    sizes.sort((a, b) {
+      final ra = _sizeLadder.indexOf(a.size.trim().toLowerCase());
+      final rb = _sizeLadder.indexOf(b.size.trim().toLowerCase());
+      if (ra != -1 && rb != -1) return ra.compareTo(rb);
+      final na = double.tryParse(a.size.trim());
+      final nb = double.tryParse(b.size.trim());
+      if (na != null && nb != null) return na.compareTo(nb);
+      return 0;
+    });
+  }
+
   // Reads the linked-product JSON exactly like ProductDetails does (option_ids
   // with EN/FR names). Returns null when there's nothing addable.
   static _LookLineItem? fromProduct(Map<String, dynamic> product) {
@@ -1115,22 +1133,39 @@ class _LookLineItem {
     bool isSize(String n) => n == 'size' || n == 'taille';
 
     final firstVariant = variants.first;
+    final taggedId = firstVariant['_id'] as String? ?? '';
+    final taggedPrice = (firstVariant['price'] as num?)?.toDouble() ?? 0;
 
-    // Every distinct size across all variants becomes a selectable box.
+    // The full size list = the variant tagged in the look + every entry the API
+    // returns in `other_sizes` (same product/colour, different size).
     final sizeOptions = <_LookSizeOption>[];
     final seen = <String>{};
-    for (final v in variants) {
-      final variantId = v['_id'] as String? ?? '';
-      if (variantId.isEmpty) continue;
-      final size = optionOf(v, isSize);
-      if (size.isNotEmpty && !seen.add(size)) continue;
+
+    final taggedSize = optionOf(firstVariant, isSize);
+    if (taggedId.isNotEmpty && taggedSize.isNotEmpty && seen.add(taggedSize)) {
       sizeOptions.add(_LookSizeOption(
-        size: size,
-        variantId: variantId,
-        price: (v['price'] as num?)?.toDouble() ?? 0,
-        stock: v['quantity'] as int? ?? 0,
+        size: taggedSize,
+        variantId: taggedId,
+        price: taggedPrice,
+        // The tagged variant carries no quantity field; treat it as available.
+        stock: 1,
       ));
     }
+
+    for (final o in (product['other_sizes'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()) {
+      final size = (o['size'] as String? ?? '').trim();
+      final vid = o['variant_id'] as String? ?? '';
+      if (size.isEmpty || vid.isEmpty || !seen.add(size)) continue;
+      sizeOptions.add(_LookSizeOption(
+        size: size,
+        variantId: vid,
+        price: (o['price'] as num?)?.toDouble() ?? taggedPrice,
+        stock: (o['quantity'] as num?)?.toInt() ?? 0,
+      ));
+    }
+
+    _sortSizes(sizeOptions);
 
     final images = (firstVariant['images'] as List<dynamic>? ?? [])
         .whereType<String>()

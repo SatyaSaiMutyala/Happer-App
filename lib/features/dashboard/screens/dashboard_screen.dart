@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/app_manager.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/profile/bindings/user_profile_binding.dart';
 import 'package:happer_app/features/profile/controllers/user_profile_controller.dart';
 import 'package:happer_app/features/creator/screens/creator_tab_screen.dart';
@@ -249,6 +250,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   onPressed: () async {
                     AppManager.isLoginAsGuest = false;
                     await StorageService.clearAuth();
+                    SelfieController.clearIfRegistered();
                     if (context.mounted) {
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(

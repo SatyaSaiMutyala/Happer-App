@@ -3,5 +3,5 @@ class ApiConfig {
   static const String baseUrl = 'https://newapi.happer.fr';
 
   // New API v1 — used by ApiClient for all new features.
-  static const String newBaseUrl = 'https://api.dev.happer.fr/api/v1';
+  static const String newBaseUrl = 'https://api.happer.fr/api/v1';
 }

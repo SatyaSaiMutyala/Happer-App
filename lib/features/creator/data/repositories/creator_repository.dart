@@ -67,13 +67,6 @@ class CreatorRepository {
       final product = item['product_id'] as Map<String, dynamic>? ?? {};
       final variant = item['variant_id'] as Map<String, dynamic>? ?? {};
       final brand = brandOverride ?? (item['brand_id'] as Map<String, dynamic>? ?? {});
-      // TEMP DEBUG: does the linked product carry ALL its variants (all sizes),
-      // or just the single tagged variant? Remove once sizes are wired up.
-      // ignore: avoid_print
-      print('=== LINKED PRODUCT keys: ${product.keys.toList()} '
-          '| product.variants=${product['variants'] is List ? (product['variants'] as List).length : product['variants']} '
-          '| variant_ids=${product['variant_ids']} '
-          '| item.keys=${item.keys.toList()} ===');
       final images = (variant['images'] as List<dynamic>? ?? [])
           .map((e) => (e as String).trim())
           .where((e) => e.isNotEmpty)
@@ -82,7 +75,11 @@ class CreatorRepository {
         '_id': product['_id'],
         'name': product['name'],
         'brand_id': brand,
+        // `variant_id` is only the variant tagged in the look. The remaining
+        // sizes for the same product come through as `other_sizes`, so pass
+        // them along for the "complete the look" size picker.
         'variants': [<String, dynamic>{...variant, 'images': images}],
+        'other_sizes': item['other_sizes'] ?? const [],
       };
     }
 

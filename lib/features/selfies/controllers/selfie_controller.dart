@@ -25,6 +25,8 @@ class SelfieController extends GetxController {
   final myError = RxnString();
   int _myPage = 1;
   static const int _myPerPage = 10;
+  // Same refresh/load-more overlap guard as Discover (prevents duplicate tiles).
+  bool _myFetching = false;
 
   // Discover selfies (normal users)
   final discoverSelfies = <SelfieModel>[].obs;
@@ -34,6 +36,16 @@ class SelfieController extends GetxController {
   final discoverError = RxnString();
   int _discoverPage = 1;
   static const int _discoverPerPage = 10;
+  // Guards against a refresh and a load-more running at the same time — that
+  // race re-appended page 1 after the refresh had already replaced the list,
+  // producing duplicate tiles.
+  bool _discoverFetching = false;
+
+  // Selfies the user posted this session. The backend creates a new selfie as
+  // `pending` and only serves `approved` ones in Discover, so a fresh post is
+  // absent from the feed until moderated. We keep it here and prepend it to the
+  // feed (surviving refreshes) so the poster sees their own post immediately.
+  final List<SelfieModel> _sessionSelfies = [];
 
   // Current user profile (cached from /auth/me)
   final currentUser = Rxn<SelfieUser>();
@@ -51,6 +63,43 @@ class SelfieController extends GetxController {
   // Products (for creator selfie upload)
   final isProductsLoading = false.obs;
   final productsList = <Map<String, dynamic>>[].obs;
+
+  /// Clears the persisted controller's per-user state if it's alive. Safe to
+  /// call from any logout path without importing/creating the instance.
+  static void clearIfRegistered() {
+    if (Get.isRegistered<SelfieController>()) {
+      Get.find<SelfieController>().clearUserData();
+    }
+  }
+
+  /// Wipes all per-user state so a new login never inherits the previous
+  /// user's selfies / profile / products. Call this on logout — the controller
+  /// is `fenix: true`, so it survives in memory across account switches.
+  void clearUserData() {
+    feedSelfies.clear();
+    _feedPage = 1;
+    hasFeedMore.value = true;
+    isFeedLoading.value = true;
+
+    mySelfies.clear();
+    _myPage = 1;
+    hasMyMore.value = true;
+    myError.value = null;
+    _myFetching = false;
+    isMyLoading.value = true;
+
+    discoverSelfies.clear();
+    _discoverPage = 1;
+    hasDiscoverMore.value = true;
+    discoverError.value = null;
+    _discoverFetching = false;
+    isDiscoverLoading.value = true;
+
+    _sessionSelfies.clear();
+    currentUser.value = null;
+    detailSelfie.value = null;
+    productsList.clear();
+  }
 
   @override
   void onInit() {
@@ -112,6 +161,8 @@ class SelfieController extends GetxController {
   // ─── My Selfies ──────────────────────────────────────────────────────────
 
   Future<void> fetchMySelfies({bool refresh = false}) async {
+    if (_myFetching) return;
+    _myFetching = true;
     if (refresh) {
       _myPage = 1;
       hasMyMore.value = true;
@@ -124,7 +175,7 @@ class SelfieController extends GetxController {
       if (refresh) {
         mySelfies.assignAll(data);
       } else {
-        mySelfies.addAll(data);
+        _appendMyUnique(data);
       }
       _myPage++;
     } on UnauthorizedException {
@@ -133,26 +184,40 @@ class SelfieController extends GetxController {
       myError.value = 'Failed to load selfies. Please try again.';
     } finally {
       isMyLoading.value = false;
+      _myFetching = false;
     }
   }
 
   Future<void> loadMoreMySelfies() async {
-    if (isMyLoadingMore.value || !hasMyMore.value) return;
+    if (_myFetching || isMyLoadingMore.value || !hasMyMore.value) return;
+    _myFetching = true;
     isMyLoadingMore.value = true;
     try {
       final data = await _repo.getOwnSelfies(page: _myPage, perPage: _myPerPage);
       if (data.length < _myPerPage) hasMyMore.value = false;
-      mySelfies.addAll(data);
+      _appendMyUnique(data);
       _myPage++;
     } catch (_) {
     } finally {
       isMyLoadingMore.value = false;
+      _myFetching = false;
     }
+  }
+
+  // Appends only selfies whose ids aren't already in the list (guards against a
+  // repeated page or an overlapping fetch duplicating tiles).
+  void _appendMyUnique(List<SelfieModel> data) {
+    final existing = mySelfies.map((s) => s.id).toSet();
+    final fresh = data.where((s) => !existing.contains(s.id)).toList();
+    if (fresh.isNotEmpty) mySelfies.addAll(fresh);
   }
 
   // ─── Discover Selfies (normal users) ─────────────────────────────────────
 
   Future<void> fetchDiscoverSelfies({bool refresh = false}) async {
+    // A refresh must not overlap an in-flight load-more (or vice versa).
+    if (_discoverFetching) return;
+    _discoverFetching = true;
     if (refresh) {
       _discoverPage = 1;
       hasDiscoverMore.value = true;
@@ -167,9 +232,14 @@ class SelfieController extends GetxController {
           page: _discoverPage, perPage: _discoverPerPage);
       if (data.length < _discoverPerPage) hasDiscoverMore.value = false;
       if (refresh) {
-        discoverSelfies.assignAll(data);
+        // Prepend any session posts the feed doesn't include yet (pending
+        // approval), deduped so an approved one isn't shown twice.
+        final ids = data.map((s) => s.id).toSet();
+        final extras =
+            _sessionSelfies.where((s) => !ids.contains(s.id)).toList();
+        discoverSelfies.assignAll([...extras, ...data]);
       } else {
-        discoverSelfies.addAll(data);
+        _appendDiscoverUnique(data);
       }
       _discoverPage++;
     } on UnauthorizedException {
@@ -178,22 +248,37 @@ class SelfieController extends GetxController {
       discoverError.value = 'Failed to load selfies. Please try again.';
     } finally {
       isDiscoverLoading.value = false;
+      _discoverFetching = false;
     }
   }
 
   Future<void> loadMoreDiscoverSelfies() async {
-    if (isDiscoverLoadingMore.value || !hasDiscoverMore.value) return;
+    if (_discoverFetching ||
+        isDiscoverLoadingMore.value ||
+        !hasDiscoverMore.value) {
+      return;
+    }
+    _discoverFetching = true;
     isDiscoverLoadingMore.value = true;
     try {
       final data = await _repo.getNormalUserSelfies(
           page: _discoverPage, perPage: _discoverPerPage);
       if (data.length < _discoverPerPage) hasDiscoverMore.value = false;
-      discoverSelfies.addAll(data);
+      _appendDiscoverUnique(data);
       _discoverPage++;
     } catch (_) {
     } finally {
       isDiscoverLoadingMore.value = false;
+      _discoverFetching = false;
     }
+  }
+
+  // Appends only selfies whose ids aren't already in the list, so a repeated
+  // page (or an overlapping fetch) can never duplicate tiles.
+  void _appendDiscoverUnique(List<SelfieModel> data) {
+    final existing = discoverSelfies.map((s) => s.id).toSet();
+    final fresh = data.where((s) => !existing.contains(s.id)).toList();
+    if (fresh.isNotEmpty) discoverSelfies.addAll(fresh);
   }
 
   // ─── Detail ──────────────────────────────────────────────────────────────
@@ -302,8 +387,20 @@ class SelfieController extends GetxController {
       );
       final validUrls = urls.where((u) => u.isNotEmpty).toList();
       if (validUrls.isEmpty) throw Exception('Upload returned empty URL');
-      await _repo.submitSelfie(validUrls,
+      final created = await _repo.submitSelfie(validUrls,
           linkedProducts: linkedProducts, caption: caption);
+      // Keep the just-posted selfie so it shows in Discover immediately, even
+      // though the backend serves it only once approved.
+      if (created != null) {
+        try {
+          final model = SelfieModel.fromJson(created);
+          if (model.id.isNotEmpty) _sessionSelfies.insert(0, model);
+        } catch (_) {}
+      }
+      // Refresh the discover feed; the refresh re-prepends session selfies, so
+      // the new post appears at the top right away instead of only after an
+      // app restart.
+      await fetchDiscoverSelfies(refresh: true);
       _showSuccess('Selfie posted successfully!');
       return true;
     } on UnauthorizedException {

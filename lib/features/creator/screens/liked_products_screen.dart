@@ -41,10 +41,16 @@ class _LikedProductsViewState extends State<LikedProductsView> {
   void initState() {
     super.initState();
     CreatorBinding().dependencies();
-    if (!Get.isRegistered<LikedProductsController>()) {
+    final alreadyRegistered = Get.isRegistered<LikedProductsController>();
+    if (!alreadyRegistered) {
       Get.put(LikedProductsController(Get.find<CreatorRepository>()));
     }
     _controller = Get.find<LikedProductsController>();
+    // A freshly-put controller already fetches in onInit. An existing one may
+    // be stale — a product liked elsewhere won't be in its list — so refetch on
+    // entry instead of showing data from a previous visit (which only refreshed
+    // on app restart).
+    if (alreadyRegistered) _controller.refresh();
     _scrollController.addListener(_onScroll);
   }
 

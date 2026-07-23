@@ -65,7 +65,9 @@ class SelfieRepository {
     );
   }
 
-  Future<void> submitSelfie(
+  /// Returns the created selfie document from the response (or null), so the
+  /// caller can read its status / optimistically show it.
+  Future<Map<String, dynamic>?> submitSelfie(
     List<String> imageUrls, {
     List<Map<String, dynamic>> linkedProducts = const [],
     String? caption,
@@ -75,11 +77,12 @@ class SelfieRepository {
     if (caption != null && caption.trim().isNotEmpty) {
       body['caption'] = caption.trim();
     }
-    await _client.post(
+    final response = await _client.post(
       ApiEndpoints.submitSelfie,
       requiresAuth: true,
       body: body,
     );
+    return response['data'] as Map<String, dynamic>?;
   }
 
   Future<List<Map<String, dynamic>>> getProductsList({int page = 1, int perPage = 100}) async {
