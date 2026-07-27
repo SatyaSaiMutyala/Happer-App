@@ -104,7 +104,9 @@ class SelfieUser {
       username: json['username'] as String?,
       firstName: firstName,
       lastName: lastName,
-      picture: json['picture'] as String?,
+      // The v1 API returns the avatar as `profile_image`; older/legacy
+      // responses use `picture`. Read both so the avatar resolves either way.
+      picture: (json['profile_image'] as String?) ?? (json['picture'] as String?),
       usersType: (json['users_type'] as num?)?.toInt() ??
           (json['role'] as num?)?.toInt(),
     );

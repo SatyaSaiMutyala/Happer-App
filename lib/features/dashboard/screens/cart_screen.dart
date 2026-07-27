@@ -93,6 +93,28 @@ class _CartItem {
         parseCompare(json['compare_at_price']) ??
         (productRaw is Map ? parseCompare(productRaw['compare_at_price']) : null);
 
+    // Colour/size live in the variant's `option_ids`, matched case-insensitively
+    // in both EN and FR — the same way product details and the options sheet
+    // resolve them. Falls back to flat fields if the API sends them directly.
+    final options = variantRaw is Map
+        ? (variantRaw['option_ids'] as List<dynamic>? ?? [])
+            .whereType<Map<String, dynamic>>()
+            .toList()
+        : <Map<String, dynamic>>[];
+    String optionValue(bool Function(String) matches) => options
+        .where((o) => matches((o['name'] as String? ?? '').trim().toLowerCase()))
+        .map((o) => (o['value'] as String? ?? '').trim())
+        .where((v) => v.isNotEmpty)
+        .firstOrNull ??
+        '';
+    String flat(String key) => variantRaw is Map
+        ? (variantRaw[key] as String? ?? '').trim()
+        : '';
+    var color = optionValue((n) => n == 'color' || n == 'couleur');
+    if (color.isEmpty) color = flat('color');
+    var size = optionValue((n) => n == 'size' || n == 'taille');
+    if (size.isEmpty) size = flat('size');
+
     return _CartItem(
       id: json['_id'] as String? ?? '',
       productName: productName,
@@ -102,8 +124,8 @@ class _CartItem {
       price: price,
       compareAtPrice: compareAtPrice,
       quantity: json['quantity'] as int? ?? 1,
-      color: '',
-      size: '',
+      color: color,
+      size: size,
     );
   }
 }
@@ -1127,6 +1149,9 @@ class _CartItemCard extends StatelessWidget {
       if (item.size.isNotEmpty) item.size,
     ].join(' / ');
 
+    final compareAt = item.compareAtPrice;
+    final hasDiscount = compareAt != null && compareAt > item.price;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(14),
@@ -1189,12 +1214,16 @@ class _CartItemCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         color: Colors.black)),
-                const SizedBox(height: 2),
-                const Text('Prix Spécial Happer',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic)),
+                // Only a genuine markdown (compare_at_price above the price
+                // actually charged) earns the "Prix Spécial Happer" label.
+                if (hasDiscount) ...[
+                  const SizedBox(height: 2),
+                  const Text('Prix Spécial Happer',
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                          fontStyle: FontStyle.italic)),
+                ],
                 const SizedBox(height: 4),
                 const Text('Livré dans 2-5 jours',
                     style: TextStyle(fontSize: 11, color: Colors.grey)),

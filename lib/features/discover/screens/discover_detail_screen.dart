@@ -14,6 +14,7 @@ import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/selfies/data/models/selfie_model.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/shared/widgets/share_icon.dart';
 
 class DiscoverDetailScreen extends StatefulWidget {
   final DiscoverModel selfieModel;
@@ -213,7 +214,6 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
         // Fall back to initial data from DiscoverModel while loading
         final imageUrl = selfie?.primaryImage ?? widget.selfieModel.picture;
         final createdAt = selfie?.createdAt ?? widget.selfieModel.createdAt;
-        final nbLike = selfie?.nbLike ?? widget.selfieModel.nbLike;
         final isLiked = selfie?.isLikedByMe ?? widget.selfieModel.isLikedByMe;
         // Only approved selfies can be liked (submitted ones return 404 on like endpoint)
         final canLike = selfie?.state == 'approved';
@@ -307,8 +307,8 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                         backgroundColor: Colors.black54,
                         child: Builder(
                           builder: (btnContext) => IconButton(
-                            icon: const Icon(Icons.share,
-                                color: Colors.white, size: 20),
+                            icon: const ShareIcon(
+                                color: Colors.white, size: 19),
                             onPressed: () {
                               final selfieId = widget.selfieModel.id;
                               if (selfieId.isEmpty) {
@@ -398,14 +398,8 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                         if (!AppManager.isLoginAsGuest && canLike)
                           Row(
                             children: [
-                              Text(
-                                '$nbLike',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: AppDimensions.fontM,
-                                ),
-                              ),
-                              const SizedBox(width: AppDimensions.p4),
+                              // Like count intentionally hidden on Discover —
+                              // only the heart toggle is shown.
                               IconButton(
                                 icon: Icon(
                                   isLiked

@@ -583,7 +583,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 final File appFile = await moveImageToAppFolder(image.path,
                     deleteOriginal: true);
                 if (!parentContext.mounted) return;
-                await _cropAndNavigate(appFile.path, parentContext);
+                await _cropAndNavigate([appFile.path], parentContext);
               },
             ),
             const Divider(height: 1, color: Color(0xFFE8E8E8)),
@@ -592,13 +592,20 @@ class _DashboardScreenState extends State<DashboardScreen>
               label: l.chooseFromGallery,
               onTap: () async {
                 Navigator.of(sheetContext).pop();
-                final image =
-                    await ImagePicker().pickImage(source: ImageSource.gallery);
-                if (image == null) return;
-                final File appFile = await moveImageToAppFolder(image.path,
-                    deleteOriginal: false);
+                // Multi-select: the user can pick up to kMaxSelfieImages in one
+                // go instead of adding them one at a time.
+                final images = await ImagePicker()
+                    .pickMultiImage(limit: kMaxSelfieImages);
+                if (images.isEmpty) return;
+                final capped = images.take(kMaxSelfieImages).toList();
+                final appPaths = <String>[];
+                for (final image in capped) {
+                  final File appFile = await moveImageToAppFolder(image.path,
+                      deleteOriginal: false);
+                  appPaths.add(appFile.path);
+                }
                 if (!parentContext.mounted) return;
-                await _cropAndNavigate(appFile.path, parentContext);
+                await _cropAndNavigate(appPaths, parentContext);
               },
             ),
             const Divider(height: 1, color: Color(0xFFE8E8E8)),
@@ -709,10 +716,52 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
+  /// Crops every picked image to the locked 4:5 ratio, then opens the share
+  /// screen with the whole set. Images the user cancels out of are skipped
+  /// rather than aborting the entire batch.
   Future<void> _cropAndNavigate(
-    String imagePath,
+    List<String> imagePaths,
     BuildContext context,
   ) async {
+    final croppedPaths = <String>[];
+
+    for (var i = 0; i < imagePaths.length; i++) {
+      final cropped = await _cropSingle(
+        imagePaths[i],
+        // Only meaningful for a batch — tells the user where they are.
+        title: imagePaths.length > 1
+            ? 'Recadrez (${i + 1}/${imagePaths.length})'
+            : 'Recadrez votre photo',
+      );
+      if (cropped != null) croppedPaths.add(cropped);
+    }
+
+    if (croppedPaths.isEmpty) {
+      debugPrint('CROPPING CANCELED BY USER');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image editing canceled')),
+        );
+      }
+      return;
+    }
+
+    debugPrint('CROPPED IMAGE PATHS: $croppedPaths');
+    if (!context.mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ImageCropScreen(
+          imageFile: File(croppedPaths.first),
+          additionalImages:
+              croppedPaths.skip(1).map((p) => File(p)).toList(),
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _cropSingle(String imagePath, {required String title}) async {
     const ratio4x5 = _Portrait4x5();
 
     final CroppedFile? croppedFile = await ImageCropper().cropImage(
@@ -723,7 +772,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       compressFormat: ImageCompressFormat.jpg,
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Recadrez votre photo',
+          toolbarTitle: title,
           toolbarColor: Colors.white,
           statusBarColor: Colors.white,
           backgroundColor: Colors.black,
@@ -732,7 +781,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           initAspectRatio: ratio4x5,
         ),
         IOSUiSettings(
-          title: 'Recadrez votre photo',
+          title: title,
           aspectRatioPresets: [ratio4x5],
           aspectRatioLockEnabled: true,
           aspectRatioPickerButtonHidden: true,
@@ -742,32 +791,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       ],
     );
 
-    if (croppedFile == null) {
-      debugPrint('CROPPING CANCELED BY USER');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image editing canceled')),
-        );
-      }
-      return;
-    }
-
-    debugPrint(
-      'CROPPED IMAGE PATH: ${croppedFile.path}',
-    );
-
-    // Commented out save to gallery functionality
-    // final croppedImage = File(croppedFile.path);
-    // await saveImageToGallery(croppedImage);
-    if (!context.mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ImageCropScreen(imageFile: File(croppedFile.path)),
-      ),
-    );
+    return croppedFile?.path;
   }
 }
 

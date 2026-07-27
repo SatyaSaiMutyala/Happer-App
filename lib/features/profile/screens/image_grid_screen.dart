@@ -9,6 +9,7 @@ import 'package:happer_app/features/profile/controllers/image_grid_controller.da
 import 'package:happer_app/features/profile/models/user_profile_stats_model.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/shared/widgets/share_icon.dart';
 import 'package:happer_app/core/utils/deep_link_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -93,14 +94,28 @@ class _ImageGridScreenState extends State<ImageGridScreen> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(2),
-                    child: CachedNetworkImage(
-                      imageUrl: selfie.primaryImage,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => _ShimmerCell(),
-                      errorWidget: (_, __, ___) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.broken_image, color: Colors.grey),
-                      ),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: selfie.primaryImage,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => _ShimmerCell(),
+                          errorWidget: (_, __, ___) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.broken_image,
+                                color: Colors.grey),
+                          ),
+                        ),
+                        // Brands tagged in the look, same overlapping stack the
+                        // creator feed uses — scaled down for the grid cell.
+                        if (selfie.linkedBrands.isNotEmpty)
+                          Positioned(
+                            left: 6,
+                            bottom: 6,
+                            child: _GridBrandLogos(brands: selfie.linkedBrands),
+                          ),
+                      ],
                     ),
                   ),
                 );
@@ -405,7 +420,7 @@ class _ActionButtons extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6)),
                   padding: EdgeInsets.zero,
                 ),
-                icon: const Icon(Icons.share, size: 16, color: Colors.black),
+                icon: const ShareIcon(size: 16, color: Colors.black),
                 label: const Text(
                   'Partager',
                   style: TextStyle(
@@ -452,7 +467,7 @@ class _ActionButtons extends StatelessWidget {
           _IconBtn(icon: const FaIcon(FontAwesomeIcons.instagram, color: Colors.white, size: 18), onTap: onInstagramTap),
           const SizedBox(width: 8),
         ],
-        _IconBtn(key: shareKey, icon: const Icon(Icons.share, color: Colors.white, size: 18), onTap: onShareTap),
+        _IconBtn(key: shareKey, icon: const ShareIcon(color: Colors.white, size: 18), onTap: onShareTap),
       ],
     );
   }
@@ -617,6 +632,68 @@ class _SelfiesShimmerGrid extends StatelessWidget {
           crossAxisSpacing: 3,
           mainAxisSpacing: 3,
           childAspectRatio: 0.66,
+        ),
+      ),
+    );
+  }
+}
+
+/// Overlapping brand logos drawn on a grid tile. Purely decorative — taps pass
+/// through to the tile so the look still opens.
+class _GridBrandLogos extends StatelessWidget {
+  final List<Map<String, dynamic>> brands;
+
+  const _GridBrandLogos({required this.brands});
+
+  /// Cap the row so a look tagged with many brands can't span the cell.
+  static const int _maxLogos = 3;
+  static const double _logoSize = 26;
+  static const double _overlap = 9;
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = brands.take(_maxLogos).toList();
+    final totalWidth =
+        shown.length * _logoSize - (shown.length - 1) * _overlap;
+
+    return IgnorePointer(
+      child: SizedBox(
+        width: totalWidth,
+        height: _logoSize,
+        child: Stack(
+          children: List.generate(shown.length, (i) {
+            final picture = (shown[i]['picture'] as String? ?? '').trim();
+            return Positioned(
+              left: i * (_logoSize - _overlap),
+              child: Container(
+                height: _logoSize,
+                width: _logoSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(1, 1),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(3),
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: picture,
+                    fit: BoxFit.contain,
+                    placeholder: (_, __) =>
+                        Container(color: Colors.grey.shade200),
+                    errorWidget: (_, __, ___) =>
+                        Container(color: Colors.grey.shade200),
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );

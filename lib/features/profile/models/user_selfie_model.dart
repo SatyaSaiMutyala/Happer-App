@@ -6,6 +6,11 @@ class UserSelfieModel {
   final int likesCount;
   final String createdAt;
 
+  /// Brands tagged in this look, each with `_id`, `name` and `picture`.
+  /// The user-selfies endpoint only returns raw brand ids, so these are
+  /// merged in from the creator-selfies endpoint by the repository.
+  final List<Map<String, dynamic>> linkedBrands;
+
   const UserSelfieModel({
     required this.id,
     required this.userId,
@@ -13,10 +18,23 @@ class UserSelfieModel {
     required this.status,
     required this.likesCount,
     required this.createdAt,
+    this.linkedBrands = const [],
   });
 
   String get primaryImage => images.isNotEmpty ? images.first : '';
   bool get hasImage => images.isNotEmpty;
+
+  UserSelfieModel copyWith({List<Map<String, dynamic>>? linkedBrands}) {
+    return UserSelfieModel(
+      id: id,
+      userId: userId,
+      images: images,
+      status: status,
+      likesCount: likesCount,
+      createdAt: createdAt,
+      linkedBrands: linkedBrands ?? this.linkedBrands,
+    );
+  }
 
   factory UserSelfieModel.fromJson(Map<String, dynamic> json) {
     final rawImages = json['images'];

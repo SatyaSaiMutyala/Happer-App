@@ -80,7 +80,15 @@ class _Product {
 class ImageCropScreen extends StatefulWidget {
   final File imageFile;
 
-  const ImageCropScreen({super.key, required this.imageFile});
+  /// Extra images picked in the same batch. [imageFile] stays the cover.
+  /// Trimmed away for normal users, who may only post a single image.
+  final List<File> additionalImages;
+
+  const ImageCropScreen({
+    super.key,
+    required this.imageFile,
+    this.additionalImages = const [],
+  });
 
   @override
   State<ImageCropScreen> createState() => _ImageCropScreenState();
@@ -102,6 +110,11 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   void initState() {
     super.initState();
     _images.add(widget.imageFile);
+    // Extra images from a multi-select. Capped here and trimmed again in
+    // _loadUserTypeAndProducts once we know whether this is a creator.
+    _images.addAll(
+      widget.additionalImages.take(kMaxSelfieImages - _images.length),
+    );
     if (!Get.isRegistered<SelfieController>()) {
       SelfieBinding().dependencies();
     }
@@ -126,39 +139,51 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     final source = await _pickImageSource();
     if (source == null) return;
 
-    final picked = await ImagePicker().pickImage(source: source);
-    if (picked == null) return;
+    final remaining = kMaxSelfieImages - _images.length;
+    // Gallery supports picking several at once; the camera is one shot.
+    final List<XFile> picked;
+    if (source == ImageSource.gallery) {
+      picked = await ImagePicker().pickMultiImage(limit: remaining);
+    } else {
+      final shot = await ImagePicker().pickImage(source: ImageSource.camera);
+      picked = shot == null ? <XFile>[] : [shot];
+    }
+    if (picked.isEmpty) return;
 
-    final cropped = await ImageCropper().cropImage(
-      sourcePath: picked.path,
-      maxWidth: 800,
-      maxHeight: 1000,
-      compressQuality: 50,
-      compressFormat: ImageCompressFormat.jpg,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: 'Recadrez votre photo',
-          toolbarColor: Colors.white,
-          backgroundColor: Colors.black,
-          aspectRatioPresets: const [_Portrait4x5()],
-          lockAspectRatio: true,
-          initAspectRatio: const _Portrait4x5(),
-        ),
-        IOSUiSettings(
-          title: 'Recadrez votre photo',
-          aspectRatioPresets: const [_Portrait4x5()],
-          aspectRatioLockEnabled: true,
-          aspectRatioPickerButtonHidden: true,
-          resetAspectRatioEnabled: false,
-          rotateButtonsHidden: true,
-        ),
-      ],
-    );
-    if (cropped == null || !mounted) return;
-    setState(() {
-      _images.add(File(cropped.path));
-      _previewIndex = _images.length - 1;
-    });
+    for (final file in picked.take(remaining)) {
+      final cropped = await ImageCropper().cropImage(
+        sourcePath: file.path,
+        maxWidth: 800,
+        maxHeight: 1000,
+        compressQuality: 50,
+        compressFormat: ImageCompressFormat.jpg,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Recadrez votre photo',
+            toolbarColor: Colors.white,
+            backgroundColor: Colors.black,
+            aspectRatioPresets: const [_Portrait4x5()],
+            lockAspectRatio: true,
+            initAspectRatio: const _Portrait4x5(),
+          ),
+          IOSUiSettings(
+            title: 'Recadrez votre photo',
+            aspectRatioPresets: const [_Portrait4x5()],
+            aspectRatioLockEnabled: true,
+            aspectRatioPickerButtonHidden: true,
+            resetAspectRatioEnabled: false,
+            rotateButtonsHidden: true,
+          ),
+        ],
+      );
+      // Skipping a crop drops just that image, not the rest of the batch.
+      if (cropped == null) continue;
+      if (!mounted) return;
+      setState(() {
+        _images.add(File(cropped.path));
+        _previewIndex = _images.length - 1;
+      });
+    }
   }
 
   Future<ImageSource?> _pickImageSource() {
@@ -215,6 +240,12 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     setState(() {
       _userType = userType;
       _isLoadingProducts = userType == 1;
+      // Normal users post a single image, so drop anything extra that came
+      // from a multi-select before it can reach the upload.
+      if (userType != 1 && _images.length > 1) {
+        _images.removeRange(1, _images.length);
+        _previewIndex = 0;
+      }
     });
     if (userType != 1) return;
 
@@ -352,30 +383,41 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                             ],
                           ),
                         ),
+                      // The Share button scrolls with the content instead of
+                      // being pinned to the bottom — a fixed bar ate the space
+                      // the product list needs, so the products sat off-screen.
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          8,
+                          16,
+                          24 + MediaQuery.of(context).padding.bottom,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Obx(() {
+                            final isUploading =
+                                _selfieController.isSubmitting.value;
+                            return ElevatedButton(
+                              onPressed: isUploading ? null : _uploadSelfie,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: Text(l10n.shareButton),
+                            );
+                          }),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                child: Obx(() {
-                  final isUploading = _selfieController.isSubmitting.value;
-                  return ElevatedButton(
-                    onPressed: isUploading ? null : _uploadSelfie,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(l10n.shareButton),
-                  );
-                }),
-              ),
-              const SizedBox(height: 40),
             ],
           ),
           Obx(() {

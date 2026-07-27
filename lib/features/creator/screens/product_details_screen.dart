@@ -798,26 +798,31 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 }
 
+/// Product description clamped to four lines. "Voir plus" expands the full text
+/// inline on the same page; "Voir moins" collapses it back.
 class ExpandableDescription extends StatefulWidget {
   final String? text;
 
-  const ExpandableDescription({Key? key, required this.text}) : super(key: key);
+  const ExpandableDescription({super.key, required this.text});
 
   @override
   State<ExpandableDescription> createState() => _ExpandableDescriptionState();
 }
 
-class _ExpandableDescriptionState extends State<ExpandableDescription>
-    with TickerProviderStateMixin {
+class _ExpandableDescriptionState extends State<ExpandableDescription> {
+  /// Lines shown before the user taps "Voir plus".
+  static const int _collapsedLines = 4;
+
   bool _expanded = false;
 
   static const _textStyle =
       TextStyle(color: Colors.grey, fontSize: 14, height: 1.5);
 
-  bool _exceedsThreeLines(String text, double maxWidth, BuildContext context) {
+  bool _exceedsCollapsedLines(
+      String text, double maxWidth, BuildContext context) {
     final painter = TextPainter(
       text: TextSpan(text: text, style: _textStyle),
-      maxLines: 3,
+      maxLines: _collapsedLines,
       textDirection: TextDirection.ltr,
       textScaler: MediaQuery.textScalerOf(context),
     )..layout(maxWidth: maxWidth);
@@ -833,17 +838,18 @@ class _ExpandableDescriptionState extends State<ExpandableDescription>
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isLong =
-            _exceedsThreeLines(displayText, constraints.maxWidth, context);
+            _exceedsCollapsedLines(displayText, constraints.maxWidth, context);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AnimatedSize(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
               child: Text(
                 displayText,
-                maxLines: _expanded ? null : 3,
+                maxLines: _expanded ? null : _collapsedLines,
                 overflow:
                     _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
                 style: _textStyle,

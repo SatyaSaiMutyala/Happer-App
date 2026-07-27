@@ -11,6 +11,7 @@ import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/image_carousel.dart';
+import 'package:happer_app/shared/widgets/share_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -18,6 +19,10 @@ import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
 import 'package:happer_app/shared/widgets/product_card.dart';
+
+/// Height the floating cart pill occupies when visible: its 59px body plus the
+/// 16px bottom padding in [CartPreviewPill].
+const double _kCartPillHeight = 75.0;
 
 class SelfieDetailsScreen extends StatefulWidget {
   final String selfieId;
@@ -592,20 +597,14 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       backgroundColor: Colors.white,
       extendBody: true,
       appBar: HapperAppBar(title: 'SHOP LE LOOK', actions: const []),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CartPreviewPill(),
-          SafeArea(
-            top: false,
-            child: const SizedBox(height: kBottomNavigationBarHeight),
-          ),
-        ],
-      ),
+      // Only the floating cart pill lives down here. Sibling screens put a real
+      // action button in this slot, but this one had an empty
+      // kBottomNavigationBarHeight placeholder that rendered nothing and just
+      // pushed the content up.
+      bottomNavigationBar: const CartPreviewPill(),
       body: (_isLoading || _selfie == null)
           ? _buildShimmerLoading()
           : SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 170.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -692,8 +691,8 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.share,
-                                      size: 24, color: Colors.white),
+                                  icon: const ShareIcon(
+                                      size: 22, color: Colors.white),
                                   onPressed: () {
                                     final selfieId = _selfie?.sId ?? '';
                                     if (selfieId.isEmpty) {
@@ -1018,7 +1017,19 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                   // ── Brand collections ──────────────────────────────────
                   _buildBrandCollectionsSection(),
 
-                  const SizedBox(height: 50),
+                  // `extendBody: true` lets the content scroll under the
+                  // transparent bottom bar, so the list has to end above it.
+                  // Reserve exactly what's down there — the nav-height spacer,
+                  // plus the cart pill only while it's actually on screen. A
+                  // flat 170 + 50 left a large empty gap whenever the cart was
+                  // empty and the pill collapsed to nothing.
+                  Obx(() {
+                    final hasPill =
+                        Get.find<CartController>().cartItemCount.value > 0;
+                    return SizedBox(
+                      height: (hasPill ? _kCartPillHeight : 0) + 16,
+                    );
+                  }),
                 ],
               ),
             ),

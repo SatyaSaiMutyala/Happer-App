@@ -402,16 +402,6 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                               ),
                             ),
                             const SizedBox(height: 32),
-                            Text(
-                              '${_brandItems.length} products',
-                              style: const TextStyle(
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                                color: Color(0xFF8D8D8D),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
                           ],
                         ),
                       ),

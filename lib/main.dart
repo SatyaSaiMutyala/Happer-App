@@ -375,6 +375,20 @@ class _MyAppState extends State<MyApp> {
       ),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       getPages: AppPages.routes,
+      // targetSdk 36 forces edge-to-edge on Android 15+, so the system
+      // navigation bar draws on top of the app unless we consume its inset.
+      // Doing it once here covers every route (and every modal pushed onto the
+      // navigator) instead of patching ~50 screens.
+      //
+      // bottom only: `top: false` keeps full-bleed imagery running under the
+      // status bar, which AppBar already insets on its own. Screens with their
+      // own SafeArea don't double-pad — this one consumes the inset first, so
+      // the inner one sees zero.
+      builder: (context, child) => SafeArea(
+        top: false,
+        bottom: true,
+        child: child ?? const SizedBox.shrink(),
+      ),
       home: SplashScreen(isLoggedIn: widget.isLoggedIn),
     );
   }
