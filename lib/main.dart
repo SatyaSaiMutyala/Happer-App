@@ -18,6 +18,7 @@ import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
 // import 'package:happer_app/core/services/websocket_notification_service.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/core/network/profile_api.dart';
+import 'package:happer_app/core/network/token_refresh_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
@@ -215,8 +216,16 @@ void main() async {
   // clear the stale auth so we route straight to the register screen.
   var token = StorageService.getToken();
   if (token != null && _isTokenExpired(token)) {
-    await StorageService.clearAuth();
-    token = null;
+    // A 24h-old token is expired, but that shouldn't mean a logout: for social
+    // logins Firebase can mint a fresh ID token which the backend trades for a
+    // new access token. Only clear the session if that renewal isn't possible.
+    final renewed = await TokenRefreshService.instance.renew();
+    if (renewed) {
+      token = StorageService.getToken();
+    } else {
+      await StorageService.clearAuth();
+      token = null;
+    }
   }
   final isGuestLogin = StorageService.isGuestLogin();
   AppManager.isLoginAsGuest = isGuestLogin;
@@ -375,20 +384,6 @@ class _MyAppState extends State<MyApp> {
       ),
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       getPages: AppPages.routes,
-      // targetSdk 36 forces edge-to-edge on Android 15+, so the system
-      // navigation bar draws on top of the app unless we consume its inset.
-      // Doing it once here covers every route (and every modal pushed onto the
-      // navigator) instead of patching ~50 screens.
-      //
-      // bottom only: `top: false` keeps full-bleed imagery running under the
-      // status bar, which AppBar already insets on its own. Screens with their
-      // own SafeArea don't double-pad — this one consumes the inset first, so
-      // the inner one sees zero.
-      builder: (context, child) => SafeArea(
-        top: false,
-        bottom: true,
-        child: child ?? const SizedBox.shrink(),
-      ),
       home: SplashScreen(isLoggedIn: widget.isLoggedIn),
     );
   }

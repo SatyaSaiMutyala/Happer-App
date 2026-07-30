@@ -7,10 +7,41 @@ import 'package:http/http.dart' as http;
 import 'package:happer_app/app/routes/app_routes.dart';
 import 'package:happer_app/core/config/api_config.dart';
 import 'package:happer_app/core/network/api_exceptions.dart';
+import 'package:happer_app/core/network/token_refresh_service.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 
 class ApiClient {
   static const _timeout = Duration(seconds: 30);
+
+  /// Sends a request and, if it comes back 401 on an authenticated call, tries
+  /// to renew the session once and replays it. [send] must rebuild its headers
+  /// each time so the retry picks up the new token.
+  ///
+  /// The access token only lives 24h, so without this the user was thrown back
+  /// to the register screen a day after logging in.
+  Future<Map<String, dynamic>> _sendWithRenewal(
+    Future<http.Response> Function() send, {
+    required bool requiresAuth,
+  }) async {
+    final sw = Stopwatch()..start();
+    var response = await send();
+    sw.stop();
+
+    if (response.statusCode == 401 &&
+        requiresAuth &&
+        TokenRefreshService.instance.canRenewSilently) {
+      final renewed = await TokenRefreshService.instance.renew();
+      if (renewed) {
+        final retrySw = Stopwatch()..start();
+        response = await send();
+        retrySw.stop();
+        return _handleResponse(response,
+            durationMs: retrySw.elapsedMilliseconds);
+      }
+    }
+
+    return _handleResponse(response, durationMs: sw.elapsedMilliseconds);
+  }
 
   // ─── Logging ──────────────────────────────────────────────────────────────
 
@@ -83,13 +114,11 @@ class ApiClient {
     try {
       var uri = Uri.parse('${ApiConfig.newBaseUrl}$endpoint');
       if (queryParams != null) uri = uri.replace(queryParameters: queryParams);
-      final headers = _buildHeaders(requiresAuth: requiresAuth);
-      _logRequest('GET', uri, headers: headers);
-      final sw = Stopwatch()..start();
-      final response =
-          await http.get(uri, headers: headers).timeout(_timeout);
-      sw.stop();
-      return _handleResponse(response, durationMs: sw.elapsedMilliseconds);
+      return _sendWithRenewal(requiresAuth: requiresAuth, () {
+        final headers = _buildHeaders(requiresAuth: requiresAuth);
+        _logRequest('GET', uri, headers: headers);
+        return http.get(uri, headers: headers).timeout(_timeout);
+      });
     } on SocketException {
       throw NetworkException(
           'No internet connection. Please check your network.');
@@ -105,18 +134,17 @@ class ApiClient {
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.newBaseUrl}$endpoint');
-      final headers = _buildHeaders(requiresAuth: requiresAuth);
-      _logRequest('POST', uri, body: body, headers: headers);
-      final sw = Stopwatch()..start();
-      final response = await http
-          .post(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(_timeout);
-      sw.stop();
-      return _handleResponse(response, durationMs: sw.elapsedMilliseconds);
+      return _sendWithRenewal(requiresAuth: requiresAuth, () {
+        final headers = _buildHeaders(requiresAuth: requiresAuth);
+        _logRequest('POST', uri, body: body, headers: headers);
+        return http
+            .post(
+              uri,
+              headers: headers,
+              body: body != null ? jsonEncode(body) : null,
+            )
+            .timeout(_timeout);
+      });
     } on SocketException {
       throw NetworkException(
           'No internet connection. Please check your network.');
@@ -132,18 +160,17 @@ class ApiClient {
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.newBaseUrl}$endpoint');
-      final headers = _buildHeaders(requiresAuth: requiresAuth);
-      _logRequest('PUT', uri, body: body, headers: headers);
-      final sw = Stopwatch()..start();
-      final response = await http
-          .put(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(_timeout);
-      sw.stop();
-      return _handleResponse(response, durationMs: sw.elapsedMilliseconds);
+      return _sendWithRenewal(requiresAuth: requiresAuth, () {
+        final headers = _buildHeaders(requiresAuth: requiresAuth);
+        _logRequest('PUT', uri, body: body, headers: headers);
+        return http
+            .put(
+              uri,
+              headers: headers,
+              body: body != null ? jsonEncode(body) : null,
+            )
+            .timeout(_timeout);
+      });
     } on SocketException {
       throw NetworkException(
           'No internet connection. Please check your network.');
@@ -159,18 +186,17 @@ class ApiClient {
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.newBaseUrl}$endpoint');
-      final headers = _buildHeaders(requiresAuth: requiresAuth);
-      _logRequest('DELETE', uri, body: body, headers: headers);
-      final sw = Stopwatch()..start();
-      final response = await http
-          .delete(
-            uri,
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(_timeout);
-      sw.stop();
-      return _handleResponse(response, durationMs: sw.elapsedMilliseconds);
+      return _sendWithRenewal(requiresAuth: requiresAuth, () {
+        final headers = _buildHeaders(requiresAuth: requiresAuth);
+        _logRequest('DELETE', uri, body: body, headers: headers);
+        return http
+            .delete(
+              uri,
+              headers: headers,
+              body: body != null ? jsonEncode(body) : null,
+            )
+            .timeout(_timeout);
+      });
     } on SocketException {
       throw NetworkException(
           'No internet connection. Please check your network.');

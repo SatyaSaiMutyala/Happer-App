@@ -575,9 +575,12 @@ class _DashboardScreenState extends State<DashboardScreen>
               icon: Icons.camera_alt_outlined,
               label: l.prendreUnePhoto,
               onTap: () async {
-                Navigator.of(sheetContext).pop();
+                // Open the camera first and dismiss the sheet only once it
+                // returns. Popping up front left the dashboard bare for the
+                // moment the camera takes to start, which looked like a glitch.
                 final image =
                     await ImagePicker().pickImage(source: ImageSource.camera);
+                if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                 if (image == null) return;
                 await _saveToDeviceGallery(File(image.path));
                 final File appFile = await moveImageToAppFolder(image.path,
@@ -591,11 +594,13 @@ class _DashboardScreenState extends State<DashboardScreen>
               icon: Icons.photo_library_outlined,
               label: l.chooseFromGallery,
               onTap: () async {
-                Navigator.of(sheetContext).pop();
                 // Multi-select: the user can pick up to kMaxSelfieImages in one
-                // go instead of adding them one at a time.
+                // go instead of adding them one at a time. As with the camera,
+                // the sheet stays up until the picker returns so the dashboard
+                // never flashes in between.
                 final images = await ImagePicker()
                     .pickMultiImage(limit: kMaxSelfieImages);
+                if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                 if (images.isEmpty) return;
                 final capped = images.take(kMaxSelfieImages).toList();
                 final appPaths = <String>[];

@@ -4,9 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/app_manager.dart';
-import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/dashboard/screens/cart_screen.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
+import 'package:happer_app/shared/widgets/login_required_dialog.dart';
 
 class CartPreviewPill extends StatelessWidget {
   const CartPreviewPill({super.key});
@@ -27,9 +27,9 @@ class CartPreviewPill extends StatelessWidget {
       return GestureDetector(
         onTap: () {
           if (AppManager.isLoginAsGuest) {
-            showAppSnackBar(
-              'Veuillez vous connecter pour accéder au panier',
-              isSuccess: false,
+            showLoginRequiredDialog(
+              context,
+              message: 'Connectez-vous pour accéder à votre panier.',
             );
             return;
           }

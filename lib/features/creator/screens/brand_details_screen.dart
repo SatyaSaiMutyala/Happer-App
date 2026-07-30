@@ -190,86 +190,97 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
             Container(height: 80, color: Colors.white),
             Transform.translate(
               offset: const Offset(0, -40),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Brand logo circle
-                    const CircleAvatar(
-                        radius: 40, backgroundColor: Colors.white),
-                    const SizedBox(height: 16),
-                    // Brand name
-                    Container(height: 16, width: 140, color: Colors.white),
-                    const SizedBox(height: 8),
-                    // Description lines
-                    Container(
-                        height: 12,
-                        width: double.infinity,
-                        color: Colors.white),
-                    const SizedBox(height: 6),
-                    Container(height: 12, width: 200, color: Colors.white),
-                    const SizedBox(height: 32),
-                    // Products count
-                    Container(height: 12, width: 80, color: Colors.white),
-                    const SizedBox(height: 20),
-                    // Product grid shimmer (2 columns)
-                    GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 12,
-                        mainAxisExtent: 290,
-                      ),
-                      itemCount: 6,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Image placeholder
-                              Container(
-                                height: 160,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(8),
-                                    topRight: Radius.circular(8),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                        height: 14,
-                                        width: 100,
-                                        color: Colors.white),
-                                    const SizedBox(height: 4),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header keeps its own 16px inset.
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Brand logo circle
+                        const CircleAvatar(
+                            radius: 40, backgroundColor: Colors.white),
+                        const SizedBox(height: 16),
+                        // Brand name
+                        Container(height: 16, width: 140, color: Colors.white),
+                        const SizedBox(height: 8),
+                        // Description lines
+                        Container(
+                            height: 12,
+                            width: double.infinity,
+                            color: Colors.white),
+                        const SizedBox(height: 6),
+                        Container(height: 12, width: 200, color: Colors.white),
+                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  // Grid is a sibling of the header padding, not nested inside
+                  // it, so its padding and delegate can mirror the real
+                  // SliverPadding + SliverGrid exactly. Nesting it under the
+                  // header's 16px inset made every placeholder tile narrower
+                  // than the card it stands in for.
+                  GridView.builder(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 8),
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 12,
+                      mainAxisExtent: 290,
+                    ),
+                    itemCount: 6,
+                    itemBuilder: (context, index) => _shimmerCardSkeleton(),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Placeholder shaped like a real ProductCard: image block, then the name,
+  /// price and button rows. A single filled rectangle spanning the whole cell
+  /// read as a much heavier, bigger card than the one it stands in for.
+  Widget _shimmerCardSkeleton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Image area — the tallest part of the real card.
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Product name
+        Container(height: 12, width: 90, color: Colors.white),
+        const SizedBox(height: 6),
+        // Price
+        Container(height: 12, width: 50, color: Colors.white),
+        const SizedBox(height: 8),
+        // "Ajouter" button
+        Container(
+          height: 32,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+      ],
     );
   }
 
@@ -444,17 +455,14 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                         mainAxisExtent: 290,
                       ),
                       delegate: SliverChildBuilderDelegate(
+                        // No extra margin: the grid delegate already provides the
+                        // spacing, so a margin here made these tiles smaller
+                        // than the real cards they stand in for. Same skeleton
+                        // as the first-load shimmer so both states match.
                         (context, index) => Shimmer.fromColors(
                           baseColor: Colors.grey.shade300,
                           highlightColor: Colors.grey.shade100,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
+                          child: _shimmerCardSkeleton(),
                         ),
                         childCount: 4,
                       ),

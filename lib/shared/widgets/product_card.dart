@@ -46,6 +46,28 @@ class _ProductCardState extends State<ProductCard> {
     return variant['_id'] as String? ?? '';
   }
 
+  /// Every variant id this card can stand for: the entries in `variants` plus
+  /// the remaining sizes the API returns under `other_sizes` (keyed
+  /// `variant_id`).
+  ///
+  /// The selfie details screen only puts the *tagged* variant in `variants`, so
+  /// scanning that alone missed a different size added from the product details
+  /// screen — the card kept showing "Ajouter" for a product already in the cart.
+  Iterable<String> _allKnownVariantIds() {
+    final ids = <String>{};
+    for (final v in (widget.product['variants'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()) {
+      final id = v['_id'] as String? ?? '';
+      if (id.isNotEmpty) ids.add(id);
+    }
+    for (final o in (widget.product['other_sizes'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()) {
+      final id = o['variant_id'] as String? ?? '';
+      if (id.isNotEmpty) ids.add(id);
+    }
+    return ids;
+  }
+
   // Keeps the card's "in cart" state in sync when the cart changes elsewhere
   // (e.g. the item is removed from the cart screen).
   Worker? _cartWorker;
@@ -89,10 +111,7 @@ class _ProductCardState extends State<ProductCard> {
       }
 
       if (foundItemId == null) {
-        final variants = widget.product['variants'] as List<dynamic>? ?? [];
-        for (final v in variants.whereType<Map<String, dynamic>>()) {
-          final vid = v['_id'] as String? ?? '';
-          if (vid.isEmpty) continue;
+        for (final vid in _allKnownVariantIds()) {
           final existingItemId = cartCtrl.cartItemIdForVariant(vid);
           if (existingItemId != null) {
             foundItemId = existingItemId;
@@ -198,7 +217,13 @@ class _ProductCardState extends State<ProductCard> {
                   initialData: widget.product,
                 ),
               ),
-            ),
+              // Re-read the cart on the way back so a product added from the
+              // details screen shows as "in cart" here, without depending on
+              // that screen having refreshed the controller itself.
+            ).then((_) {
+              if (!mounted) return;
+              Get.find<CartController>().fetchCartItemCount();
+            }),
             child: Stack(
               children: [
                 ClipRRect(

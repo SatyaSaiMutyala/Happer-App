@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-void showAppSnackBar(String message, {bool isSuccess = true}) {
-  final backgroundColor = isSuccess ? const Color(0xFF1A1A1A) : const Color(0xFFD32F2F);
+/// Every snackbar in the app is black — [isSuccess] only picks the icon, never
+/// the background. Errors used to come up red, which clashed with the rest of
+/// the UI.
+const Color kSnackBarBackground = Color(0xFF1A1A1A);
 
+void showAppSnackBar(String message, {bool isSuccess = true}) {
   rootScaffoldMessengerKey.currentState?.hideCurrentSnackBar();
   rootScaffoldMessengerKey.currentState?.showSnackBar(
     SnackBar(
@@ -25,7 +28,7 @@ void showAppSnackBar(String message, {bool isSuccess = true}) {
           ),
         ],
       ),
-      backgroundColor: backgroundColor,
+      backgroundColor: kSnackBarBackground,
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

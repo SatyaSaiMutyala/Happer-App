@@ -11,6 +11,7 @@ import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/image_carousel.dart';
+import 'package:happer_app/shared/widgets/login_required_dialog.dart';
 import 'package:happer_app/shared/widgets/share_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -19,10 +20,6 @@ import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
 import 'package:happer_app/shared/widgets/product_card.dart';
-
-/// Height the floating cart pill occupies when visible: its 59px body plus the
-/// 16px bottom padding in [CartPreviewPill].
-const double _kCartPillHeight = 75.0;
 
 class SelfieDetailsScreen extends StatefulWidget {
   final String selfieId;
@@ -150,6 +147,15 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
   // quantity. Adds the chosen size-variants to the cart on confirm.
   Future<void> _openLookSheet() async {
     if (_linkedProducts.isEmpty) return;
+    // A guest has no cart server-side, so opening the sheet only led to the
+    // add failing and an error snackbar. Prompt them to sign in instead.
+    if (AppManager.isLoginAsGuest) {
+      await showLoginRequiredDialog(
+        context,
+        message: 'Connectez-vous pour ajouter ce look à votre panier.',
+      );
+      return;
+    }
     final items = _linkedProducts
         .map(_LookLineItem.fromProduct)
         .whereType<_LookLineItem>()
@@ -597,11 +603,19 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       backgroundColor: Colors.white,
       extendBody: true,
       appBar: HapperAppBar(title: 'SHOP LE LOOK', actions: const []),
-      // Only the floating cart pill lives down here. Sibling screens put a real
-      // action button in this slot, but this one had an empty
-      // kBottomNavigationBarHeight placeholder that rendered nothing and just
-      // pushed the content up.
-      bottomNavigationBar: const CartPreviewPill(),
+      // Original layout, kept as-is: the spacer below the pill is what lifts it
+      // clear of the system navigation bar. Removing it dropped the pill onto
+      // the nav bar and clipped its label.
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CartPreviewPill(),
+          SafeArea(
+            top: false,
+            child: const SizedBox(height: kBottomNavigationBarHeight),
+          ),
+        ],
+      ),
       body: (_isLoading || _selfie == null)
           ? _buildShimmerLoading()
           : SingleChildScrollView(
@@ -1026,9 +1040,11 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                   Obx(() {
                     final hasPill =
                         Get.find<CartController>().cartItemCount.value > 0;
-                    return SizedBox(
-                      height: (hasPill ? _kCartPillHeight : 0) + 16,
-                    );
+                    // With the pill on screen this matches the original 170
+                    // clearance, so the last product never hides behind it.
+                    // With an empty cart the pill collapses to nothing, and
+                    // reserving 170 for it was what left the large empty gap.
+                    return SizedBox(height: hasPill ? 170.0 : 60.0);
                   }),
                 ],
               ),

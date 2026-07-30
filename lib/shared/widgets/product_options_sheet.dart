@@ -9,6 +9,7 @@ import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
+import 'package:happer_app/shared/widgets/login_required_dialog.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Result returned when an item is successfully added to the cart from the
@@ -259,8 +260,10 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
     final variant = _selectedVariant;
     if (variant == null || _isAdding) return;
     if (AppManager.isLoginAsGuest) {
-      showAppSnackBar(AppLocalizations.of(context).loginToAddToCart,
-          isSuccess: false);
+      await showLoginRequiredDialog(
+        context,
+        message: AppLocalizations.of(context).loginToAddToCart,
+      );
       return;
     }
     setState(() => _isAdding = true);

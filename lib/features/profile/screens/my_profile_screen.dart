@@ -860,7 +860,7 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
               ),
             ],
           ),
-          backgroundColor: Colors.red.shade700,
+          backgroundColor: kSnackBarBackground,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape:

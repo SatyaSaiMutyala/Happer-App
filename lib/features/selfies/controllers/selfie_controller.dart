@@ -389,19 +389,29 @@ class SelfieController extends GetxController {
       if (validUrls.isEmpty) throw Exception('Upload returned empty URL');
       final created = await _repo.submitSelfie(validUrls,
           linkedProducts: linkedProducts, caption: caption);
-      // Keep the just-posted selfie so it shows in Discover immediately, even
-      // though the backend serves it only once approved.
+
+      // The backend approves a creator's post on submit but stores a normal
+      // user's as `submitted` and withholds it from the feed until an admin
+      // approves it. So only echo the post back into Discover when it really is
+      // live — otherwise an unapproved selfie looked like it had gone public.
+      var isApproved = false;
       if (created != null) {
         try {
           final model = SelfieModel.fromJson(created);
-          if (model.id.isNotEmpty) _sessionSelfies.insert(0, model);
+          isApproved = model.state == 'approved';
+          if (model.id.isNotEmpty && isApproved) {
+            _sessionSelfies.insert(0, model);
+          }
         } catch (_) {}
       }
+
       // Refresh the discover feed; the refresh re-prepends session selfies, so
-      // the new post appears at the top right away instead of only after an
+      // an approved post appears at the top right away instead of only after an
       // app restart.
       await fetchDiscoverSelfies(refresh: true);
-      _showSuccess('Selfie posted successfully!');
+      _showSuccess(isApproved
+          ? 'Selfie publié avec succès !'
+          : 'Selfie envoyé ! Il sera visible après validation.');
       return true;
     } on UnauthorizedException {
       _showError('Session expired. Please log in again.');

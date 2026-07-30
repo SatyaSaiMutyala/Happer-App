@@ -14,6 +14,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
+import 'package:happer_app/shared/widgets/login_required_dialog.dart';
 import 'package:happer_app/features/dashboard/screens/cart_screen.dart';
 
 // Each API variant = one specific Color+Size combination with its own price/images/quantity.
@@ -339,9 +340,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               onPressed: _canAddToCart && !_isAddingToCart
                   ? () {
                       if (AppManager.isLoginAsGuest) {
-                        showAppSnackBar(
-                            AppLocalizations.of(context).loginToAddToCart,
-                            isSuccess: false);
+                        showLoginRequiredDialog(
+                          context,
+                          message: AppLocalizations.of(context)
+                              .loginToAddToCart,
+                        );
                         return;
                       }
                       _addToCart();
@@ -798,22 +801,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 }
 
-/// Product description clamped to four lines. "Voir plus" expands the full text
-/// inline on the same page; "Voir moins" collapses it back.
-class ExpandableDescription extends StatefulWidget {
+/// Product description clamped to four lines. "Voir plus" opens the full text
+/// in a bottom sheet rather than expanding the page inline.
+class ExpandableDescription extends StatelessWidget {
   final String? text;
 
   const ExpandableDescription({super.key, required this.text});
 
-  @override
-  State<ExpandableDescription> createState() => _ExpandableDescriptionState();
-}
-
-class _ExpandableDescriptionState extends State<ExpandableDescription> {
   /// Lines shown before the user taps "Voir plus".
   static const int _collapsedLines = 4;
-
-  bool _expanded = false;
 
   static const _textStyle =
       TextStyle(color: Colors.grey, fontSize: 14, height: 1.5);
@@ -829,10 +825,78 @@ class _ExpandableDescriptionState extends State<ExpandableDescription> {
     return painter.didExceedMaxLines;
   }
 
+  void _showDescriptionSheet(BuildContext context, String displayText) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        builder: (_, scrollController) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0E0E0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Description',
+                    style: TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                  IconButton(
+                    icon:
+                        const Icon(Icons.close, size: 20, color: Colors.black),
+                    onPressed: () => Navigator.of(sheetContext).pop(),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE8E8E8)),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  16,
+                  20,
+                  24 + MediaQuery.of(sheetContext).padding.bottom,
+                ),
+                child: Text(displayText, style: _textStyle),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String displayText = widget.text?.trim().isNotEmpty == true
-        ? widget.text!
+    final String displayText = text?.trim().isNotEmpty == true
+        ? text!
         : 'No description available';
 
     return LayoutBuilder(
@@ -843,38 +907,30 @@ class _ExpandableDescriptionState extends State<ExpandableDescription> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
-              child: Text(
-                displayText,
-                maxLines: _expanded ? null : _collapsedLines,
-                overflow:
-                    _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                style: _textStyle,
-              ),
+            Text(
+              displayText,
+              maxLines: _collapsedLines,
+              overflow: TextOverflow.ellipsis,
+              style: _textStyle,
             ),
             if (isLong) ...[
               const SizedBox(height: 4),
               GestureDetector(
-                onTap: () => setState(() => _expanded = !_expanded),
-                child: Row(
+                onTap: () => _showDescriptionSheet(context, displayText),
+                child: const Row(
                   children: [
                     Text(
-                      _expanded ? 'Voir moins' : 'Voir plus',
-                      style: const TextStyle(
+                      'Voir plus',
+                      style: TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         decoration: TextDecoration.underline,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Icon(
-                      _expanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
+                      Icons.keyboard_arrow_down,
                       color: Colors.black,
                       size: 18,
                     ),

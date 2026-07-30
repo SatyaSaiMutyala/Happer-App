@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/creator/models/cart_model.dart';
 import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
@@ -213,7 +214,7 @@ class _AddressScreenState extends State<AddressScreen> {
             ),
           ],
         ),
-        backgroundColor: Colors.red,
+        backgroundColor: kSnackBarBackground,
         duration: Duration(seconds: 5),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.all(16),
