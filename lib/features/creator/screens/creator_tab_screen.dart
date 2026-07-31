@@ -428,7 +428,9 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
           if (_controller.showScrollToTop.value)
             Positioned(
               right: 16,
-              bottom: 16,
+              // Sits clear of the bottom nav and the cart pill that float over
+              // the feed, instead of tucking in behind them.
+              bottom: 90,
               child: FloatingActionButton(
                 backgroundColor: Colors.black.withValues(alpha: 0.6),
                 mini: true,

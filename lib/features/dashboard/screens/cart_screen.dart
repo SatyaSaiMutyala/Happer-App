@@ -1144,10 +1144,8 @@ class _CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sizeLabel = [
-      if (item.color.isNotEmpty) item.color,
-      if (item.size.isNotEmpty) item.size,
-    ].join(' / ');
+    // Size only — the colour now sits under the product name on the left.
+    final sizeLabel = item.size;
 
     final compareAt = item.compareAtPrice;
     final hasDiscount = compareAt != null && compareAt > item.price;
@@ -1196,18 +1194,25 @@ class _CartItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (item.brandName.isNotEmpty)
-                  Text(item.brandName,
+                // Product name on top (where the brand used to be), colour on
+                // the line below it, and the size on its own at the right.
+                if (item.productName.isNotEmpty)
+                  Text(item.productName,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           letterSpacing: 0.3,
-                          color: Colors.black)),
-                const SizedBox(height: 2),
-                Text(item.productName,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis),
+                          color: Colors.black),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                if (item.color.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(item.color,
+                      style:
+                          const TextStyle(fontSize: 13, color: Colors.black87),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                ],
                 const SizedBox(height: 6),
                 Text('${item.price.toStringAsFixed(2)} €',
                     style: const TextStyle(

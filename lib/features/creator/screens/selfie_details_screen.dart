@@ -251,6 +251,24 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
         return sum + ((v['price'] as num?)?.toInt() ?? 0);
       });
 
+  /// Total before discount: `compare_at_price` where the variant has a genuine
+  /// markdown, otherwise the price actually charged. Shown struck through next
+  /// to the look total.
+  int get _lookOriginalPrice => _linkedProducts.fold(0, (sum, p) {
+        final variants = p['variants'] as List<dynamic>? ?? [];
+        if (variants.isEmpty) return sum;
+        final v = variants.first as Map<String, dynamic>;
+        final price = (v['price'] as num?)?.toInt() ?? 0;
+        final raw = v['compare_at_price'];
+        final compare = raw is num
+            ? raw.toInt()
+            : (raw is String ? (double.tryParse(raw)?.round() ?? 0) : 0);
+        return sum + (compare > price ? compare : price);
+      });
+
+  /// What the look saves versus buying at the pre-discount prices.
+  int get _lookSavings => _lookOriginalPrice - _lookTotalPrice;
+
   String _getTimeDifference(String createdAt) {
     final diff = DateTime.now().difference(DateTime.parse(createdAt));
     if (diff.inMinutes < 1) return 'À l\'instant';
@@ -998,24 +1016,62 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                             color: Colors.black,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Image.asset('assets/images/b3bag.png',
-                                  width: 23, height: 23, color: Colors.white),
-                              const SizedBox(width: 8),
-                              Text(
-                                _lookTotalPrice > 0
-                                    ? 'AJOUTER LE LOOK AU PANIER - $_lookTotalPrice€'
-                                    : 'AJOUTER LE LOOK AU PANIER',
-                                style: const TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset('assets/images/b3bag.png',
+                                      width: 23,
+                                      height: 23,
+                                      color: Colors.white),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _lookTotalPrice > 0
+                                        ? 'AJOUTER LE LOOK AU PANIER - $_lookTotalPrice€'
+                                        : 'AJOUTER LE LOOK AU PANIER',
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              // Savings line — only when the look is genuinely
+                              // discounted, so a full-price look keeps the
+                              // single-line button.
+                              if (_lookSavings > 0) ...[
+                                const SizedBox(height: 3),
+                                Text.rich(
+                                  TextSpan(
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 11,
+                                      color: Colors.white70,
+                                      letterSpacing: 0.2,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: '$_lookOriginalPrice€',
+                                        style: const TextStyle(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          decorationColor: Colors.white70,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            ' - Economie $_lookSavings€ - Livraison offerte',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
