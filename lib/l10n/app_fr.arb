@@ -401,7 +401,7 @@
   "itemRemoveError": "Erreur lors de la suppression de l'article",
   "deleteNotificationFailed": "Impossible de supprimer la notification",
   "authErrorLogin": "Erreur d'authentification. Veuillez vous reconnecter.",
-  "shareButton": "PARTAGER",
+  "shareButton": "PUBLIER",
   "productsNotAvailable": "Les produits ne sont pas disponibles pour votre type d'utilisateur",
   "selectExtraProducts": "Sélectionnez des produits supplémentaires",
   "tryAgainButton": "Réessayer",
@@ -509,5 +509,6 @@
       }
     }
   },
-  "pleaseSelectShippingAddress": "Veuillez sélectionner une adresse de livraison"
+  "pleaseSelectShippingAddress": "Veuillez sélectionner une adresse de livraison",
+  "productSelectedBy": "Ce produit a été sélectionné par"
 }

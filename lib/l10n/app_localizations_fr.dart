@@ -1254,7 +1254,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Erreur d\'authentification. Veuillez vous reconnecter.';
 
   @override
-  String get shareButton => 'PARTAGER';
+  String get shareButton => 'PUBLIER';
 
   @override
   String get productsNotAvailable =>
@@ -1560,4 +1560,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get pleaseSelectShippingAddress =>
       'Veuillez sélectionner une adresse de livraison';
+
+  @override
+  String get productSelectedBy => 'Ce produit a été sélectionné par';
 }

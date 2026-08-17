@@ -56,6 +56,13 @@ class ApiEndpoints {
   static String removeCartItem(String itemId) => '/user/carts/remove-cart-item/$itemId';
   static const String initiatePayment = '/user/carts/initiate-payment';
   static const String getPurchasedProducts = '/user/carts/get-purchased-products';
+  // Both take { cart_id, item_id } — cart_id is the `order_id` the purchases
+  // list returns, item_id is its `cart_item_id`.
+  static const String cancelOrder = '/user/carts/cancel-order';
+  static const String returnOrder = '/user/carts/return-order';
+  // Fulfilment timeline for a single line item, oldest entry first.
+  static String orderLogs(String cartId, String itemId) =>
+      '/user/carts/order-logs/$cartId/$itemId';
 
   // Selfies
   static const String getLikedSelfies = '/user/selfies/get-liked-selfies';

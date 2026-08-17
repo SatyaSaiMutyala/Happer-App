@@ -14,6 +14,8 @@ import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
 import 'package:happer_app/features/splash/screens/splash_screen.dart';
 import 'package:happer_app/firebase_options.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:happer_app/features/profile/screens/image_grid_screen.dart';
 // import 'package:happer_app/core/services/websocket_notification_service.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
@@ -152,10 +154,27 @@ Future<void> _navigateToProfile(String username) async {
   }
 }
 
+/// Routes gallery picking through the Android 13+ system photo picker.
+///
+/// Without this the plugin falls back to an ACTION_GET_CONTENT intent, which
+/// takes `EXTRA_ALLOW_MULTIPLE` but has no notion of a maximum — so the `limit`
+/// passed to `pickMultiImage` was silently ignored and the user could select
+/// twenty photos for a five-photo post, with the extras dropped afterwards
+/// without a word. The system picker enforces the cap in its own UI (and needs
+/// no media permission). minSdk is 33, so it is available on every device we
+/// ship to. No-op on iOS, where PHPicker already honours the limit.
+void _enableAndroidPhotoPicker() {
+  final implementation = ImagePickerPlatform.instance;
+  if (implementation is ImagePickerAndroid) {
+    implementation.useAndroidPhotoPicker = true;
+  }
+}
+
 void main() async {
   try {
     WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+    _enableAndroidPhotoPicker();
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

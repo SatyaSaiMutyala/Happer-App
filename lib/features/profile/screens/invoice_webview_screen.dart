@@ -7,7 +7,16 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class InvoiceWebViewScreen extends StatefulWidget {
   final String url;
-  const InvoiceWebViewScreen({super.key, required this.url});
+
+  /// What the page actually is. Defaults to the invoice, but the same viewer
+  /// also shows carrier tracking pages, which shouldn't be titled "Facture".
+  final String title;
+
+  const InvoiceWebViewScreen({
+    super.key,
+    required this.url,
+    this.title = 'Facture',
+  });
 
   @override
   State<InvoiceWebViewScreen> createState() => _InvoiceWebViewScreenState();
@@ -40,7 +49,7 @@ class _InvoiceWebViewScreenState extends State<InvoiceWebViewScreen> {
         onPageFinished: (_) => setState(() => _isLoading = false),
         onWebResourceError: (error) => setState(() {
           _isLoading = false;
-          _errorMessage = 'Unable to load invoice.';
+          _errorMessage = 'Impossible de charger « ${widget.title} ».';
         }),
         onNavigationRequest: (_) => NavigationDecision.navigate,
       ))
@@ -54,9 +63,9 @@ class _InvoiceWebViewScreenState extends State<InvoiceWebViewScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Facture',
-          style: TextStyle(
+        title: Text(
+          widget.title,
+          style: const TextStyle(
             fontFamily: 'Lato',
             fontWeight: FontWeight.w700,
             fontSize: 16,

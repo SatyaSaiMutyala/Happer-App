@@ -28,6 +28,11 @@ dependencies:
   http_parser: ^4.0.2
   path_provider: ^2.1.2
   image_picker: ^1.0.7
+  # Direct dependency only so the Android photo picker can be switched on in
+  # main() — see _enableAndroidPhotoPicker. Without it the legacy gallery
+  # intent ignores pickMultiImage's `limit`.
+  image_picker_android: ^0.8.13
+  image_picker_platform_interface: ^2.11.0
   camera: ^0.11.1         # For camera functionality
   image_cropper: ^9.1.0     # Updated to the latest versions
   provider: ^6.0.5          # For state management
@@ -61,12 +66,18 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.4
 
+# The native splash is the frame the OS paints while the Flutter engine boots —
+# it can be styled but never skipped. It used to be the white "Happer" word
+# logo, which meant two different splashes in a row. It is now plain black so
+# it is indistinguishable from the black Lottie screen that follows it: the
+# branding lives entirely in the animation.
 flutter_native_splash:
-  color: "#ffffff"
-  image: assets/images/happer_word_logo.png
+  color: "#000000"
   android: true
   ios: true
   web: false
+  android_12:
+    color: "#000000"
 
 flutter_launcher_icons:
   android: true

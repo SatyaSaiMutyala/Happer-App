@@ -25,6 +25,18 @@ class PurchasedProduct {
   /// Delivery/tracking link shown by the "LIEN LIVRAISON" button.
   final String? deliveryLink;
 
+  /// The look the item was bought from — what "Voir le look" opens.
+  final String? selfieId;
+
+  /// Whether this line item may still be cancelled. Decided by the API
+  /// (`is_cancellable`: true while the item is "placed" or "shipped"), never
+  /// by the client — the cancel action is shown only when this is true.
+  final bool isCancellable;
+
+  /// Whether a return may be opened for this line item (`is_returnable`: true
+  /// once the item is "delivered"). Same rule — API decides, UI obeys.
+  final bool isReturnable;
+
   PurchasedProduct({
     required this.paymentReference,
     this.paidAt,
@@ -46,7 +58,17 @@ class PurchasedProduct {
     this.invoiceUrl,
     required this.orderStatus,
     this.deliveryLink,
+    this.selfieId,
+    this.isCancellable = false,
+    this.isReturnable = false,
   });
+
+  /// Reads an id that the API may send either populated or as a bare string.
+  static String? _idFrom(dynamic raw) {
+    final id = raw is Map ? (raw['_id'] as String? ?? '') : (raw is String ? raw : '');
+    final trimmed = id.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
 
   factory PurchasedProduct.fromJson(Map<String, dynamic> json) {
     return PurchasedProduct(
@@ -98,6 +120,16 @@ class PurchasedProduct {
           json['tracking_url'] ??
           json['tracking_link'] ??
           json['shipping_link']) as String?,
+      // The look the product was bought through. Same defensive treatment as
+      // the delivery link — confirm the exact key against the live response.
+      selfieId: _idFrom(json['selfie_id'] ??
+          json['selfie'] ??
+          json['look_id'] ??
+          json['post_id']),
+      // Default to false so an older API response that omits these simply hides
+      // both actions, rather than offering a cancel the backend will reject.
+      isCancellable: json['is_cancellable'] as bool? ?? false,
+      isReturnable: json['is_returnable'] as bool? ?? false,
     );
   }
 

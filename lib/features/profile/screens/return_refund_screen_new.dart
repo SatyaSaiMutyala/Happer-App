@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:happer_app/features/profile/screens/faq_screen.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,9 +10,8 @@ class ReturnRefundScreen extends StatelessWidget {
 
   // Support contact details.
   static const _supportEmail = 'support@happer.fr';
-  // TODO: replace with the real WhatsApp business number and FAQ URL.
+  // TODO: replace with the real WhatsApp business number.
   static const _whatsappNumber = '33600000000';
-  static const _faqUrl = 'https://happer.fr/faq';
 
   Future<void> _launch(Uri uri) async {
     if (await canLaunchUrl(uri)) {
@@ -28,7 +28,11 @@ class ReturnRefundScreen extends StatelessWidget {
   Future<void> _openWhatsApp() =>
       _launch(Uri.parse('https://wa.me/$_whatsappNumber'));
 
-  Future<void> _openFaq() => _launch(Uri.parse(_faqUrl));
+  /// Stays inside the app — see [FaqScreen].
+  void _openFaq(BuildContext context) => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const FaqScreen()),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +92,7 @@ class ReturnRefundScreen extends StatelessWidget {
                   _supportButton(
                     label: 'CONSULTER LA FAQ',
                     icon: Icons.quiz_outlined,
-                    onTap: _openFaq,
+                    onTap: () => _openFaq(context),
                     background: Colors.white,
                     foreground: Colors.black,
                     border: const Color(0xFF1A1A1A),

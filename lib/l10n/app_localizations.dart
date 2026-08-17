@@ -2417,7 +2417,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareButton.
   ///
   /// In en, this message translates to:
-  /// **'SHARE'**
+  /// **'PUBLISH'**
   String get shareButton;
 
   /// No description provided for @productsNotAvailable.
@@ -2989,6 +2989,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a delivery address'**
   String get pleaseSelectShippingAddress;
+
+  /// No description provided for @productSelectedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'This product was selected by'**
+  String get productSelectedBy;
 }
 
 class _AppLocalizationsDelegate

@@ -112,9 +112,14 @@ class SelfieUser {
     );
   }
 
+  /// The handle wins: a creator is known by their username, and that is what
+  /// the rest of the app credits them by. The real name is only a fallback for
+  /// accounts that never set one — this used to be the other way round, which
+  /// is why a poster with username "happerfr" showed up as "Happer France".
   String get displayName {
-    if (firstName != null && lastName != null) return '$firstName $lastName';
-    return username ?? '';
+    final handle = username?.trim() ?? '';
+    if (handle.isNotEmpty) return handle;
+    return '${firstName ?? ''} ${lastName ?? ''}'.trim();
   }
 }
 

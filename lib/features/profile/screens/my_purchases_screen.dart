@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/profile/data/repositories/purchases_repository.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/features/profile/models/purchase_model.dart';
 import 'package:happer_app/features/profile/screens/invoice_webview_screen.dart';
 import 'package:happer_app/features/profile/screens/order_detail_screen.dart';
+import 'package:happer_app/features/profile/screens/return_article_screen.dart';
 import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
+import 'package:happer_app/shared/widgets/confirm_dialog.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shimmer/shimmer.dart';
@@ -29,6 +32,10 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
   String? _errorMessage;
   int _page = 1;
   static const _perPage = 10;
+
+  /// `cart_item_id` of the item currently being cancelled, so only that card's
+  /// button shows a spinner instead of the whole list locking up.
+  String? _cancellingItemId;
 
   @override
   void initState() {
@@ -162,20 +169,68 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
     return '${value.toStringAsFixed(2).replaceAll('.', ',')} $symbol';
   }
 
+  /// Opens the carrier's tracking page. Strictly the tracking link: this used
+  /// to fall back to [PurchasedProduct.invoiceUrl], so an order with no
+  /// tracking yet opened a PDF of the bill under a button labelled
+  /// "LIEN LIVRAISON".
   void _openDeliveryLink(PurchasedProduct p) {
-    final link = (p.deliveryLink != null && p.deliveryLink!.isNotEmpty)
-        ? p.deliveryLink!
-        : (p.invoiceUrl ?? '');
+    final link = p.deliveryLink?.trim() ?? '';
     if (link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lien de livraison indisponible')),
+        const SnackBar(content: Text('Lien de suivi indisponible pour le moment')),
       );
       return;
     }
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => InvoiceWebViewScreen(url: link)),
+      MaterialPageRoute(
+        builder: (_) => InvoiceWebViewScreen(
+          url: link,
+          title: 'Suivi de livraison',
+        ),
+      ),
     );
+  }
+
+  /// Cancels a single line item after confirmation, then reloads the list so
+  /// the card comes back with the server's new status and flags.
+  Future<void> _cancelOrder(PurchasedProduct p) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Annuler la commande ?',
+      message:
+          'Cet article sera annulé. Cette action est définitive.',
+      confirmLabel: 'Oui, annuler',
+      cancelLabel: 'Non',
+      icon: Icons.cancel_outlined,
+      type: ConfirmType.danger,
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _cancellingItemId = p.cartItemId);
+    try {
+      await _repository.cancelOrder(
+        orderId: p.orderId,
+        cartItemId: p.cartItemId,
+      );
+      showAppSnackBar('Commande annulée');
+      if (!mounted) return;
+      setState(() => _cancellingItemId = null);
+      await _fetchPurchases(firstLoad: true);
+    } catch (e) {
+      showAppSnackBar(e.toString(), isSuccess: false);
+      if (mounted) setState(() => _cancellingItemId = null);
+    }
+  }
+
+  /// Opens the return request flow. Refreshes on the way back so a newly
+  /// requested return flips the item out of `is_returnable`.
+  Future<void> _openReturnFlow(PurchasedProduct p) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ReturnArticleScreen(order: p)),
+    );
+    if (mounted) _fetchPurchases(firstLoad: true);
   }
 
   Widget _buildPurchaseCard(PurchasedProduct p) {
@@ -381,6 +436,13 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
                             ),
                           ),
                         ),
+
+                        // Cancel / return — driven purely by the API's
+                        // is_cancellable / is_returnable flags. They are
+                        // mutually exclusive today (cancel while placed or
+                        // shipped, return once delivered), but the layout does
+                        // not assume that.
+                        _buildItemActions(p),
                       ],
                     ),
                   ),
@@ -390,6 +452,78 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// The conditional cancel/return row. Renders nothing when the API says the
+  /// item is neither cancellable nor returnable.
+  Widget _buildItemActions(PurchasedProduct p) {
+    if (!p.isCancellable && !p.isReturnable) return const SizedBox.shrink();
+
+    final isCancelling = _cancellingItemId == p.cartItemId;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        children: [
+          if (p.isCancellable)
+            Expanded(
+              child: _secondaryButton(
+                label: 'ANNULER',
+                busy: isCancelling,
+                onTap: isCancelling ? null : () => _cancelOrder(p),
+              ),
+            ),
+          if (p.isCancellable && p.isReturnable) const SizedBox(width: 10),
+          if (p.isReturnable)
+            Expanded(
+              child: _secondaryButton(
+                label: 'RETOURNER',
+                onTap: () => _openReturnFlow(p),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Outlined counterpart to the black "LIEN LIVRAISON" button — these are
+  /// secondary actions and should not compete with it.
+  Widget _secondaryButton({
+    required String label,
+    required VoidCallback? onTap,
+    bool busy = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 46,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFDDDDDD), width: 1.5),
+        ),
+        child: busy
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                ),
+              )
+            : Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  letterSpacing: 0.3,
+                  color: Colors.black,
+                ),
+              ),
+      ),
     );
   }
 

@@ -1041,21 +1041,23 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                   ),
                                 ],
                               ),
-                              // Savings line — only when the look is genuinely
-                              // discounted, so a full-price look keeps the
-                              // single-line button.
-                              if (_lookSavings > 0) ...[
-                                const SizedBox(height: 3),
-                                Text.rich(
-                                  TextSpan(
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 11,
-                                      color: Colors.white70,
-                                      letterSpacing: 0.2,
-                                    ),
-                                    children: [
+                              // Second line. The struck original price and the
+                              // savings only make sense on a genuinely
+                              // discounted look, but "Livraison offerte" holds
+                              // the line either way, so the button never drops
+                              // back to a bare single line.
+                              const SizedBox(height: 3),
+                              Text.rich(
+                                TextSpan(
+                                  style: const TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 11,
+                                    color: Colors.white70,
+                                    letterSpacing: 0.2,
+                                  ),
+                                  children: [
+                                    if (_lookSavings > 0) ...[
                                       TextSpan(
                                         text: '$_lookOriginalPrice€',
                                         style: const TextStyle(
@@ -1065,13 +1067,13 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                         ),
                                       ),
                                       TextSpan(
-                                        text:
-                                            ' - Economie $_lookSavings€ - Livraison offerte',
+                                        text: ' - Economie $_lookSavings€ - ',
                                       ),
                                     ],
-                                  ),
+                                    const TextSpan(text: 'Livraison offerte'),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ],
                           ),
                         ),

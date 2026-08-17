@@ -603,6 +603,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                 if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                 if (images.isEmpty) return;
                 final capped = images.take(kMaxSelfieImages).toList();
+                // The picker enforces the cap itself, but say so rather than
+                // quietly discarding photos if a device ever hands back more.
+                if (images.length > kMaxSelfieImages &&
+                    parentContext.mounted) {
+                  showAppSnackBar(
+                    AppLocalizations.of(parentContext)
+                        .maxImagesReached(kMaxSelfieImages),
+                    isSuccess: false,
+                  );
+                }
                 final appPaths = <String>[];
                 for (final image in capped) {
                   final File appFile = await moveImageToAppFolder(image.path,
@@ -784,6 +794,10 @@ class _DashboardScreenState extends State<DashboardScreen>
           aspectRatioPresets: [ratio4x5],
           lockAspectRatio: true,
           initAspectRatio: ratio4x5,
+          // Drops uCrop's Crop / Rotate / Scale tabs. With the ratio locked to
+          // 4:5 they only offered ways to fight the lock, and the iOS settings
+          // below already hide their counterparts.
+          hideBottomControls: true,
         ),
         IOSUiSettings(
           title: title,

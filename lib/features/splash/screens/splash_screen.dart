@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(vsync: this);
     // Safety net: if the animation never loads, still route after 6 seconds
-    // (it plays in 1.2s and routes on completion long before this fires).
+    // (it plays in 2.5s and routes on completion long before this fires).
     Future.delayed(const Duration(seconds: 6), _goNext);
   }
 
@@ -72,9 +72,9 @@ class _SplashScreenState extends State<SplashScreen>
             width: double.infinity,
             height: double.infinity,
             onLoaded: (composition) {
-              // Play at the speed the animation was authored at (1.2s). The
-              // old source ran ~7s and had to be compressed to a hardcoded 4s;
-              // this one is already timed, so honour its own duration.
+              // Play at the speed the animation was authored at (2.5s — the
+              // file carries its own frame rate). Never hardcode a duration
+              // here: re-timed exports then play at the wrong speed.
               _controller
                 ..duration = composition.duration
                 ..forward();

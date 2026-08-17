@@ -21,6 +21,7 @@ class _Product {
   final String variantId;
   final String name;
   final String brandName;
+  final String brandPicture;
   final String imageUrl;
   bool isSelected = false;
 
@@ -30,6 +31,7 @@ class _Product {
     required this.variantId,
     required this.name,
     required this.brandName,
+    required this.brandPicture,
     required this.imageUrl,
   });
 
@@ -40,6 +42,8 @@ class _Product {
         : (brandRaw as String? ?? '');
     final brandName =
         brandRaw is Map ? (brandRaw['name'] as String? ?? '') : '';
+    final brandPicture =
+        brandRaw is Map ? (brandRaw['picture'] as String? ?? '').trim() : '';
 
     // API returns variant_id as an object with an images array
     final variantRaw = json['variant_id'];
@@ -66,6 +70,7 @@ class _Product {
       variantId: variantId,
       name: json['name'] as String? ?? 'Unknown',
       brandName: brandName,
+      brandPicture: brandPicture,
       imageUrl: imageUrl,
     );
   }
@@ -149,6 +154,13 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       picked = shot == null ? <XFile>[] : [shot];
     }
     if (picked.isEmpty) return;
+    // Same safety net as the dashboard picker: never drop photos in silence.
+    if (picked.length > remaining && mounted) {
+      showAppSnackBar(
+        AppLocalizations.of(context).maxImagesReached(kMaxSelfieImages),
+        isSuccess: false,
+      );
+    }
 
     for (final file in picked.take(remaining)) {
       final cropped = await ImageCropper().cropImage(
@@ -165,6 +177,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
             aspectRatioPresets: const [_Portrait4x5()],
             lockAspectRatio: true,
             initAspectRatio: const _Portrait4x5(),
+            // Same as the dashboard cropper: no Crop / Rotate / Scale tabs.
+            hideBottomControls: true,
           ),
           IOSUiSettings(
             title: 'Recadrez votre photo',
@@ -255,17 +269,36 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       _products = _selfieController.productsList
           .map((e) => _Product.fromJson(e))
           .toList();
+      // These are fresh instances, so any earlier picks now point at objects
+      // that no longer exist in the strip.
+      _selectionOrder.clear();
       _isLoadingProducts = false;
     });
   }
 
+  /// Products in the order the user picked them. The badge on each card shows
+  /// its position here, so the first tap is always "1" — numbering by list
+  /// position instead would label a lone selection "7" just because it sits
+  /// seventh in the strip.
+  final List<_Product> _selectionOrder = [];
+
   void _toggleProduct(_Product product) {
-    setState(() => product.isSelected = !product.isSelected);
+    setState(() {
+      product.isSelected = !product.isSelected;
+      if (product.isSelected) {
+        _selectionOrder.add(product);
+      } else {
+        // Deselecting closes the gap: the ones picked after it shuffle down.
+        _selectionOrder.remove(product);
+      }
+    });
   }
 
   Future<void> _uploadSelfie() async {
     final l10n = AppLocalizations.of(context);
-    final selected = _products.where((p) => p.isSelected).toList();
+    // Submitted in pick order, so the numbering the creator saw on the cards is
+    // the order the products appear on the published look.
+    final selected = List<_Product>.from(_selectionOrder);
 
     if (_userType == 1 && selected.isEmpty) {
       showAppSnackBar(l10n.selectAtLeastOneProduct, isSuccess: false);
@@ -642,38 +675,67 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                               )
                             : _imagePlaceholder(),
                       ),
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: CircleAvatar(
-                          backgroundColor: Colors.black,
-                          radius: 12,
-                          child: Text(
-                            '${index + 1}',
-                            style: const TextStyle(
+                      // Brand logo, top left of the shot — same corner the
+                      // feed's product cards put it in.
+                      if (product.brandPicture.isNotEmpty)
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
                               color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              borderRadius: BorderRadius.circular(6),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4,
+                                  offset: Offset(1, 1),
+                                ),
+                              ],
+                            ),
+                            child: CachedNetworkImage(
+                              imageUrl: product.brandPicture,
+                              fit: BoxFit.contain,
+                              placeholder: (_, __) => const SizedBox.shrink(),
+                              errorWidget: (_, __, ___) =>
+                                  const SizedBox.shrink(),
                             ),
                           ),
                         ),
-                      ),
+                      // Selection circle. Carries the pick number once chosen —
+                      // a check mark said "selected" but not "which one", and
+                      // the order is what the published look is built from.
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: Container(
                           width: 30,
                           height: 30,
+                          alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: product.isSelected
                                 ? Colors.black
                                 : Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey),
+                            border: Border.all(
+                              color: product.isSelected
+                                  ? Colors.black
+                                  : Colors.grey,
+                            ),
                           ),
                           child: product.isSelected
-                              ? const Icon(Icons.check,
-                                  color: Colors.white, size: 20)
+                              ? Text(
+                                  '${_selectionOrder.indexOf(product) + 1}',
+                                  style: const TextStyle(
+                                    fontFamily: 'Lato',
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
                               : null,
                         ),
                       ),

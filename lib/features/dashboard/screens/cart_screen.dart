@@ -12,15 +12,22 @@ import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/screens/select_address_screen.dart';
 import 'package:happer_app/features/profile/models/address_model.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
-import 'package:happer_app/features/profile/screens/my_purchases_screen.dart';
+import 'package:happer_app/features/dashboard/screens/order_confirmation_screen.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/confirm_dialog.dart';
+import 'package:happer_app/features/creator/screens/product_details_screen.dart';
 
 class _CartItem {
   final String id;
+
+  /// The catalogue product behind this line, and the creator it was bought
+  /// through. Both are needed to reopen the product details page from the card.
+  final String productId;
+  final String affiliateId;
+
   final String productName;
   final String brandName;
   final String brandPicture;
@@ -33,6 +40,8 @@ class _CartItem {
 
   const _CartItem({
     required this.id,
+    required this.productId,
+    required this.affiliateId,
     required this.productName,
     required this.brandName,
     required this.brandPicture,
@@ -115,8 +124,16 @@ class _CartItem {
     var size = optionValue((n) => n == 'size' || n == 'taille');
     if (size.isEmpty) size = flat('size');
 
+    // Both ids arrive either populated or as a bare id string depending on the
+    // endpoint, so read whichever shape turned up.
+    String idOf(dynamic raw) => raw is Map
+        ? (raw['_id'] as String? ?? '')
+        : (raw as String? ?? '');
+
     return _CartItem(
       id: json['_id'] as String? ?? '',
+      productId: idOf(productRaw),
+      affiliateId: idOf(json['affiliate_id']),
       productName: productName,
       brandName: brandName,
       brandPicture: brandPicture,
@@ -308,6 +325,15 @@ class _CartScreenState extends State<CartScreen> {
 
       final clientSecret = data['client_secret'] as String? ?? '';
       final publishableKey = data['publishable_key'] as String? ?? '';
+      // Shown on the confirmation screen. Key unconfirmed against the live
+      // response, so try the likely ones — the screen hides the line when it
+      // comes back empty rather than printing "Commande #".
+      final orderRef = ((data['order_reference'] ??
+                  data['payment_reference'] ??
+                  data['order_number'] ??
+                  data['order_id']) as String? ??
+              '')
+          .trim();
       final amount = (data['amount'] as num?)?.toDouble() ?? _total;
       final currency = (data['currency'] as String? ?? 'eur').toUpperCase();
 
@@ -441,11 +467,14 @@ class _CartScreenState extends State<CartScreen> {
         Get.find<CartController>().clearCart();
       }
 
-      // Navigate to purchases screen, removing cart from the stack
+      // Confirm the purchase rather than dropping the user into their order
+      // list, which said nothing about the payment having gone through.
+      // Replaces the cart so back can't return to a checkout that's done.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (_) => const MyPurchasesScreen(fromCart: true)),
+          builder: (_) => OrderConfirmationScreen(orderReference: orderRef),
+        ),
       );
     } on StripeException catch (e) {
       if (!mounted) return;
@@ -554,7 +583,10 @@ class _CartScreenState extends State<CartScreen> {
                               color: Colors.white, size: 28),
                         ),
                         confirmDismiss: (_) => _confirmAndRemove(item),
-                        child: _CartItemCard(item: item),
+                        child: _CartItemCard(
+                          item: item,
+                          onReturn: _fetchCart,
+                        ),
                       ),
                   ],
                 ),
@@ -1140,7 +1172,25 @@ class _MastercardIcon extends StatelessWidget {
 
 class _CartItemCard extends StatelessWidget {
   final _CartItem item;
-  const _CartItemCard({required this.item});
+
+  /// Fired after returning from the product page, so quantities or removals
+  /// made over there are reflected back in the list.
+  final VoidCallback onReturn;
+
+  const _CartItemCard({required this.item, required this.onReturn});
+
+  void _openProduct(BuildContext context) {
+    if (item.productId.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductDetailsScreen(
+          itemId: item.productId,
+          userId: item.affiliateId,
+        ),
+      ),
+    ).then((_) => onReturn());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1150,7 +1200,12 @@ class _CartItemCard extends StatelessWidget {
     final compareAt = item.compareAtPrice;
     final hasDiscount = compareAt != null && compareAt > item.price;
 
-    return Container(
+    return GestureDetector(
+      // Opaque so the padding around the row is tappable too, not just the
+      // image and text.
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _openProduct(context),
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1265,6 +1320,7 @@ class _CartItemCard extends StatelessWidget {
             ],
           ),
         ],
+        ),
       ),
     );
   }

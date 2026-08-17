@@ -1,19 +1,64 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
+import 'package:happer_app/features/profile/data/repositories/purchases_repository.dart';
+import 'package:happer_app/features/profile/models/order_log_model.dart';
 import 'package:happer_app/features/profile/models/purchase_model.dart';
 import 'package:happer_app/features/profile/screens/invoice_webview_screen.dart';
 import 'package:happer_app/features/profile/screens/return_article_screen.dart';
 import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
 import 'package:happer_app/features/profile/widgets/order_product_header.dart';
+import 'package:happer_app/shared/widgets/confirm_dialog.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 
 /// "DÉTAIL DE LA COMMANDE" — full order detail with product summary, a delivery
 /// status tracker, delivery/address/order info, the affiliate the item was
 /// bought via, and a return entry point.
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   final PurchasedProduct order;
 
   const OrderDetailScreen({super.key, required this.order});
+
+  @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  PurchasedProduct get order => widget.order;
+
+  final _repository = PurchasesRepository();
+
+  /// Fulfilment timeline for this line item. Empty until loaded, and stays
+  /// empty for orders the backend never wrote logs for — [_buildStatusCard]
+  /// falls back to the item's plain status then.
+  List<OrderLog> _logs = const [];
+  bool _loadingLogs = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLogs();
+  }
+
+  Future<void> _fetchLogs() async {
+    try {
+      final logs = await _repository.getOrderLogs(
+        orderId: order.orderId,
+        cartItemId: order.cartItemId,
+      );
+      if (!mounted) return;
+      setState(() {
+        _logs = logs;
+        _loadingLogs = false;
+      });
+    } catch (e) {
+      // A missing timeline is not worth an error screen — the rest of the
+      // detail page is still useful, so degrade to the status-only tracker.
+      debugPrint('[OrderDetail] order logs unavailable: $e');
+      if (mounted) setState(() => _loadingLogs = false);
+    }
+  }
 
   // ─── Formatting helpers ───────────────────────────────────────────────────
 
@@ -73,8 +118,17 @@ class OrderDetailScreen extends StatelessWidget {
             _buildInfoCard(context),
             const SizedBox(height: 16),
             _buildBoughtViaCard(context),
-            const SizedBox(height: 16),
-            _buildReturnCard(context),
+            // Cancel and return are shown only when the API says so, exactly as
+            // on the purchases list — see PurchasedProduct.isCancellable /
+            // isReturnable.
+            if (order.isReturnable) ...[
+              const SizedBox(height: 16),
+              _buildReturnCard(context),
+            ],
+            if (order.isCancellable) ...[
+              const SizedBox(height: 16),
+              _buildCancelCard(context),
+            ],
           ],
         ),
       ),
@@ -105,46 +159,86 @@ class OrderDetailScreen extends StatelessWidget {
   // ─── Status tracker card ──────────────────────────────────────────────────
 
   Widget _buildStatusCard() {
-    final current = _statusIndex(order.orderStatus);
-    // Per-step dates aren't in the model yet — derive from paid_at as a
-    // placeholder. Replace with the API's status-history dates when available.
-    final paidAt = order.paidAt;
-    final stepDates = <DateTime?>[
-      paidAt,
-      paidAt?.add(const Duration(days: 1)),
-      paidAt?.add(const Duration(days: 2)),
-    ];
     const labels = ['Confirmée', 'Expédiée', 'Livrée'];
 
-    final pillDate = _frDate(stepDates[current]);
-    final pillText = current == 2
-        ? 'Livré le $pillDate'
-        : current == 1
-            ? 'Expédié le $pillDate'
-            : 'Confirmée le $pillDate';
+    // Timeline first: each step's date comes from its own log entry. Steps with
+    // no log show no date — they haven't happened yet. This replaces the old
+    // placeholder that added +1/+2 days to paid_at and presented the result as
+    // real delivery dates.
+    final hasLogs = _logs.isNotEmpty;
+    final stepDates = hasLogs
+        ? <DateTime?>[
+            _logs.dateOf('placed') ?? order.paidAt,
+            _logs.dateOf('shipped'),
+            _logs.dateOf('delivered'),
+          ]
+        : <DateTime?>[order.paidAt, null, null];
+
+    // Reached step. With logs it is whatever the timeline actually records;
+    // without them fall back to the item's plain status string.
+    final current = hasLogs
+        ? (_logs.has('delivered')
+            ? 2
+            : _logs.has('shipped')
+                ? 1
+                : 0)
+        : _statusIndex(order.orderStatus);
+
+    final cancelled = _logs.isCancelled;
+    final pillDate = _frDate(cancelled
+        ? _logs.dateOf('cancelled')
+        : stepDates[current] ?? order.paidAt);
+    final pillText = cancelled
+        ? (pillDate.isEmpty ? 'Commande annulée' : 'Annulée le $pillDate')
+        : current == 2
+            ? 'Livré le $pillDate'
+            : current == 1
+                ? 'Expédié le $pillDate'
+                : 'Confirmée le $pillDate';
 
     return _card(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Status pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEAF6EC),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF9DD5A8)),
-            ),
-            child: Text(
-              pillText,
-              style: const TextStyle(
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-                color: Color(0xFF1A1A1A),
+          // Status pill — red once the item is cancelled, green otherwise.
+          Row(
+            children: [
+              Flexible(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: cancelled
+                        ? const Color(0xFFFDECEC)
+                        : const Color(0xFFEAF6EC),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: cancelled
+                          ? const Color(0xFFE3A0A0)
+                          : const Color(0xFF9DD5A8),
+                    ),
+                  ),
+                  child: Text(
+                    pillText,
+                    style: const TextStyle(
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              if (_loadingLogs) ...[
+                const SizedBox(width: 12),
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 22),
 
@@ -241,9 +335,19 @@ class OrderDetailScreen extends StatelessWidget {
           ].where((s) => s.isNotEmpty).join(', ')
         : '—';
 
-    final trackingNo = order.paymentReference.isNotEmpty
-        ? order.paymentReference
-        : order.orderId;
+    // Real carrier details live on the `shipped` log. Fall back to the payment
+    // reference only when the item hasn't shipped yet — that is an order
+    // reference, not a tracking number, so don't dress it up as one.
+    final shipment = _logs.shipment;
+    final trackingNo = shipment?.trackingNumber;
+    final carrier = shipment?.carrier;
+    final deliverySubtitle = trackingNo != null
+        ? [
+            if (carrier != null) carrier,
+            'N° de suivi $trackingNo',
+          ].join(' · ')
+        : 'Pas encore expédié';
+
     final orderNo =
         order.paymentReference.isNotEmpty ? order.paymentReference : order.orderId;
 
@@ -254,9 +358,8 @@ class OrderDetailScreen extends StatelessWidget {
           _infoRow(
             icon: Icons.inventory_2_outlined,
             title: 'Livraison',
-            subtitle: 'N° de suivi $trackingNo',
-            trailing: _externalButton(() => _openLink(context,
-                order.deliveryLink ?? order.invoiceUrl ?? '')),
+            subtitle: deliverySubtitle,
+            trailing: _externalButton(() => _openTracking(context)),
           ),
           _rowDivider(),
           _infoRow(
@@ -421,11 +524,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   Widget _voirLeLookButton(BuildContext context) {
     return GestureDetector(
-      // Opens the creator's look — wire to the selfie/look id when the order
-      // detail API exposes it.
-      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Look bientôt disponible')),
-      ),
+      onTap: () => _openLook(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -476,9 +575,83 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
+  // ─── Cancel card ──────────────────────────────────────────────────────────
+
+  Widget _buildCancelCard(BuildContext context) {
+    return _card(
+      padding: EdgeInsets.zero,
+      child: _infoRow(
+        icon: Icons.cancel_outlined,
+        title: 'Annuler la commande',
+        subtitle: 'Annuler cet article',
+        onTap: () => _cancelOrder(context),
+      ),
+    );
+  }
+
+  /// Cancels this item, then pops with `true` so the purchases list knows to
+  /// refresh — the item's status and its is_cancellable flag both change.
+  Future<void> _cancelOrder(BuildContext context) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Annuler la commande ?',
+      message: 'Cet article sera annulé. Cette action est définitive.',
+      confirmLabel: 'Oui, annuler',
+      cancelLabel: 'Non',
+      icon: Icons.cancel_outlined,
+      type: ConfirmType.danger,
+    );
+    if (!confirmed) return;
+
+    try {
+      await PurchasesRepository().cancelOrder(
+        orderId: order.orderId,
+        cartItemId: order.cartItemId,
+      );
+      showAppSnackBar('Commande annulée');
+      if (context.mounted) Navigator.pop(context, true);
+    } catch (e) {
+      showAppSnackBar(e.toString(), isSuccess: false);
+    }
+  }
+
   // ─── Actions ──────────────────────────────────────────────────────────────
 
-  void _openLink(BuildContext context, String url) {
+  /// The carrier's tracking page — never the invoice. This row used to fall
+  /// back to [PurchasedProduct.invoiceUrl], so "Livraison" quietly opened the
+  /// bill whenever tracking wasn't available yet.
+  void _openTracking(BuildContext context) {
+    // The shipped log's tracking_url is the authoritative link; order.deliveryLink
+    // is the older guess-the-key fallback and stays only for orders with no logs.
+    final link =
+        (_logs.shipment?.trackingUrl ?? order.deliveryLink)?.trim() ?? '';
+    if (link.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lien de suivi indisponible pour le moment')),
+      );
+      return;
+    }
+    _openLink(context, link, title: 'Suivi de livraison');
+  }
+
+  /// Opens the look this item was bought from.
+  void _openLook(BuildContext context) {
+    final selfieId = order.selfieId ?? '';
+    if (selfieId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Look indisponible pour cette commande')),
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SelfieDetailsScreen(selfieId: selfieId),
+      ),
+    );
+  }
+
+  void _openLink(BuildContext context, String url, {String? title}) {
     if (url.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lien indisponible')),
@@ -487,7 +660,12 @@ class OrderDetailScreen extends StatelessWidget {
     }
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => InvoiceWebViewScreen(url: url)),
+      MaterialPageRoute(
+        builder: (_) => InvoiceWebViewScreen(
+          url: url,
+          title: title ?? 'Facture',
+        ),
+      ),
     );
   }
 }

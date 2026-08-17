@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"/c/Users/IT/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.13+19\" && grep -rn \"limit\\\\|PickMultipleVisualMedia\\\\|EXTRA_ALLOW_MULTIPLE\\\\|usePhotoPicker\" android/src/main/java/io/flutter/plugins/imagepicker/ImagePickerDelegate.java | head -30)",
+      "Read(//c/Users/IT/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.13\\\\+19/**)"
+    ]
+  }
+}

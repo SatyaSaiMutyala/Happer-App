@@ -79,6 +79,13 @@ class _ConfirmDialog extends StatelessWidget {
         ConfirmType.normal  => AppColors.primary,
       };
 
+  /// Destructive dialogs keep the red accent on the icon — that is where the
+  /// "this deletes something" signal lives — but the button itself is black
+  /// like every other primary action in the app. A red button was the only
+  /// coloured CTA anywhere and read as belonging to a different product.
+  Color get _confirmButtonColor =>
+      type == ConfirmType.danger ? AppColors.primary : _accentColor;
+
   Color get _iconBg => switch (type) {
         ConfirmType.danger  => const Color(0xFFFDECEC),
         ConfirmType.warning => const Color(0xFFFFF3E0),
@@ -179,7 +186,7 @@ class _ConfirmDialog extends StatelessWidget {
                     child: _DialogButton(
                       label: confirmLabel,
                       onTap: () => Navigator.pop(context, true),
-                      bgColor: _accentColor,
+                      bgColor: _confirmButtonColor,
                     ),
                   ),
                 ],

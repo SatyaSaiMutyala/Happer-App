@@ -186,8 +186,11 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gradient area
-            Container(height: 80, color: Colors.white),
+            // Gradient area. Reserved, not painted: the real thing is a black
+            // 0.3 → transparent wash over white, so shimmering a solid block
+            // here put a heavy grey band across the top of the screen that
+            // simply isn't there once the brand loads.
+            const SizedBox(height: 80),
             Transform.translate(
               offset: const Offset(0, -40),
               child: Column(
@@ -203,18 +206,22 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                         const CircleAvatar(
                             radius: 40, backgroundColor: Colors.white),
                         const SizedBox(height: 16),
-                        // Brand name
-                        Container(height: 16, width: 140, color: Colors.white),
+                        // Brand name — 16px Lato w700.
+                        Container(height: 19, width: 140, color: Colors.white),
                         const SizedBox(height: 8),
-                        // Description lines
+                        // Description — 12px at height 1.5, so each line
+                        // occupies 18px. Two lines is the common case; a
+                        // one-line description leaves the grid 18px lower here
+                        // than it lands, which is as close as a fixed skeleton
+                        // gets to text of unknown length.
                         Container(
                             height: 12,
                             width: double.infinity,
                             color: Colors.white),
                         const SizedBox(height: 6),
                         Container(height: 12, width: 200, color: Colors.white),
+                        const SizedBox(height: 6),
                         const SizedBox(height: 32),
-                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -250,37 +257,50 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
   /// Placeholder shaped like a real ProductCard: image block, then the name,
   /// price and button rows. A single filled rectangle spanning the whole cell
   /// read as a much heavier, bigger card than the one it stands in for.
+  ///
+  /// Every measurement below is taken from ProductCard rather than guessed, so
+  /// the skeleton lands on the same pixels as the card that replaces it. The
+  /// image block in particular must be derived from the cell width — filling
+  /// the leftover space with an Expanded made it 21–55px too tall depending on
+  /// the device, so the card visibly jumped once the images arrived, and by a
+  /// different amount on every screen size.
   Widget _shimmerCardSkeleton() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Image area — the tallest part of the real card.
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(6),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // ProductCard: imageHeight = cardWidth * (180 / 125).
+        final imageHeight = constraints.maxWidth * (180 / 125);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image area — the tallest part of the real card.
+            Container(
+              height: imageHeight,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        // Product name
-        Container(height: 12, width: 90, color: Colors.white),
-        const SizedBox(height: 6),
-        // Price
-        Container(height: 12, width: 50, color: Colors.white),
-        const SizedBox(height: 8),
-        // "Ajouter" button
-        Container(
-          height: 32,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(6),
-          ),
-        ),
-      ],
+            const SizedBox(height: 6),
+            // Product name — 13px Lato at height 1.3.
+            Container(height: 17, width: 90, color: Colors.white),
+            const SizedBox(height: 2),
+            // Price — 13px Lato.
+            Container(height: 16, width: 50, color: Colors.white),
+            const SizedBox(height: 6),
+            // "Ajouter" button — 7px vertical padding around a 14px icon row,
+            // plus the 1px border on each side.
+            Container(
+              height: 31,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -6,8 +6,11 @@ import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/features/creator/bindings/creator_binding.dart';
 import 'package:happer_app/features/creator/controllers/product_like_controller.dart';
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
+import 'package:happer_app/core/network/api_client.dart';
 import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
+import 'package:happer_app/features/profile/data/repositories/image_grid_repository.dart';
+import 'package:happer_app/features/profile/models/user_profile_stats_model.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -104,6 +107,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   PageController? _pageController;
   late final ProductLikeController _likeController;
 
+  /// The creator who put this product in a look. Null until fetched, and stays
+  /// null when there is no creator to credit.
+  UserProfileStatsModel? _creator;
+
   // Unique colors across all variants, preserving first-seen order.
   List<String> get _distinctColors {
     final seen = <String>{};
@@ -194,6 +201,35 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     _likeController = Get.find<ProductLikeController>();
     // Always fetch from API — initialData may have unpopulated option_ids (string IDs only).
     _fetchProductDetails();
+    _fetchCreator();
+  }
+
+  /// How the creator is named in the credit line: their username, falling back
+  /// to their first name for accounts that never set one.
+  String _creatorLabel(UserProfileStatsModel creator) {
+    final username = creator.username.trim();
+    return username.isNotEmpty ? username : creator.firstName.trim();
+  }
+
+  /// Loads the creator credited under the size selector.
+  ///
+  /// `widget.userId` is the affiliate id the product was opened with. Reached
+  /// from a brand page that is a brand id rather than a user, so the stats call
+  /// 404s and the mention stays hidden — which is what we want there anyway.
+  /// Runs alongside the product fetch rather than after it: the mention sits
+  /// far enough down the page that it can arrive late without anything moving
+  /// under the user's thumb.
+  Future<void> _fetchCreator() async {
+    if (widget.userId.isEmpty) return;
+    try {
+      final stats = await ImageGridRepository(ApiClient()).fetchStats(widget.userId);
+      // Nothing to credit them by — better no line at all than a dangling
+      // "sélectionné par".
+      if (!mounted || _creatorLabel(stats).isEmpty) return;
+      setState(() => _creator = stats);
+    } catch (_) {
+      // Credit line only — if it fails the page is still complete without it.
+    }
   }
 
   // The variant the heart applies to: selected variant → first for color →
@@ -473,6 +509,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               color: Color(0xFF8D8D8D),
                             ),
                           ),
+                        if (_creator != null) ...[
+                          const SizedBox(height: 12),
+                          _buildCreatorMention(_creator!),
+                        ],
                         const Divider(thickness: 0.5, color: Color(0xFFD0D0D0)),
                         const SizedBox(height: 160),
                       ],
@@ -481,6 +521,82 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ],
               ),
             ),
+    );
+  }
+
+  /// "Ce produit a été sélectionné par {creator}" — credits the creator whose
+  /// look this product came from. Styled to sit with the "Vendu par {brand}"
+  /// line above it: italic grey sentence, creator name upright and bold.
+  Widget _buildCreatorMention(UserProfileStatsModel creator) {
+    final picture = creator.picture?.trim() ?? '';
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.grey.shade200,
+          ),
+          child: picture.isEmpty
+              ? Center(
+                  child: Text(
+                    creator.initials,
+                    style: const TextStyle(
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      color: Color(0xFF8D8D8D),
+                    ),
+                  ),
+                )
+              : CachedNetworkImage(
+                  imageUrl: picture,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(color: Colors.grey.shade200),
+                  errorWidget: (_, __, ___) => Center(
+                    child: Text(
+                      creator.initials,
+                      style: const TextStyle(
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        color: Color(0xFF8D8D8D),
+                      ),
+                    ),
+                  ),
+                ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text.rich(
+            TextSpan(
+              style: const TextStyle(
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.italic,
+                fontSize: 14,
+                color: Color(0xFF8D8D8D),
+              ),
+              children: [
+                TextSpan(
+                    text: '${AppLocalizations.of(context).productSelectedBy} '),
+                TextSpan(
+                  text: _creatorLabel(creator),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontStyle: FontStyle.normal,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 

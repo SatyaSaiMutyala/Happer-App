@@ -478,7 +478,7 @@
   "itemRemoveError": "Error removing item from cart",
   "deleteNotificationFailed": "Failed to delete notification",
   "authErrorLogin": "Authentication error. Please login again.",
-  "shareButton": "SHARE",
+  "shareButton": "PUBLISH",
   "productsNotAvailable": "Products are not available for your user type",
   "selectExtraProducts": "Select Extra Products",
   "tryAgainButton": "Try Again",
@@ -586,5 +586,6 @@
       }
     }
   },
-  "pleaseSelectShippingAddress": "Please select a delivery address"
+  "pleaseSelectShippingAddress": "Please select a delivery address",
+  "productSelectedBy": "This product was selected by"
 }

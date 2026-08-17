@@ -1231,7 +1231,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorLogin => 'Authentication error. Please login again.';
 
   @override
-  String get shareButton => 'SHARE';
+  String get shareButton => 'PUBLISH';
 
   @override
   String get productsNotAvailable =>
@@ -1528,4 +1528,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseSelectShippingAddress => 'Please select a delivery address';
+
+  @override
+  String get productSelectedBy => 'This product was selected by';
 }

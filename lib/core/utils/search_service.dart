@@ -152,7 +152,12 @@ class _SearchOverlayContentState extends State<_SearchOverlayContent> {
               autofocus: true,
               onChanged: _onChanged,
               decoration: const InputDecoration(
-                hintText: 'Filtrer par créateur...',
+                hintText: 'Rechercher créateur, marque...',
+                hintStyle: TextStyle(
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF8D8D8D),
+                ),
                 prefixIcon: Icon(Icons.search),
                 border: InputBorder.none,
                 contentPadding:
