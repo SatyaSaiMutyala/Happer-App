@@ -69,6 +69,8 @@ class _Variant {
     required this.quantity,
   });
 
+  bool get isOutOfStock => quantity <= 0;
+
   factory _Variant.fromJson(Map<String, dynamic> json) {
     final options = (json['option_ids'] as List<dynamic>? ?? [])
         .whereType<Map<String, dynamic>>()
@@ -199,6 +201,26 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
   }
 
   bool get _canAdd => _selectedVariant != null && _maxQuantity > 0;
+
+  /// True when the current colour offers sizes but every one of them is sold
+  /// out. The sheet has to detect this from the variant pool: sold-out chips
+  /// are disabled, so they can never become [_selectedVariant].
+  bool get _allSizesOutOfStock {
+    final sized = _variantsForSelection.where((v) => v.size.isNotEmpty);
+    return sized.isNotEmpty && sized.every((v) => v.isOutOfStock);
+  }
+
+  /// Nothing on offer for the current selection — drives the "Rupture de
+  /// stock" label on the chips, the hint and the button.
+  bool get _outOfStock {
+    if (_allSizesOutOfStock) return true;
+    final pool = _variantsForSelection;
+    if (pool.isEmpty) return _allVariants.isNotEmpty;
+    if (pool.every((v) => v.size.isEmpty)) {
+      return pool.every((v) => v.isOutOfStock);
+    }
+    return false;
+  }
 
   String get _displayImage {
     final sv = _selectedVariant;
@@ -451,6 +473,27 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
                 .map((v) => _buildSizeChip(v.size, v.quantity))
                 .toList(),
           ),
+          // Every size sold out — say so plainly instead of leaving the user
+          // with a row of greyed chips and no explanation.
+          if (_allSizesOutOfStock) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.info_outline,
+                    size: 15, color: Color(0xFFB00020)),
+                const SizedBox(width: 6),
+                Text(
+                  'Rupture de stock',
+                  style: const TextStyle(
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFFB00020),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 22),
         ],
 
@@ -592,6 +635,11 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
               : (isAvailable ? Colors.black : Colors.grey),
           fontWeight: FontWeight.w700,
           fontSize: 14,
+          // Struck through when the size is sold out. Grey alone read as
+          // "slightly dimmer", not as "you cannot buy this".
+          decoration: isAvailable ? null : TextDecoration.lineThrough,
+          decorationColor: Colors.grey,
+          decorationThickness: 2,
         ),
       ),
       selected: isSelected,
@@ -607,6 +655,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
       ),
       backgroundColor: Colors.white,
       selectedColor: Colors.black,
+      disabledColor: const Color(0xFFF5F5F5),
       showCheckmark: false,
     );
   }
@@ -674,14 +723,16 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
 
   Widget _buildStockHint() {
     if (!_canAdd) {
-      final needsSize =
-          _variantsForSelection.any((v) => v.size.isNotEmpty) &&
-              _selectedSize == null;
+      // "Rupture de stock" used to be unreachable here: an out-of-stock size
+      // chip is disabled, so it could never become the selected variant. Check
+      // the pool itself instead of waiting for a selection that cannot happen.
+      final needsSize = _variantsForSelection.any((v) => v.size.isNotEmpty) &&
+          _selectedSize == null;
       return Text(
-        needsSize
-            ? 'Sélectionnez une taille'
-            : (_selectedVariant != null
-                ? 'Rupture de stock'
+        _allSizesOutOfStock || _selectedVariant?.isOutOfStock == true
+            ? 'Rupture de stock'
+            : (needsSize
+                ? 'Sélectionnez une taille'
                 : 'Sélectionnez vos options'),
         style: const TextStyle(
           fontFamily: 'Lato',
@@ -735,7 +786,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
                           color: _canAdd ? Colors.white : Colors.white70),
                       const SizedBox(width: 8),
                       Text(
-                        'AJOUTER AU PANIER',
+                        _outOfStock ? 'RUPTURE DE STOCK' : 'AJOUTER AU PANIER',
                         style: TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w800,

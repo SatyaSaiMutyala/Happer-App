@@ -342,7 +342,6 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                               shareOutfit(
                                 username: username,
                                 selfieId: selfieId,
-                                creatorName: userName,
                                 sharePositionOrigin: box != null && box.hasSize
                                     ? box.localToGlobal(Offset.zero) & box.size
                                     : null,

@@ -675,33 +675,37 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                               )
                             : _imagePlaceholder(),
                       ),
-                      // Brand logo, top left of the shot — same corner the
-                      // feed's product cards put it in.
+                      // Brand logo, top left of the shot — same round badge the
+                      // feed's ProductCard uses, so the two read as one style.
                       if (product.brandPicture.isNotEmpty)
                         Positioned(
-                          top: 8,
-                          left: 8,
+                          top: 6,
+                          left: 6,
                           child: Container(
-                            width: 32,
                             height: 32,
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
+                            width: 32,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
-                              boxShadow: const [
+                              boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 4,
-                                  offset: Offset(1, 1),
-                                ),
+                                    color: Colors.black26,
+                                    blurRadius: 4,
+                                    offset: Offset(1, 1))
                               ],
                             ),
-                            child: CachedNetworkImage(
-                              imageUrl: product.brandPicture,
-                              fit: BoxFit.contain,
-                              placeholder: (_, __) => const SizedBox.shrink(),
-                              errorWidget: (_, __, ___) =>
-                                  const SizedBox.shrink(),
+                            padding: const EdgeInsets.all(4),
+                            child: ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: product.brandPicture,
+                                fit: BoxFit.contain,
+                                placeholder: (_, __) =>
+                                    Container(color: Colors.grey.shade200),
+                                errorWidget: (_, __, ___) => const Icon(
+                                    Icons.store,
+                                    size: 16,
+                                    color: Colors.grey),
+                              ),
                             ),
                           ),
                         ),

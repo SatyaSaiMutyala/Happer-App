@@ -364,24 +364,40 @@ class _ProductCardState extends State<ProductCard> {
                   ? _buttonShell(
                       onTap: null,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Icon(Icons.check,
                               size: 14, color: Colors.black),
+                          // scaleDown lets the label shrink on a narrow card
+                          // instead of wrapping onto a second line. maxLines/
+                          // softWrap keep it on one line no matter the width,
+                          // and the quantity can grow to two digits safely.
                           Expanded(
-                            child: Text(
-                              'Au panier ($_quantity)',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                                color: Colors.black,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Au panier ($_quantity)',
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                           GestureDetector(
                             onTap: _handleRemove,
+                            // The icon alone is a 14px target; opaque hit
+                            // testing makes the whole slot tappable.
+                            behavior: HitTestBehavior.opaque,
                             child: const Icon(Icons.delete_outline,
                                 size: 14, color: Colors.black),
                           ),
@@ -391,20 +407,26 @@ class _ProductCardState extends State<ProductCard> {
                   : GestureDetector(
                       onTap: canAdd ? _handleAdd : null,
                       child: _buttonShell(
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add, size: 14, color: Colors.black),
-                            SizedBox(width: 4),
-                            Text(
-                              'Ajouter',
-                              style: TextStyle(
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                  color: Colors.black),
-                            ),
-                          ],
+                        child: const FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add, size: 14, color: Colors.black),
+                              SizedBox(width: 4),
+                              Text(
+                                'Ajouter',
+                                maxLines: 1,
+                                softWrap: false,
+                                style: TextStyle(
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                    color: Colors.black),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -416,7 +438,11 @@ class _ProductCardState extends State<ProductCard> {
   Widget _buttonShell({Widget? child, VoidCallback? onTap}) {
     return Container(
       width: widget.cardWidth,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+      // Fixed height so the button keeps its shape whatever it holds. It used
+      // to size to its content, so as soon as the label wrapped — which it did
+      // on narrow cards — the button grew a second line and the card jumped.
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black87),
         borderRadius: BorderRadius.circular(4),

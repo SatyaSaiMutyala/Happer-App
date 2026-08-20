@@ -201,7 +201,6 @@ class _ImageGridScreenState extends State<ImageGridScreen> {
     final box = _shareKey.currentContext?.findRenderObject() as RenderBox?;
     shareProfile(
       username: profile.username,
-      creatorName: profile.fullname,
       sharePositionOrigin:
           box != null ? box.localToGlobal(Offset.zero) & box.size : null,
     );

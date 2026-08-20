@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/features/creator/bindings/creator_binding.dart';
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
+import 'package:happer_app/features/creator/controllers/creator_controller.dart';
+import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/creator/models/creator_model.dart';
 import 'package:happer_app/features/creator/screens/brand_details_screen.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
@@ -122,6 +124,10 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       _isLiked = !wasLiked;
       _likes = _isLiked ? _likes + 1 : (_likes > 0 ? _likes - 1 : 0);
     });
+    // The feeds keep their own copy of this selfie, so they have to be told as
+    // well. Without this the details screen was the only place that knew about
+    // the change, and the heart in the creator tab stayed grey after liking.
+    _syncLikeToFeeds(isLiked: !wasLiked);
     try {
       CreatorBinding().dependencies();
       final repo = Get.find<CreatorRepository>();
@@ -131,6 +137,9 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
         await repo.likeSelfie(widget.selfieId);
       }
     } catch (_) {
+      // Roll the feeds back too. They live outside this widget, so this runs
+      // even if the screen has already been popped.
+      _syncLikeToFeeds(isLiked: wasLiked);
       if (mounted) {
         setState(() {
           _isLiked = wasLiked;
@@ -139,6 +148,22 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       }
     } finally {
       if (mounted) setState(() => _isToggling = false);
+    }
+  }
+
+  /// Mirrors a like change into the feed controllers, so the creator tab and
+  /// the discover/feed lists show the same heart and count on the way back.
+  ///
+  /// Each controller ignores ids it doesn't hold, and both are optional — this
+  /// screen can be opened straight from a deep link with neither registered.
+  void _syncLikeToFeeds({required bool isLiked}) {
+    if (Get.isRegistered<CreatorController>()) {
+      Get.find<CreatorController>()
+          .syncLikeState(widget.selfieId, isLiked: isLiked);
+    }
+    if (Get.isRegistered<SelfieController>()) {
+      Get.find<SelfieController>()
+          .syncLikeState(widget.selfieId, isLiked: isLiked);
     }
   }
 
@@ -164,6 +189,11 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       showAppSnackBar('Aucun article disponible', isSuccess: false);
       return;
     }
+    // The selfie response carries no per-variant stock, but the product
+    // endpoint does — the same one the card's "Ajouter" sheet already uses.
+    // Fetch it so sold-out sizes can be shown as sold out.
+    await _applyRealStock(items);
+    if (!mounted) return;
     final added = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
@@ -184,6 +214,45 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     }
   }
 
+  /// Fills in real per-variant stock for the look sheet.
+  ///
+  /// `get-selfie/{id}` returns the tagged variant without a `quantity` field
+  /// (only `other_sizes` carries one), so stock has to come from the product
+  /// endpoint. Failures are swallowed: not knowing the stock must never stop
+  /// the sheet from opening — the sizes just stay optimistically available,
+  /// which is how this screen behaved before.
+  Future<void> _applyRealStock(List<_LookLineItem> items) async {
+    try {
+      CreatorBinding().dependencies();
+      final repo = Get.find<CreatorRepository>();
+      final details = await Future.wait(
+        items.map((item) async {
+          try {
+            return await repo.getProductDetail(item.productId);
+          } catch (_) {
+            return <String, dynamic>{};
+          }
+        }),
+      );
+      for (var i = 0; i < items.length; i++) {
+        final stockByVariant = <String, int>{};
+        for (final v in (details[i]['variants'] as List<dynamic>? ?? [])
+            .whereType<Map<String, dynamic>>()) {
+          final id = v['_id'] as String? ?? '';
+          if (id.isEmpty) continue;
+          stockByVariant[id] = (v['quantity'] as num?)?.toInt() ?? 0;
+        }
+        if (stockByVariant.isEmpty) continue;
+        for (final size in items[i].sizes) {
+          final known = stockByVariant[size.variantId];
+          if (known != null) size.stock = known;
+        }
+      }
+    } catch (_) {
+      // Keep whatever stock the selfie response implied.
+    }
+  }
+
   // Adds the sheet's selections to the cart and returns how many succeeded.
   Future<int> _confirmLookAddToCart(List<_LookLineItem> items) async {
     CartBinding().dependencies();
@@ -191,6 +260,10 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     final affiliateId = _selfie?.user?.sId ?? '';
     int added = 0;
     for (final item in items) {
+      // Sold-out products are shown in the sheet but never sent — the backend
+      // rejects them anyway, and a silent failure here would be counted as a
+      // successful add.
+      if (item.isOutOfStock) continue;
       final variantId = item.selectedVariantId;
       if (item.productId.isEmpty || variantId.isEmpty) continue;
       try {
@@ -753,7 +826,6 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                     shareOutfit(
                                       username: username,
                                       selfieId: selfieId,
-                                      creatorName: '${_selfie?.user?.firstName ?? ''} ${_selfie?.user?.lastName ?? ''}'.trim(),
                                       sharePositionOrigin: box != null && box.hasSize
                                           ? box.localToGlobal(Offset.zero) & box.size
                                           : null,
@@ -1118,13 +1190,17 @@ class _LookSizeOption {
   final String size;
   final String variantId;
   final double price;
-  final int stock;
-  const _LookSizeOption({
+  int stock;
+  _LookSizeOption({
     required this.size,
     required this.variantId,
     required this.price,
     required this.stock,
   });
+
+  /// The API sends -1 for some variants, so anything at or below zero counts
+  /// as sold out.
+  bool get isAvailable => stock > 0;
 }
 
 /// A linked product with its size options + the user's (mutable) selection.
@@ -1177,6 +1253,10 @@ class _LookLineItem {
   double get unitPrice => _selected?.price ?? basePrice;
 
   int get selectedStock => _selected?.stock ?? (hasSizes ? 0 : 9999);
+
+  /// Every size sold out (or, for a size-less product, its only variant).
+  bool get isOutOfStock =>
+      sizes.isNotEmpty && sizes.every((s) => !s.isAvailable);
 
   // Standard letter-size order; anything outside it falls back to numeric
   // ordering (34, 36, 38…) and otherwise keeps the API's order.
@@ -1232,8 +1312,10 @@ class _LookLineItem {
         size: taggedSize,
         variantId: taggedId,
         price: taggedPrice,
-        // The tagged variant carries no quantity field; treat it as available.
-        stock: 1,
+        // The API now sends the tagged variant's quantity. Older responses
+        // omitted it — fall back to "available" there rather than hiding a
+        // size the backend never told us about.
+        stock: (firstVariant['quantity'] as num?)?.toInt() ?? 1,
       ));
     }
 
@@ -1311,8 +1393,14 @@ class _LookCartSheetState extends State<_LookCartSheet> {
   int get _totalQty => widget.items.fold(0, (s, it) => s + it.quantity);
 
   // Every product that has sizes must have one selected before checkout.
-  bool get _allChosen =>
-      widget.items.every((it) => !it.hasSizes || it.selectedSize != null);
+  // Sold-out products are exempt: none of their sizes can be selected, so
+  // requiring a choice would leave the button permanently disabled. They are
+  // skipped at add time instead.
+  bool get _allChosen => widget.items
+      .every((it) => it.isOutOfStock || !it.hasSizes || it.selectedSize != null);
+
+  /// At least one product can actually be bought.
+  bool get _anyAvailable => widget.items.any((it) => !it.isOutOfStock);
 
   String _fmt(double v) {
     final s = v.toStringAsFixed(2);
@@ -1554,6 +1642,25 @@ class _LookCartSheetState extends State<_LookCartSheet> {
                   .toList(),
             ),
           ],
+          // Sold out — stated plainly, next to the struck-through sizes.
+          if (item.isOutOfStock) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: const [
+                Icon(Icons.info_outline, size: 15, color: Color(0xFFB00020)),
+                SizedBox(width: 6),
+                Text(
+                  'Rupture de stock',
+                  style: TextStyle(
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFFB00020),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 12),
           // Quantity stepper
           Row(
@@ -1578,15 +1685,20 @@ class _LookCartSheetState extends State<_LookCartSheet> {
 
   Widget _buildSizeChip(_LookLineItem item, _LookSizeOption s) {
     final selected = item.selectedSize == s.size;
+    final available = s.isAvailable;
     return GestureDetector(
-      onTap: () => setState(() => item.selectedSize = s.size),
+      // Sold-out sizes are not selectable — tapping one used to select it and
+      // the add would then fail server-side with no explanation.
+      onTap: available ? () => setState(() => item.selectedSize = s.size) : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         width: 46,
         height: 46,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? _accent : Colors.white,
+          color: selected
+              ? _accent
+              : (available ? Colors.white : const Color(0xFFF5F5F5)),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: selected ? _accent : Colors.grey.shade300,
@@ -1599,7 +1711,12 @@ class _LookCartSheetState extends State<_LookCartSheet> {
             fontFamily: 'Lato',
             fontWeight: FontWeight.w700,
             fontSize: 13,
-            color: selected ? Colors.white : Colors.black,
+            color: selected
+                ? Colors.white
+                : (available ? Colors.black : Colors.grey),
+            decoration: available ? null : TextDecoration.lineThrough,
+            decorationColor: Colors.grey,
+            decorationThickness: 2,
           ),
         ),
       ),
@@ -1607,7 +1724,9 @@ class _LookCartSheetState extends State<_LookCartSheet> {
   }
 
   Widget _buildQtyStepper(_LookLineItem item) {
-    final maxQty = item.selectedStock > 0 ? item.selectedStock : 99;
+    // Cap at real stock. This used to fall back to 99 whenever stock was 0,
+    // letting the user pick 99 of a sold-out size.
+    final maxQty = item.selectedStock > 0 ? item.selectedStock : 1;
     final canDec = item.quantity > 1;
     final canInc = item.quantity < maxQty;
     return Container(
@@ -1709,7 +1828,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
           const SizedBox(width: 16),
           Expanded(
             child: GestureDetector(
-              onTap: (_isSubmitting || !_allChosen) ? null : _submit,
+              onTap: (_isSubmitting || !_allChosen || !_anyAvailable) ? null : _submit,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 height: 56,

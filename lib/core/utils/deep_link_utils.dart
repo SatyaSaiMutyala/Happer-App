@@ -19,7 +19,6 @@ String shareOutfitMessage(String creatorName, String link) =>
 Future<void> shareOutfit({
   required String username,
   required String selfieId,
-  String creatorName = '',
   Rect? sharePositionOrigin,
 }) async {
   if (username.isEmpty || selfieId.isEmpty) {
@@ -27,11 +26,10 @@ Future<void> shareOutfit({
     return;
   }
   final link = buildOutfitDeepLink(username, selfieId);
-  final name = creatorName.isNotEmpty ? creatorName : 'un créateur';
   debugPrint('[shareOutfit] sharing link=$link');
   try {
     final result = await SharePlus.instance.share(ShareParams(
-      text: shareOutfitMessage(name, link),
+      text: shareOutfitMessage(username, link),
       sharePositionOrigin: sharePositionOrigin,
     ));
     debugPrint('[shareOutfit] result=${result.status}');
@@ -44,7 +42,6 @@ Future<void> shareOutfit({
 
 Future<void> shareProfile({
   required String username,
-  String creatorName = '',
   Rect? sharePositionOrigin,
 }) async {
   if (username.isEmpty) {
@@ -52,11 +49,10 @@ Future<void> shareProfile({
     return;
   }
   final link = buildProfileDeepLink(username);
-  final name = creatorName.isNotEmpty ? creatorName : 'un créateur';
   debugPrint('[shareProfile] sharing link=$link');
   try {
     final result = await SharePlus.instance.share(ShareParams(
-      text: shareProfileMessage(name, link),
+      text: shareProfileMessage(username, link),
       sharePositionOrigin: sharePositionOrigin,
     ));
     debugPrint('[shareProfile] result=${result.status}');

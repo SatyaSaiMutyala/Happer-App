@@ -124,12 +124,34 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   List<_Variant> get _variantsForSelectedColor =>
       _allVariants.where((v) => v.color == _selectedColor).toList();
 
-  // The specific variant matching selected color + size (null until both chosen).
-  _Variant? get _selectedVariant => _selectedSize == null
-      ? null
-      : _allVariants
-          .where((v) => v.color == _selectedColor && v.size == _selectedSize)
-          .firstOrNull;
+  /// True when this colour really offers sizes. Colour-only products (bandanas,
+  /// scarves) carry one variant whose size option is an empty string.
+  bool get _hasRealSizes =>
+      _variantsForSelectedColor.any((v) => v.size.isNotEmpty);
+
+  /// Nothing in this colour can be bought.
+  bool get _outOfStock {
+    final pool = _variantsForSelectedColor;
+    if (pool.isEmpty) return false;
+    return pool.every((v) => v.quantity <= 0);
+  }
+
+  // The specific variant matching selected color + size.
+  //
+  // When the colour has no size dimension there is nothing for the user to
+  // pick, so resolve to that colour's single variant directly. Previously this
+  // returned null until _selectedSize was set, which only happened by tapping
+  // the blank size chip — and that chip was disabled whenever stock was 0, so
+  // such products could not be added to the cart at all.
+  _Variant? get _selectedVariant {
+    if (_selectedSize == null) {
+      if (_hasRealSizes) return null;
+      return _variantsForSelectedColor.firstOrNull;
+    }
+    return _allVariants
+        .where((v) => v.color == _selectedColor && v.size == _selectedSize)
+        .firstOrNull;
+  }
 
   // Images to display: matched variant → any variant for color → first variant.
   List<String> get _displayImages {
@@ -345,7 +367,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  bool get _canAddToCart => _selectedVariant != null;
+  // Stock is part of the test: _selectedVariant now resolves on its own for
+  // colour-only products, so without the quantity check a sold-out bandana
+  // would show an enabled "add to cart" button.
+  bool get _canAddToCart {
+    final v = _selectedVariant;
+    return v != null && v.quantity > 0;
+  }
 
   Color _colorFromName(String colorName) {
     final key = colorName.split('/').first.trim().toLowerCase();
@@ -398,7 +426,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   : Icon(Icons.shopping_bag_outlined,
                       color: _canAddToCart ? Colors.white : Colors.black),
               label: Text(
-                'AJOUTER AU PANIER',
+                _outOfStock ? 'RUPTURE DE STOCK' : 'AJOUTER AU PANIER',
                 style: TextStyle(
                     color: _canAddToCart ? Colors.white : Colors.black),
               ),
@@ -484,20 +512,49 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           _buildColorSelector(),
                           const SizedBox(height: 20),
                         ],
-                        const Text(
-                          'SELECTION TAILLE',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 8,
-                          children: _variantsForSelectedColor
-                              .map((v) => _buildSizeChip(v.size, v.quantity))
-                              .toList(),
-                        ),
-                        const SizedBox(height: 20),
+                        // Size selector — only for products that actually have
+                        // a size dimension. Products with colours only (e.g.
+                        // the bandanas) used to render one blank chip here,
+                        // because every variant was mapped even when its size
+                        // was an empty string.
+                        if (_hasRealSizes) ...[
+                          const Text(
+                            'SELECTION TAILLE',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 8,
+                            children: _variantsForSelectedColor
+                                .where((v) => v.size.isNotEmpty)
+                                .map((v) => _buildSizeChip(v.size, v.quantity))
+                                .toList(),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                        // Nothing buyable in this colour — say it outright
+                        // instead of leaving a dead button as the only clue.
+                        if (_outOfStock) ...[
+                          Row(
+                            children: [
+                              const Icon(Icons.info_outline,
+                                  size: 16, color: Color(0xFFB00020)),
+                              const SizedBox(width: 6),
+                              const Text(
+                                'Rupture de stock',
+                                style: TextStyle(
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: Color(0xFFB00020),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                         if (_brandName.isNotEmpty)
                           Text(
                             'Vendu par $_brandName',
@@ -831,6 +888,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           color: isAvailable ? Colors.black : Colors.grey,
           fontWeight: FontWeight.bold,
           fontSize: 14,
+          // Sold-out sizes are struck through: grey alone did not read as
+          // "unavailable", it just looked like a slightly lighter chip.
+          decoration: isAvailable ? null : TextDecoration.lineThrough,
+          decorationColor: Colors.grey,
+          decorationThickness: 2,
         ),
       ),
       selected: _selectedSize == size,
@@ -844,6 +906,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ),
       backgroundColor: Colors.white,
       selectedColor: Colors.black,
+      disabledColor: const Color(0xFFF5F5F5),
     );
   }
 

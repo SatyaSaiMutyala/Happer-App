@@ -110,7 +110,21 @@ class SelfieRepository {
             requiresAuth: true,
           );
           final data = detail['data'] as Map<String, dynamic>? ?? {};
-          return <String, dynamic>{...item, ...data};
+          final merged = <String, dynamic>{...item, ...data};
+
+          // get-linked-products returns the whole brand document (logo
+          // included), while get-product populates the brand with its name
+          // only. Spreading the detail second wiped the logo out, so the
+          // brand card had nothing to show. Merge the two instead, keeping
+          // every field either side knows about.
+          final itemBrand = item['brand_id'];
+          final detailBrand = data['brand_id'];
+          if (itemBrand is Map<String, dynamic>) {
+            merged['brand_id'] = detailBrand is Map<String, dynamic>
+                ? <String, dynamic>{...detailBrand, ...itemBrand}
+                : itemBrand;
+          }
+          return merged;
         } catch (_) {
           return item;
         }

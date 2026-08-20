@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -221,22 +222,33 @@ class _CartScreenState extends State<CartScreen> {
       context,
       title: 'Retirer l\'article',
       message:
-          'Voulez-vous retirer cet article de votre panier ?',
+          'Voulez-vous retirer cet article de votre panier ?',
       confirmLabel: 'Retirer',
       cancelLabel: 'Annuler',
       icon: Icons.delete_outline_rounded,
       type: ConfirmType.danger,
     );
     if (!confirmed) return false;
-    return _removeItem(item);
+
+    // Drop the row now and talk to the server afterwards. Dismissible holds the
+    // item swiped open — red background and all — for as long as this future
+    // runs, and the old code awaited three round trips (delete, cart re-fetch,
+    // badge refresh) before returning, so the red panel sat on screen for the
+    // whole thing.
+    final index = _items.indexOf(item);
+    setState(() => _items.remove(item));
+    unawaited(_deleteOnServer(item, index));
+    return true;
   }
 
-  Future<bool> _removeItem(_CartItem item) async {
+  /// Completes the removal once the row is already gone, and puts it back if
+  /// the server refuses.
+  Future<void> _deleteOnServer(_CartItem item, int index) async {
     try {
       CartBinding().dependencies();
       final repo = Get.find<CartRepository>();
       await repo.removeCartItem(item.id);
-      if (!mounted) return false;
+      if (!mounted) return;
       // Re-fetch instead of patching totals locally — shipping fee depends on
       // server-side rules (e.g. free-shipping thresholds, per-brand fees) that
       // can change once an item is removed, not just the subtotal.
@@ -247,15 +259,15 @@ class _CartScreenState extends State<CartScreen> {
       if (Get.isRegistered<CartController>()) {
         await Get.find<CartController>().fetchCartItemCount();
       }
-      if (!mounted) return false;
+      if (!mounted) return;
       showAppSnackBar(AppLocalizations.of(context).itemRemovedFromCart,
           isSuccess: true);
-      return true;
     } catch (_) {
-      if (mounted)
-        showAppSnackBar(AppLocalizations.of(context).itemRemoveFailed,
-            isSuccess: false);
-      return false;
+      if (!mounted) return;
+      // Put the row back where it was — the item is still in the cart.
+      setState(() => _items.insert(index.clamp(0, _items.length), item));
+      showAppSnackBar(AppLocalizations.of(context).itemRemoveFailed,
+          isSuccess: false);
     }
   }
 
