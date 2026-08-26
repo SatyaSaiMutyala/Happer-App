@@ -10,8 +10,9 @@ class ReturnRefundScreen extends StatelessWidget {
 
   // Support contact details.
   static const _supportEmail = 'support@happer.fr';
-  // TODO: replace with the real WhatsApp business number.
-  static const _whatsappNumber = '33600000000';
+  // WhatsApp "click to chat" short link for the support account. Not a phone
+  // number — wa.me/message/<code> resolves to the business account itself.
+  static const _whatsappLink = 'https://wa.me/message/CG7565PYTXOIB1';
 
   Future<void> _launch(Uri uri) async {
     if (await canLaunchUrl(uri)) {
@@ -25,8 +26,7 @@ class ReturnRefundScreen extends StatelessWidget {
         queryParameters: {'subject': 'Demande de support'},
       ));
 
-  Future<void> _openWhatsApp() =>
-      _launch(Uri.parse('https://wa.me/$_whatsappNumber'));
+  Future<void> _openWhatsApp() => _launch(Uri.parse(_whatsappLink));
 
   /// Stays inside the app — see [FaqScreen].
   void _openFaq(BuildContext context) => Navigator.push(

@@ -515,94 +515,177 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   }
 
   // Horizontal strip of selected images with a remove badge + an "add" tile.
+  /// Reorders the picked photos. The system gallery hands them back in its own
+  /// order, so this is where the user fixes it — long-press a thumbnail and
+  /// drag. Post order is [_images] order, and the badge on each thumb shows it.
+  void _reorderImages(int oldIndex, int newIndex) {
+    // onReorderItem already accounts for the removed slot, so newIndex is used
+    // as-is here (the old onReorder callback needed a -1 fixup).
+    setState(() {
+      // Follow the photo being previewed rather than the slot it sat in, so
+      // the big preview doesn't switch to a different picture mid-drag.
+      final previewed = _images[_previewIndex];
+      final moved = _images.removeAt(oldIndex);
+      _images.insert(newIndex, moved);
+      _previewIndex = _images.indexOf(previewed);
+    });
+  }
+
   Widget _buildThumbnailStrip(AppLocalizations l10n) {
-    const double thumbW = 56;
-    const double thumbH = 70;
+    // Bigger than the original 56x70: these are drag targets now, and a
+    // thumbnail small enough to be fiddly to grab made reordering a chore.
+    const double thumbW = 76;
+    const double thumbH = 96;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: SizedBox(
-        height: thumbH + 8,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: [
-            for (int i = 0; i < _images.length; i++)
-              GestureDetector(
-                onTap: () => setState(() => _previewIndex = i),
-                child: Container(
-                  width: thumbW,
-                  margin: const EdgeInsets.only(right: 8),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: i == _previewIndex
-                                  ? Colors.black
-                                  : Colors.grey.shade300,
-                              width: i == _previewIndex ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Image.file(
-                              _images[i],
-                              width: thumbW,
-                              height: thumbH,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (_images.length > 1)
-                        Positioned(
-                          top: -6,
-                          right: -6,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(i),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black,
-                                shape: BoxShape.circle,
-                              ),
-                              padding: const EdgeInsets.all(2),
-                              child: const Icon(Icons.close,
-                                  size: 14, color: Colors.white),
-                            ),
-                          ),
-                        ),
-                    ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Drag is invisible until you know it exists, so say so. Only worth
+          // showing once there is something to reorder.
+          if (_images.length > 1) ...[
+            Row(
+              children: [
+                Icon(Icons.drag_indicator,
+                    size: 16, color: Colors.grey.shade600),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Glissez une photo pour changer l\'ordre',
+                    style: TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 11.5,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ),
-              ),
-            if (_canAddMore)
-              GestureDetector(
-                onTap: _addImage,
-                child: Container(
-                  width: thumbW,
-                  height: thumbH,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add, size: 22, color: Colors.black),
-                      Text(
-                        '${_images.length}/$kMaxSelfieImages',
-                        style: const TextStyle(
-                            fontSize: 10, fontFamily: 'Lato', color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              ],
+            ),
+            const SizedBox(height: 8),
           ],
-        ),
+          SizedBox(
+            height: thumbH + 8,
+            child: ReorderableListView.builder(
+              scrollDirection: Axis.horizontal,
+              // Immediate drag: touch a thumb and move it straight away. The
+              // delayed (long-press) listener was in the way.
+              buildDefaultDragHandles: false,
+              onReorderItem: _reorderImages,
+              footer: _canAddMore
+                  ? GestureDetector(
+                      onTap: _addImage,
+                      child: Container(
+                        width: thumbW,
+                        height: thumbH,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade400),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.add, size: 24, color: Colors.black),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${_images.length}/$kMaxSelfieImages',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontFamily: 'Lato',
+                                  color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : null,
+              itemCount: _images.length,
+              itemBuilder: (context, i) {
+                return ReorderableDragStartListener(
+                  key: ValueKey(_images[i].path),
+                  index: i,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _previewIndex = i),
+                    child: Container(
+                      width: thumbW,
+                      margin: const EdgeInsets.only(right: 8),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: i == _previewIndex
+                                      ? Colors.black
+                                      : Colors.grey.shade300,
+                                  width: i == _previewIndex ? 2 : 1,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: Image.file(
+                                  _images[i],
+                                  width: thumbW,
+                                  height: thumbH,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Position badge — the order the look is published in.
+                          if (_images.length > 1)
+                            Positioned(
+                              bottom: 5,
+                              left: 5,
+                              child: Container(
+                                width: 21,
+                                height: 21,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.white, width: 1.2),
+                                ),
+                                child: Text(
+                                  '${i + 1}',
+                                  style: const TextStyle(
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 11,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (_images.length > 1)
+                            Positioned(
+                              top: -6,
+                              right: -6,
+                              child: GestureDetector(
+                                onTap: () => _removeImage(i),
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(3),
+                                  child: const Icon(Icons.close,
+                                      size: 15, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
