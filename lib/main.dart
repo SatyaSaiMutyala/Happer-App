@@ -23,6 +23,7 @@ import 'package:happer_app/core/network/profile_api.dart';
 import 'package:happer_app/core/network/token_refresh_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/core/config/api_config.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:app_links/app_links.dart';
@@ -51,6 +52,48 @@ bool _isTokenExpired(String token) {
   } catch (_) {
     return false;
   }
+}
+
+// ── Deep-link navigation gate ────────────────────────────────────────────────
+//
+// The splash screen owns the navigator for the first few seconds and ends with
+// its own pushReplacement. A deep link that pushed into the middle of that hit
+// "Failed assertion: !_debugLocked" in NavigatorState._pushEntry and left the
+// user on a red error screen — the app had been opened by the link, which is
+// the worst moment to fail.
+//
+// So links that arrive before the app has finished starting are queued here and
+// replayed once the splash has handed the navigator over.
+bool _navigationReady = false;
+final List<VoidCallback> _pendingNavigations = <VoidCallback>[];
+
+/// Called by the splash screen once it has finished its own navigation.
+void markNavigationReady() {
+  if (_navigationReady) return;
+  _navigationReady = true;
+  final queued = List<VoidCallback>.of(_pendingNavigations);
+  _pendingNavigations.clear();
+  for (final navigate in queued) {
+    _runWhenIdle(navigate);
+  }
+}
+
+/// Runs [action] after the current frame, or queues it until the app is ready.
+void _navigate(VoidCallback action) {
+  if (!_navigationReady) {
+    _pendingNavigations.add(action);
+    return;
+  }
+  _runWhenIdle(action);
+}
+
+/// Pushing from inside a frame can land while the navigator is mid-operation,
+/// so always go through a post-frame callback.
+void _runWhenIdle(VoidCallback action) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (MyApp.navigatorKey.currentState == null) return;
+    action();
+  });
 }
 
 final _appLinks = AppLinks();
@@ -88,7 +131,11 @@ void _processUri(Uri uri) async {
   // ── Format: https://newapi.happer.fr/store/{username}
   //           https://newapi.happer.fr/store/{username}/{selfieId}
   // Also handles legacy creators.happer.fr links that were shared before the domain switch.
-  const deepLinkHosts = {'newapi.happer.fr', 'creators.happer.fr'};
+  const deepLinkHosts = {
+    'api.happer.fr',
+    'newapi.happer.fr',
+    'creators.happer.fr',
+  };
   if (deepLinkHosts.contains(uri.host) &&
       segments.isNotEmpty &&
       segments.first == 'store') {
@@ -104,7 +151,7 @@ void _processUri(Uri uri) async {
           : segment;
       if (selfieId.isNotEmpty) {
         debugPrint('Deep link → outfit selfieId=$selfieId username=$username');
-        Future.delayed(const Duration(milliseconds: 300), () {
+        _navigate(() {
           MyApp.navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (_) => SelfieDetailsScreen(selfieId: selfieId),
@@ -128,11 +175,14 @@ Future<void> _navigateToProfile(String username) async {
   try {
     final token = StorageService.getToken();
     final headers = <String, String>{};
-    if (token != null) headers['Authorization'] = 'Bearer $token';
+    // The backend reads the raw token from `authorization` — it does not strip
+    // a "Bearer " prefix, so sending one made this call fail authentication.
+    if (token != null) headers['Authorization'] = token;
 
     final response = await http.get(
-      Uri.parse(
-          'https://newapi.happer.fr/api/v1/user/profile/by-username/$username'),
+      // Was pinned to newapi.happer.fr, which is dead. This is an API call, so
+      // it belongs on whichever base the app is configured for.
+      Uri.parse('${ApiConfig.newBaseUrl}/user/profile/by-username/$username'),
       headers: headers,
     );
 
@@ -140,7 +190,7 @@ Future<void> _navigateToProfile(String username) async {
       final body = jsonDecode(response.body);
       final userId = (body['data']?['_id'] ?? '').toString();
       if (userId.isNotEmpty) {
-        Future.delayed(const Duration(milliseconds: 300), () {
+        _navigate(() {
           MyApp.navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (_) => ImageGridScreen(userId: userId),

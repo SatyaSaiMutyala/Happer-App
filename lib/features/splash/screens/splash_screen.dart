@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:happer_app/main.dart' show markNavigationReady;
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:happer_app/features/auth/screens/register_screen.dart';
@@ -41,6 +42,10 @@ class _SplashScreenState extends State<SplashScreen>
             FadeTransition(opacity: animation, child: child),
       ),
     );
+    // The navigator is ours until this point; a deep link that pushed earlier
+    // collided with the replacement above. Release the gate once this
+    // transition has finished so any queued link opens cleanly on top.
+    Future.delayed(const Duration(milliseconds: 600), markNavigationReady);
   }
 
   @override

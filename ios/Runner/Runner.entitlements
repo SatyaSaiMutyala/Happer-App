@@ -10,6 +10,7 @@
 	</array>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
+		<string>applinks:api.happer.fr</string>
 		<string>applinks:newapi.happer.fr</string>
 		<string>applinks:creators.happer.fr</string>
 	</array>

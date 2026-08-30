@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 
-const String kDeepLinkBase = 'https://newapi.happer.fr';
+const String kDeepLinkBase = 'https://api.happer.fr';
 
 String buildProfileDeepLink(String username) =>
     '$kDeepLinkBase/store/$username';
