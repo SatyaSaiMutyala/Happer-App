@@ -70,12 +70,9 @@ PODS:
   - Flutter (1.0.0)
   - flutter_image_compress_common (1.0.0):
     - Flutter
-    - Mantle
     - SDWebImage
     - SDWebImageWebPCoder
   - flutter_local_notifications (0.0.1):
-    - Flutter
-  - flutter_native_splash (2.4.3):
     - Flutter
   - gal (1.0.0):
     - Flutter
@@ -143,17 +140,11 @@ PODS:
   - libwebp/sharpyuv (1.5.0)
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
-  - Mantle (2.2.0):
-    - Mantle/extobjc (= 2.2.0)
-  - Mantle/extobjc (2.2.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - path_provider_foundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - permission_handler_apple (9.4.8):
     - Flutter
   - PromisesObjC (2.4.1)
@@ -249,12 +240,10 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_image_compress_common (from `.symlinks/plugins/flutter_image_compress_common/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
-  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - gal (from `.symlinks/plugins/gal/darwin`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - rive_native (from `.symlinks/plugins/rive_native/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -284,7 +273,6 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - libwebp
-    - Mantle
     - nanopb
     - PromisesObjC
     - PromisesSwift
@@ -318,8 +306,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_image_compress_common/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
-  flutter_native_splash:
-    :path: ".symlinks/plugins/flutter_native_splash/ios"
   gal:
     :path: ".symlinks/plugins/gal/darwin"
   google_sign_in_ios:
@@ -328,8 +314,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_cropper/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
-  path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   rive_native:
@@ -367,9 +351,8 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 317270fec08a5d418fdbc8429282238cab3ac843
   FirebaseMessaging: 3b26e2cee503815e01c3701236b020aa9b576f09
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_image_compress_common: 1697a328fd72bfb335507c6bca1a65fa5ad87df1
+  flutter_image_compress_common: 11d5dcfb36f4ded92320bfa896261813a073240e
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
-  flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   gal: baecd024ebfd13c441269ca7404792a7152fde89
   google_sign_in_ios: b48bb9af78576358a168361173155596c845f0b9
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -380,9 +363,7 @@ SPEC CHECKSUMS:
   image_cropper: c4326ea50132b1e1564499e5d32a84f01fb03537
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   PromisesSwift: 217dea0fd5d2ad65222a109c48698add13cc1c5b
@@ -407,6 +388,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 888f8a42f817e0866812d8b301a6c4fdeda79365
+PODFILE CHECKSUM: a1914b222eb3bc0f5d3dd1465849b54dc19d5f96
 
 COCOAPODS: 1.16.2

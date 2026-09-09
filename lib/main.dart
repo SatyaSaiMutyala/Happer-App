@@ -27,7 +27,7 @@ import 'package:happer_app/core/config/api_config.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:app_links/app_links.dart';
- 
+
 // White status bar background with black icons/text, applied app-wide.
 const SystemUiOverlayStyle kAppStatusBarStyle = SystemUiOverlayStyle(
   statusBarColor: Colors.white,
