@@ -1,4 +1,5 @@
 // Model class for Happer Product Detail data from WebSocket
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/shared/models/happer_product.dart';
 
 class HapperProductDetail {
@@ -191,7 +192,7 @@ class HapperProductDetail {
   }
 
   String getBrandName() {
-    return brand.name.isNotEmpty ? brand.name : "Unknown Brand";
+    return brand.name.isNotEmpty ? brand.name : appL10n.cartUnknownBrand;
   }
 
   String getFirstUserName() {
@@ -202,7 +203,7 @@ class HapperProductDetail {
       }
       return user;
     }
-    return "No User";
+    return appL10n.cartNoUser;
   }
   
   // Get timer duration from the product

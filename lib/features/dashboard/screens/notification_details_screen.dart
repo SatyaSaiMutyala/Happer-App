@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class NotificationDetailScreen extends StatefulWidget {
   final String id;
@@ -31,9 +32,10 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: HapperAppBar(
-        title: 'MESSAGE',
+        title: l.dashMessageTitle,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
@@ -71,10 +73,10 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                     alignment: Alignment.center,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                        SizedBox(height: 8),
-                        Text('Image failed to load', style: TextStyle(color: Colors.grey)),
+                      children: [
+                        const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        Text(l.dashImageFailedToLoad, style: const TextStyle(color: Colors.grey)),
                       ],
                     ),
                   );

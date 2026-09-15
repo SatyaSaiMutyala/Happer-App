@@ -544,7 +544,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sponsorShipText => 'Sponsorship';
 
   @override
-  String get sponsorshipTitle => '1 SPONSORSHIP = 50 CREDITS';
+  String get sponsorshipTitle => '1 SPONSORSHIP = 20 CREDITS';
 
   @override
   String get earnCreditSponsorShip =>
@@ -1531,4 +1531,1516 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productSelectedBy => 'This product was selected by';
+
+  @override
+  String get theHappyPlaceOfFashion => 'The happy place of fashion';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get agreeWithAllTermsAndConditions =>
+      'I agree with all Terms and Conditions';
+
+  @override
+  String get enterRegisteredEmailForNewPassword =>
+      'Please enter your registered email to get your new password';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get creator => 'CREATOR';
+
+  @override
+  String get discover => 'DISCOVER';
+
+  @override
+  String dayAgo(int days) {
+    return '$days day ago';
+  }
+
+  @override
+  String get selectSize => 'SELECT SIZE';
+
+  @override
+  String get addToCart => 'ADD TO CART';
+
+  @override
+  String get subTotal => 'Subtotal';
+
+  @override
+  String get shipping => 'Shipping';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get continuer => 'CONTINUE';
+
+  @override
+  String get search => 'Search...';
+
+  @override
+  String get shopThePics => 'CREATOR\'S SHOP';
+
+  @override
+  String get selectProduct => 'Select a product';
+
+  @override
+  String get useContactInMyProfile => 'Use the contact details in my profile';
+
+  @override
+  String get checkout => 'CHECKOUT';
+
+  @override
+  String get payNow => 'PAY NOW';
+
+  @override
+  String get saveCardForFuturePayments => 'Save this card for future payments';
+
+  @override
+  String get profile => 'PROFILE';
+
+  @override
+  String get myPictures => 'My pictures';
+
+  @override
+  String get promo => 'Promo';
+
+  @override
+  String get paid => 'PAID';
+
+  @override
+  String get sent => 'SENT';
+
+  @override
+  String get delivered => 'DELIVERED';
+
+  @override
+  String get referralCode => 'Referral code';
+
+  @override
+  String get won => 'WON';
+
+  @override
+  String get verify => 'VERIFY';
+
+  @override
+  String get procedure => 'Procedure';
+
+  @override
+  String get contactCustomerServiceNotice =>
+      'For any question or issue, contact customer service at contact@happer.fr. Average response time: 72h.';
+
+  @override
+  String get contactByEmail => 'CONTACT BY EMAIL';
+
+  @override
+  String get sharedPictures => 'Shared pictures';
+
+  @override
+  String get likedPictures => 'Liked pictures';
+
+  @override
+  String get details => 'DETAILS';
+
+  @override
+  String get weContactYouWithin72Hours =>
+      'We will contact you by email within 72 hours!';
+
+  @override
+  String get theseArticlesSelectedBy => 'These articles have been selected by';
+
+  @override
+  String get seconds => 'seconds';
+
+  @override
+  String get sixth => '6th';
+
+  @override
+  String get seventh => '7th';
+
+  @override
+  String get eighth => '8th';
+
+  @override
+  String get ninth => '9th';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get gcs => 'GCS';
+
+  @override
+  String get gcu => 'GCU';
+
+  @override
+  String get myPurchases => 'MY PURCHASES';
+
+  @override
+  String get codeVerified => 'CODE VERIFIED';
+
+  @override
+  String get minimumDateBeforePlay =>
+      'Minimum date and time before you can play on the product';
+
+  @override
+  String nightBiddingPaused(int hours) {
+    return 'Between midnight and 8 am you cannot bid on products. Resume in $hours hours.';
+  }
+
+  @override
+  String get moreCoins => 'Need more credits?';
+
+  @override
+  String get country => 'Country';
+
+  @override
+  String get publishMyLook => 'PUBLISH MY LOOK';
+
+  @override
+  String get searchProducts => 'Search products...';
+
+  @override
+  String get myLooks => 'My looks';
+
+  @override
+  String get confirmed => 'CONFIRMED';
+
+  @override
+  String get shippingLink => 'SHIPPING LINK';
+
+  @override
+  String get orderDetails => 'ORDER DETAILS';
+
+  @override
+  String get deliveredOn => 'Delivered on';
+
+  @override
+  String get confirmedStatus => 'Confirmed';
+
+  @override
+  String get shippedStatus => 'Shipped';
+
+  @override
+  String get deliveredStatus => 'Delivered';
+
+  @override
+  String get delivery => 'Delivery';
+
+  @override
+  String get trackingNumber => 'Tracking number';
+
+  @override
+  String get deliveryAddress => 'Delivery address';
+
+  @override
+  String get orderInformation => 'Order information';
+
+  @override
+  String get orderNumber => 'Order number';
+
+  @override
+  String get viewInvoicePdf => 'View invoice (PDF)';
+
+  @override
+  String get purchasedVia => 'Purchased via';
+
+  @override
+  String get viewLook => 'View look';
+
+  @override
+  String get returnOrReplaceItem => 'Return or replace item';
+
+  @override
+  String get makeAReturnRequest => 'Make a return request';
+
+  @override
+  String get returnThisItem => 'RETURN THIS ITEM';
+
+  @override
+  String get returnWindowNotice =>
+      'You have 14 days after receipt to make a return request';
+
+  @override
+  String get incorrectSize => 'Incorrect size';
+
+  @override
+  String get damagedItem => 'Damaged item';
+
+  @override
+  String get itemNotAsDescribed => 'Item not as described';
+
+  @override
+  String get itemDoesNotSuitMe => 'The item does not suit me';
+
+  @override
+  String get otherReason => 'Other reason';
+
+  @override
+  String get addComment => 'Add a comment';
+
+  @override
+  String get addItemPhotos => 'Add photos of the item';
+
+  @override
+  String get viewReturnConditions => 'View return conditions';
+
+  @override
+  String get submitReturnRequest => 'SUBMIT RETURN REQUEST';
+
+  @override
+  String get returnRequest => 'RETURN REQUEST';
+
+  @override
+  String returnRequestReceived(String date, String time) {
+    return 'We received your request on $date at $time. Follow its progress below.';
+  }
+
+  @override
+  String get request => 'Request';
+
+  @override
+  String get dispatch => 'Dispatch';
+
+  @override
+  String get receipt => 'Receipt';
+
+  @override
+  String get refund => 'Refund';
+
+  @override
+  String get inProgress => 'In progress';
+
+  @override
+  String get upcoming => 'Upcoming';
+
+  @override
+  String get returnReason => 'Return reason';
+
+  @override
+  String get requestDate => 'Request date';
+
+  @override
+  String get requestNumber => 'Request number';
+
+  @override
+  String get returnAddress => 'Return address';
+
+  @override
+  String get returnFees => 'Return fees';
+
+  @override
+  String get customerPays => 'Paid by the customer';
+
+  @override
+  String returnDeadlineNotice(String date) {
+    return 'You have until $date to ship your return. After this deadline your request will be cancelled.';
+  }
+
+  @override
+  String get trackMyReturn => 'Track my return';
+
+  @override
+  String get trackReturnDescription => 'Follow the delivery after shipping.';
+
+  @override
+  String get contactSupport => 'CONTACT SUPPORT';
+
+  @override
+  String get forAnyQuestionNeedOrIssue =>
+      'For any question, need or issue, please contact customer service at support@happer.fr.';
+
+  @override
+  String get averageResponseTime => 'Average response time is 72h.';
+
+  @override
+  String get viewFaq => 'VIEW FAQ';
+
+  @override
+  String get contactByWhatsapp => 'CONTACT BY WHATSAPP';
+
+  @override
+  String get activateYourAccount => 'ACTIVATE YOUR ACCOUNT';
+
+  @override
+  String get happerCreator => 'HAPPER CREATOR';
+
+  @override
+  String get creatorActivationIntro =>
+      'You can now activate your Happer creator account.';
+
+  @override
+  String get creatorActivationBenefits =>
+      'You will be able to receive products from our partner brands, share them on Happer and earn revenue on sales made through your content.';
+
+  @override
+  String get byAcceptingYouConfirm => 'By accepting, you confirm:';
+
+  @override
+  String get publishReceivedProducts =>
+      'Publish the products received within the agreed deadlines';
+
+  @override
+  String get respectCollaborationRules => 'Respect the collaboration rules';
+
+  @override
+  String get guaranteeAuthenticity =>
+      'Guarantee the authenticity of your content';
+
+  @override
+  String get authorizeContentUse =>
+      'Authorize Happer to use the content in accordance with the contract';
+
+  @override
+  String get creatorContractNotice =>
+      'This collaboration is governed by the Happer Creator Contract.';
+
+  @override
+  String get creatorTermsCheckbox =>
+      'I acknowledge that I have read the Happer Creator Contract, accept it without reservation and undertake to comply with it.';
+
+  @override
+  String get logoutButton => 'LOG OUT';
+
+  @override
+  String get newPasswordLabel => 'New password';
+
+  @override
+  String get confirmPasswordLabel => 'Confirm password';
+
+  @override
+  String get enterNewPassword => 'Enter your new password';
+
+  @override
+  String get confirmNewPassword => 'Confirm your new password';
+
+  @override
+  String get myLooksTitle => 'MY LOOKS';
+
+  @override
+  String get authLoginRequired => 'Login required';
+
+  @override
+  String get authLoginToContinue => 'Log in to continue.';
+
+  @override
+  String get authEnterEmail => 'Please enter your email';
+
+  @override
+  String get authEnterPassword => 'Please enter your password';
+
+  @override
+  String get authEnterFirstName => 'Please enter your first name';
+
+  @override
+  String get authEnterLastName => 'Please enter your last name';
+
+  @override
+  String get authEnterUsername => 'Please enter a username';
+
+  @override
+  String get authUsernameTooShort => 'Username must be at least 3 characters';
+
+  @override
+  String get authUsernameInvalidChars =>
+      'Username can only contain lowercase letters, numbers, _ and .';
+
+  @override
+  String get authEnterAPassword => 'Please enter a password';
+
+  @override
+  String get authPasswordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get authUsernameTaken =>
+      'Username is already taken. Please choose another.';
+
+  @override
+  String get authVerifyEmailTitle => 'Verify Email';
+
+  @override
+  String get authEnterVerificationCode => 'Enter Verification Code';
+
+  @override
+  String authCodeSentTo(String email) {
+    return 'We sent a 6-digit code to\n$email';
+  }
+
+  @override
+  String get authEnterSixDigitCodeHint => 'Enter 6-digit code';
+
+  @override
+  String get authVerify => 'Verify';
+
+  @override
+  String get authEnterSixDigitCode => 'Please enter the 6-digit code.';
+
+  @override
+  String get authDidntReceiveCode => 'Didn\'t receive the code? ';
+
+  @override
+  String get authResend => 'Resend';
+
+  @override
+  String get authVerifyAndContinue => 'Verify & Continue';
+
+  @override
+  String get authForgotPasswordHeading => 'Forgot password';
+
+  @override
+  String get authFillRequiredFields => 'Please fill in all required fields.';
+
+  @override
+  String get authVerificationCodeSent =>
+      'A verification code has been sent to your email.';
+
+  @override
+  String get authAccountVerified => 'Account verified successfully!';
+
+  @override
+  String get authAccountVerifiedPleaseLogin =>
+      'Account verified. Please log in.';
+
+  @override
+  String get authOtpVerificationFailed =>
+      'Code verification failed. Please try again.';
+
+  @override
+  String get authNewCodeSent => 'A new code has been sent to your email.';
+
+  @override
+  String get authResendCodeFailed =>
+      'Failed to resend the code. Please try again.';
+
+  @override
+  String get authAppleSignInNoFirebaseToken =>
+      'Apple Sign In failed: could not get Firebase token. Please try again.';
+
+  @override
+  String get authAppleSignInNoAccessToken =>
+      'Apple Sign In failed: no access token from server. Please try again.';
+
+  @override
+  String get authAppleSignInSimulator =>
+      'Apple Sign In requires a real iPhone — not supported on iOS Simulator.';
+
+  @override
+  String authAuthenticationError(String details) {
+    return 'Authentication error: $details';
+  }
+
+  @override
+  String get authPleaseTryAgain => 'Please try again.';
+
+  @override
+  String get authGoogleSignInNoAccessToken =>
+      'Google Sign In failed: no access token from server.';
+
+  @override
+  String get authEnterEmailAndPassword =>
+      'Please enter your email and password.';
+
+  @override
+  String get authSendResetCodeFailed =>
+      'Failed to send reset code. Please try again.';
+
+  @override
+  String get authFillAllFields => 'Please fill in all fields.';
+
+  @override
+  String get authPasswordResetSuccess =>
+      'Password has been reset successfully.';
+
+  @override
+  String get authHapperCreatorContract => 'Happer Creator Contract';
+
+  @override
+  String get authCreatorInfoRequired =>
+      'This information is required to set up your Creator contract.';
+
+  @override
+  String get authAddressLabel => 'Address';
+
+  @override
+  String get authNextUpper => 'NEXT';
+
+  @override
+  String get authContractNoticePrefix =>
+      'This collaboration is governed by the ';
+
+  @override
+  String get authEditMyInfo => 'Edit my information';
+
+  @override
+  String get authUsernameExampleHint => 'e.g. jean.dupont_12';
+
+  @override
+  String get authRequired => 'Required';
+
+  @override
+  String get authUsernameRules =>
+      '3–20 characters: lowercase letters, numbers, _ or .';
+
+  @override
+  String get authUsernameAlreadyTaken => 'This username is already taken';
+
+  @override
+  String authStepOf(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get cartPaymentMethodCard => 'Card';
+
+  @override
+  String get cartRemoveItemTitle => 'Remove item';
+
+  @override
+  String get cartRemoveButton => 'Remove';
+
+  @override
+  String get cartPaymentDataMissing => 'Error: missing payment data';
+
+  @override
+  String get cartGooglePayUnavailable =>
+      'Google Pay is not available on this device';
+
+  @override
+  String get cartPaymentSuccess => 'Payment successful!';
+
+  @override
+  String get cartChoosePaymentMethod => 'Choose a payment method';
+
+  @override
+  String get cartMyCartTitle => 'MY CART';
+
+  @override
+  String cartProductsAddedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Products Added',
+      one: '$count Product Added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cartDeliveryTo => 'Deliver to';
+
+  @override
+  String get cartSelectAddress => 'Select an address';
+
+  @override
+  String get cartChange => 'Change';
+
+  @override
+  String get cartChoose => 'Choose';
+
+  @override
+  String get cartPayWith => 'PAY WITH';
+
+  @override
+  String get cartSecure => 'Secure';
+
+  @override
+  String get cartTotalInclVatUpper => 'TOTAL INCL. VAT';
+
+  @override
+  String get cartOrderButton => 'Order';
+
+  @override
+  String get cartPayByCard => 'Pay by card';
+
+  @override
+  String cartPayAmount(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get cartAddProductsToStart => 'Add products to get started';
+
+  @override
+  String get cartDeliveredIn2To5Days => 'Delivered in 2-5 days';
+
+  @override
+  String get cartPaymentTitle => 'Payment';
+
+  @override
+  String get cartAddToOrderComingSoon => 'Adding to your order coming soon';
+
+  @override
+  String get cartThankYouTitle => 'THANK YOU';
+
+  @override
+  String get cartThankYouForOrder => 'Thank you for your order!';
+
+  @override
+  String get cartPaymentConfirmedPreparing =>
+      'Your payment has been confirmed and your order\nis being prepared.';
+
+  @override
+  String get cartOrderConfirmed => 'Order confirmed';
+
+  @override
+  String cartOrderReference(String reference) {
+    return 'Order #$reference';
+  }
+
+  @override
+  String get cartConfirmationEmailSent =>
+      'A confirmation email has been sent to you.';
+
+  @override
+  String get cartFreeDelivery => 'Free delivery';
+
+  @override
+  String get cartFreeDeliveryDescription =>
+      'Your order qualifies for free delivery.\nEstimated time: 3 to 5 business days.';
+
+  @override
+  String get cartTrackMyOrder => 'Track my order';
+
+  @override
+  String get cartTrackMyOrderDescription =>
+      'Follow the shipping and delivery of your order in real time.';
+
+  @override
+  String get cartViewMyOrder => 'View my order';
+
+  @override
+  String get cartBackToHome => 'Back to home';
+
+  @override
+  String get cartNeedHelp => 'Need help?';
+
+  @override
+  String get cartNeedHelpDescription =>
+      'Our team is here to help.\nContact us at any time.';
+
+  @override
+  String get cartCompleteYourLook => 'Complete your look';
+
+  @override
+  String get cartCompleteYourLookDescription =>
+      'Add 1 or 2 pieces to your order in one click.';
+
+  @override
+  String get cartNoExtraPayment =>
+      'No extra payment. You only pay the difference.';
+
+  @override
+  String get cartConfirmAndAddToOrder => 'Confirm and add to my order';
+
+  @override
+  String get cartNoThanksGoToOrder => 'No thanks, go to my order';
+
+  @override
+  String get cartAdded => 'Added';
+
+  @override
+  String get cartAddToMyOrder => 'Add to my order';
+
+  @override
+  String get cartLoadDetailsFailed =>
+      'Could not load cart details. Please try again.';
+
+  @override
+  String get cartUseProfileAddress => 'Use my profile address';
+
+  @override
+  String get cartBillingAddressTitle => 'BILLING ADDRESS';
+
+  @override
+  String get cartUseAddressFromMyProfile =>
+      'Use the address entered in My Profile';
+
+  @override
+  String get cartAddressLabel => 'Address';
+
+  @override
+  String get cartEnterLastName => 'Enter your last name';
+
+  @override
+  String get cartEnterFirstName => 'Enter your first name';
+
+  @override
+  String get cartEnterStreetAddress => 'Enter your street address';
+
+  @override
+  String get cartEnterPostalCode => 'Enter postal code';
+
+  @override
+  String get cartEnterCityName => 'Enter city name';
+
+  @override
+  String get cartEnterEmailAddress => 'Enter email address';
+
+  @override
+  String get cartEnterPhoneNumber => 'Enter phone number';
+
+  @override
+  String get cartMinTwoCharacters => 'Minimum 2 characters';
+
+  @override
+  String get cartEnterValidAddress => 'Enter a valid address';
+
+  @override
+  String get cartEnterValidPostalCode => 'Enter a valid postal code';
+
+  @override
+  String get cartEnterValidCityName => 'Enter a valid city name';
+
+  @override
+  String get cartEnterValidPhoneNumber => 'Enter a valid phone number';
+
+  @override
+  String get cartAdd => 'Add';
+
+  @override
+  String get cartDefault => 'Default';
+
+  @override
+  String get cartAddAddressToContinue =>
+      'Add an address to continue your order';
+
+  @override
+  String get cartLoginToAccessCart => 'Log in to access your cart.';
+
+  @override
+  String get cartViewCart => 'View cart';
+
+  @override
+  String cartItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartInCartCount(int count) {
+    return 'In cart ($count)';
+  }
+
+  @override
+  String get cartColorUpper => 'COLOR';
+
+  @override
+  String get cartSizeUpper => 'SIZE';
+
+  @override
+  String get cartQuantityUpper => 'QUANTITY';
+
+  @override
+  String get cartOutOfStock => 'Out of stock';
+
+  @override
+  String get cartOutOfStockUpper => 'OUT OF STOCK';
+
+  @override
+  String get cartSelectASize => 'Select a size';
+
+  @override
+  String get cartSelectYourOptions => 'Select your options';
+
+  @override
+  String cartInStockCount(int count) {
+    return '$count in stock';
+  }
+
+  @override
+  String get cartStateActiveBidding => 'Active bidding';
+
+  @override
+  String get cartStateStartingSoon => 'Starting soon';
+
+  @override
+  String get cartStateBiddingEnded => 'Bidding ended';
+
+  @override
+  String get cartStateContestExpired => 'Contest expired';
+
+  @override
+  String get cartStatePlaceBidNow => 'Place your bid now!';
+
+  @override
+  String get cartNoDescription => 'No description';
+
+  @override
+  String get cartUnknownBrand => 'Unknown brand';
+
+  @override
+  String get cartNoUser => 'No user';
+
+  @override
+  String get creatorTheCollection => 'THE COLLECTION';
+
+  @override
+  String get creatorNoMoreProducts => 'No more products';
+
+  @override
+  String get creatorCheckBackLaterNewArrivals =>
+      'Check back later for new arrivals';
+
+  @override
+  String creatorBrandInspirations(String brand) {
+    return 'INSPIRATIONS $brand';
+  }
+
+  @override
+  String get creatorNoInspiration => 'No inspiration yet';
+
+  @override
+  String get creatorAllCaughtUp => 'You\'re all caught up.';
+
+  @override
+  String get creatorNewLooksComingSoon => 'New looks are coming soon.';
+
+  @override
+  String get creatorProductAddedToCart => 'Product added to cart';
+
+  @override
+  String get creatorProductDetailsTitle => 'PRODUCT DETAILS';
+
+  @override
+  String get creatorOutOfStockUpper => 'OUT OF STOCK';
+
+  @override
+  String get creatorSelectColor => 'SELECT COLOR';
+
+  @override
+  String get creatorSelectSize => 'SELECT SIZE';
+
+  @override
+  String get creatorOutOfStock => 'Out of stock';
+
+  @override
+  String creatorSoldBy(String brand) {
+    return 'Sold by $brand';
+  }
+
+  @override
+  String get creatorNoDescriptionAvailable => 'No description available';
+
+  @override
+  String get creatorSeeMore => 'See more';
+
+  @override
+  String get creatorLoginToAddLookToCart =>
+      'Log in to add this look to your cart.';
+
+  @override
+  String get creatorNoItemAvailable => 'No item available';
+
+  @override
+  String creatorItemsAddedToCart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items added to cart',
+      one: '1 item added to cart',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creatorFailedAddItemsToCart =>
+      'Unable to add the items to the cart';
+
+  @override
+  String get creatorSelectionOf => 'The selection of ';
+
+  @override
+  String get creatorAroundTheLook => 'Around the look';
+
+  @override
+  String get creatorCollectionPrefix => 'Collection ';
+
+  @override
+  String get creatorExploreCollection => 'Explore the collection';
+
+  @override
+  String get creatorShopTheLook => 'SHOP THE LOOK';
+
+  @override
+  String get creatorShareUnavailable => 'Sharing is unavailable at the moment';
+
+  @override
+  String get creatorLookComposedWith => 'Look created with ';
+
+  @override
+  String get creatorHapperExclusivePrice => 'Happer Exclusive Price';
+
+  @override
+  String get creatorFreeDeliveryTitle => 'Free Delivery';
+
+  @override
+  String creatorAddLookToCartWithPrice(int price) {
+    return 'ADD THE LOOK TO CART - $price€';
+  }
+
+  @override
+  String get creatorAddLookToCart => 'ADD THE LOOK TO CART';
+
+  @override
+  String creatorLookSavings(int amount) {
+    return ' - Save $amount€ - ';
+  }
+
+  @override
+  String get creatorFreeDelivery => 'Free delivery';
+
+  @override
+  String get creatorCompleteTheLook => 'Complete the look';
+
+  @override
+  String get creatorChooseSizeForEachPiece => 'Choose your size for each piece';
+
+  @override
+  String get creatorRequired => '· required';
+
+  @override
+  String get creatorQuantity => 'Quantity';
+
+  @override
+  String creatorTotalWithCount(int count) {
+    return 'Total ($count)';
+  }
+
+  @override
+  String creatorSavingsAmount(String amount) {
+    return 'You save $amount €';
+  }
+
+  @override
+  String get creatorAddToCartButton => 'Add to cart';
+
+  @override
+  String get creatorChooseSizes => 'Choose sizes';
+
+  @override
+  String get creatorSessionExpired => 'Session expired. Please log in again.';
+
+  @override
+  String get creatorFailedLoadSelfies => 'Failed to load selfies.';
+
+  @override
+  String get creatorFailedLoadSelfiesRetry =>
+      'Failed to load selfies. Please try again.';
+
+  @override
+  String get creatorFailedDeleteRetry => 'Failed to delete. Please try again.';
+
+  @override
+  String get creatorRemovedFromLikes => 'Removed from your likes';
+
+  @override
+  String get creatorAddedToLikes => 'Added to your likes';
+
+  @override
+  String get creatorFailedUpdateLikeRetry =>
+      'Failed to update like. Please try again.';
+
+  @override
+  String get creatorSelfiePublishedSuccess => 'Selfie published successfully!';
+
+  @override
+  String get creatorSelfieSentPendingValidation =>
+      'Selfie sent! It will be visible once approved.';
+
+  @override
+  String get creatorFailedPostSelfieRetry =>
+      'Failed to post selfie. Please try again.';
+
+  @override
+  String get creatorInspirationTitle => 'INSPIRATION';
+
+  @override
+  String creatorShareProfileMessage(String creatorName, String link) {
+    return 'I discovered $creatorName\'s fashion boutique on Happer and I love their style ✨\n\nSharing their profile with you!\n\n$link';
+  }
+
+  @override
+  String creatorShareOutfitMessage(String creatorName, String link) {
+    return 'I found $creatorName\'s outfit on Happer, I think you might like it ✨\n\n$link';
+  }
+
+  @override
+  String get creatorShareFailed => 'Sharing failed. Please try again.';
+
+  @override
+  String creatorCouldNotOpenUrl(String url) {
+    return 'Could not open $url';
+  }
+
+  @override
+  String creatorErrorOpeningLink(String error) {
+    return 'Error opening link: $error';
+  }
+
+  @override
+  String get creatorSearchCreatorBrandHint => 'Search creator, brand...';
+
+  @override
+  String get creatorCreatorLabel => 'Creator';
+
+  @override
+  String get dashLoginToAccessCommunity =>
+      'Please log in to access the community';
+
+  @override
+  String get dashLoginToAccessProfile => 'Please log in to access your profile';
+
+  @override
+  String get dashLoginToAccessFavorites =>
+      'Please log in to access your favorites';
+
+  @override
+  String get dashLoginToPublishPhoto => 'Please log in to publish a photo';
+
+  @override
+  String get dashLoginToSearch => 'Please log in to search';
+
+  @override
+  String dashSearchingForCreator(String query) {
+    return 'Searching for creator: $query';
+  }
+
+  @override
+  String dashCropProgress(int current, int total) {
+    return 'Crop ($current/$total)';
+  }
+
+  @override
+  String get dashCropYourPhoto => 'Crop your photo';
+
+  @override
+  String get dashImageEditingCanceled => 'Image editing canceled';
+
+  @override
+  String get dashDragToReorder => 'Drag a photo to change the order';
+
+  @override
+  String get dashMessageTitle => 'MESSAGE';
+
+  @override
+  String get dashImageFailedToLoad => 'Image failed to load';
+
+  @override
+  String get dashComingSoon => 'Coming soon';
+
+  @override
+  String get dashCountdownComplete => 'Countdown complete!';
+
+  @override
+  String get dashWebSocketConnectionFailed => 'WebSocket connection failed';
+
+  @override
+  String get dashWebSocketConnectError => 'Error connecting to WebSocket';
+
+  @override
+  String get dashGetHapperPlusUnlimited =>
+      'Get Happer Plus for unlimited access';
+
+  @override
+  String get dashPremiumOffersSoon => 'Premium offers coming soon!';
+
+  @override
+  String get dashCreditAdsSoon => 'Credit ads coming soon!';
+
+  @override
+  String get dashPrizeTitle => 'PRIZE';
+
+  @override
+  String get dashStartDate => 'Start date';
+
+  @override
+  String get dashHappDate => 'Happ date';
+
+  @override
+  String get dashNoImageAvailable => 'No image available';
+
+  @override
+  String dashContestDateTooltip(String label, String date) {
+    return 'Contest $label: $date';
+  }
+
+  @override
+  String get dashAddedToWishlistUpper => 'ADDED TO WISHLIST';
+
+  @override
+  String get dashYouAlreadyHaveTheHand => 'You already hold the lead';
+
+  @override
+  String get dashFeatureComingSoon => 'Feature coming soon';
+
+  @override
+  String get dashIHaveTheHand => 'I\'m in the lead';
+
+  @override
+  String get dashContestExpired => 'Contest expired';
+
+  @override
+  String get dashNoParticipants => 'No participants in this contest';
+
+  @override
+  String get dashExpiredUpper => 'EXPIRED';
+
+  @override
+  String get dashConnectingToServer => 'Connecting to server...';
+
+  @override
+  String get dashGettingLatestProducts => 'Getting the latest products';
+
+  @override
+  String get dashCheckBackLater => 'Check back later for new items';
+
+  @override
+  String get dashRefreshUpper => 'REFRESH';
+
+  @override
+  String get dashNoImage => 'No image';
+
+  @override
+  String get dashServerProblemLocalData =>
+      'Problem connecting to the server. Using local data.';
+
+  @override
+  String get dashServerUnreachableCachedData =>
+      'Could not connect to the server. Using cached data.';
+
+  @override
+  String get dashStartingSoonUpper => 'STARTING SOON';
+
+  @override
+  String get dashSoonUpper => 'SOON';
+
+  @override
+  String get dashImageUnavailable => 'Image unavailable';
+
+  @override
+  String get dashContestStartingSoon => 'Contest starting soon!';
+
+  @override
+  String get dashContestEnded => 'Contest has ended';
+
+  @override
+  String get dashContestNotAvailable => 'Contest not available';
+
+  @override
+  String get dashOpeningProductPage => 'Opening product page...';
+
+  @override
+  String get dashProductAddedToCart => 'Product added to cart!';
+
+  @override
+  String get dashPreparingShare => 'Preparing to share...';
+
+  @override
+  String dashShareProductText(
+      String title, String brand, String price, String promoPrice) {
+    return '$title\n$brand\nPrice: $price €\nPromo price: $promoPrice €\n\nDiscover this product on Happer!\n';
+  }
+
+  @override
+  String get dashShareProductSubject => 'Check out this product on Happer!';
+
+  @override
+  String get dashShareError => 'Error while sharing';
+
+  @override
+  String get dashLoadingLatestUsers => 'Loading latest users...';
+
+  @override
+  String get dashTapToRefreshUsers => 'Tap to refresh user list';
+
+  @override
+  String get dashNoUsersYet => 'No users yet.';
+
+  @override
+  String get dashRefresh => 'Refresh';
+
+  @override
+  String get dashLoadingProductInfo => 'Loading product information...';
+
+  @override
+  String get dashStatus => 'Status';
+
+  @override
+  String get dashTotalUsers => 'Total users';
+
+  @override
+  String get orderCancelled => 'Order cancelled';
+
+  @override
+  String orderCancelledOn(String date) {
+    return 'Cancelled on $date';
+  }
+
+  @override
+  String orderShippedOn(String date) {
+    return 'Shipped on $date';
+  }
+
+  @override
+  String orderConfirmedOn(String date) {
+    return 'Confirmed on $date';
+  }
+
+  @override
+  String get orderNotShippedYet => 'Not shipped yet';
+
+  @override
+  String get orderCancelOrder => 'Cancel order';
+
+  @override
+  String get orderCancelThisItem => 'Cancel this item';
+
+  @override
+  String get orderCancelConfirmTitle => 'Cancel the order?';
+
+  @override
+  String get orderCancelConfirmMessage =>
+      'This item will be cancelled. This action is permanent.';
+
+  @override
+  String get orderCancelConfirmYes => 'Yes, cancel';
+
+  @override
+  String get orderTrackingLinkUnavailable => 'Tracking link not available yet';
+
+  @override
+  String get orderDeliveryTracking => 'Delivery tracking';
+
+  @override
+  String get orderLookUnavailable => 'Look unavailable for this order';
+
+  @override
+  String get orderLinkUnavailable => 'Link unavailable';
+
+  @override
+  String get orderInvoice => 'Invoice';
+
+  @override
+  String get orderInvoiceTitle => 'INVOICE';
+
+  @override
+  String get orderLoadingInvoice => 'Loading invoice...';
+
+  @override
+  String orderCouldNotLoadPage(String title) {
+    return 'Could not load “$title”.';
+  }
+
+  @override
+  String get orderCancelButton => 'CANCEL';
+
+  @override
+  String get orderReturnButton => 'RETURN';
+
+  @override
+  String get orderShippedBadge => 'SHIPPED';
+
+  @override
+  String get orderReturnWindowPrefix => 'You have ';
+
+  @override
+  String get orderReturnWindowDays => '14 days';
+
+  @override
+  String get orderReturnWindowSuffix =>
+      ' after receipt to make a return request';
+
+  @override
+  String get orderYourCommentHint => 'Your comment…';
+
+  @override
+  String get orderReturnConditionsSoon => 'Return conditions coming soon';
+
+  @override
+  String orderTimeHourMinute(String hour, String minute) {
+    return '$hour:$minute';
+  }
+
+  @override
+  String orderDateAtTime(String date, String time) {
+    return '$date at $time';
+  }
+
+  @override
+  String orderReturnAddressValue(String brand) {
+    return 'Happer - $brand Returns\n25 rue d\'Uzès, 75002 Paris, France';
+  }
+
+  @override
+  String get orderSupportEmailSubject => 'Support request';
+
+  @override
+  String get orderFaqUnavailable => 'FAQ unavailable';
+
+  @override
+  String get orderFaqLoadError =>
+      'Unable to load the FAQ right now. Check your connection and try again.';
+
+  @override
+  String get orderRetryButton => 'TRY AGAIN';
+
+  @override
+  String orderSizeLabel(String size) {
+    return 'Size $size';
+  }
+
+  @override
+  String orderQuantityLabel(int quantity) {
+    return 'Quantity $quantity';
+  }
+
+  @override
+  String get orderWinnerYou => 'You';
+
+  @override
+  String get profileMySelections => 'My Selections';
+
+  @override
+  String get profileGameContestComingSoon => 'The game contest is coming soon';
+
+  @override
+  String get profileInvalidCodeTryAgain => 'Invalid code. Please try again.';
+
+  @override
+  String get profileUpdatedSuccess => 'Profile updated successfully';
+
+  @override
+  String get profilePleaseEnterCurrentPassword =>
+      'Please enter your current password';
+
+  @override
+  String get profilePleaseEnterNewPassword => 'Please enter a new password';
+
+  @override
+  String profilePasswordMinLength(int count) {
+    return 'Password must be at least $count characters';
+  }
+
+  @override
+  String get profilePleaseConfirmNewPassword =>
+      'Please confirm your new password';
+
+  @override
+  String get profileMyShares => 'My Shares';
+
+  @override
+  String get profileWonProducts => 'Won Products';
+
+  @override
+  String get profileWishlist => 'Wishlist';
+
+  @override
+  String get profileMyPurchases => 'My Purchases';
+
+  @override
+  String get profileYourPromoCode => 'YOUR PROMO CODE';
+
+  @override
+  String get profileYourPromoCodes => 'YOUR PROMO CODES';
+
+  @override
+  String get profileNoPromoCodes => 'No promo codes available';
+
+  @override
+  String profileCreditsCount(int count) {
+    return '$count Credits';
+  }
+
+  @override
+  String get profileTapToApply => 'Tap to apply';
+
+  @override
+  String get profileDeleteAccountWarning =>
+      'This action is permanent. All your data will be deleted and cannot be recovered.';
+
+  @override
+  String get profileLogoutConfirm => 'Do you really want to log out?';
+
+  @override
+  String get profileCouldNotOpenInstagram => 'Could not open Instagram';
+
+  @override
+  String get profileShare => 'Share';
+
+  @override
+  String get profileLookTab => 'Look';
+
+  @override
+  String get profileAdd => 'Add';
+
+  @override
+  String get profileNoAddress => 'No address';
+
+  @override
+  String get profileDefault => 'Default';
+
+  @override
+  String get profileDefaultAddress => 'Default address';
+
+  @override
+  String get profileDefaultAddressDesc => 'Used automatically at checkout';
+
+  @override
+  String get profileGenderOther => 'Other';
+
+  @override
+  String get profileGender => 'Gender';
+
+  @override
+  String get profileBio => 'Bio';
+
+  @override
+  String get profileStreetAddress => 'Address';
+
+  @override
+  String get profileErrorLoadingWishlist => 'Error loading wishlist items';
+
+  @override
+  String get profileWishlistEmpty => 'Your wishlist is empty';
+
+  @override
+  String get profileWishlistEmptyDesc =>
+      'Items you add to your wishlist will appear here';
+
+  @override
+  String get profileAlreadyInWishlist => 'Item is already in your wishlist';
+
+  @override
+  String get profileNoWonProducts => 'You haven\'t won any products yet';
+
+  @override
+  String get profileNoWonProductsDesc =>
+      'Participate in contests to win amazing products';
+
+  @override
+  String get profileCollected => 'COLLECTED';
+
+  @override
+  String get networkNoInternet =>
+      'No internet connection. Please check your network.';
+
+  @override
+  String get networkTimeout => 'Request timed out. Please try again.';
 }

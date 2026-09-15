@@ -110,7 +110,7 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
     final success = await _controller.deleteSelfie(widget.selfieModel.id);
     if (!mounted) return;
     if (success) {
-      showAppSnackBar('Image deleted successfully', isSuccess: true);
+      showAppSnackBar(l.imageDeletedSuccess, isSuccess: true);
       Navigator.pop(context, true);
     }
   }
@@ -192,7 +192,7 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: 'INSPIRATION',
+        title: l.creatorInspirationTitle,
         actions: [
           if (widget.isFromMyImages)
             IconButton(
@@ -313,7 +313,7 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                               final selfieId = widget.selfieModel.id;
                               if (selfieId.isEmpty) {
                                 showAppSnackBar(
-                                    'Partage indisponible pour le moment',
+                                    l.creatorShareUnavailable,
                                     isSuccess: false);
                                 return;
                               }
@@ -331,7 +331,7 @@ class _DiscoverDetailScreenState extends State<DiscoverDetailScreen>
                                           : userId);
                               if (username.isEmpty) {
                                 showAppSnackBar(
-                                    'Partage indisponible pour le moment',
+                                    l.creatorShareUnavailable,
                                     isSuccess: false);
                                 return;
                               }

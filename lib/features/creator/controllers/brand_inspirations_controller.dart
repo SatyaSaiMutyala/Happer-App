@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/features/creator/data/models/creator_selfie_model.dart';
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
 
@@ -51,7 +52,7 @@ class BrandInspirationsController extends GetxController {
       hasMore.value = result.length >= _perPage;
       _page++;
     } catch (e) {
-      if (firstLoad) errorMessage.value = 'Une erreur est survenue';
+      if (firstLoad) errorMessage.value = appL10n.anErrorOccured;
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;

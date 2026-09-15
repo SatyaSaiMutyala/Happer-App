@@ -255,7 +255,7 @@
   "invitFriend": "INVITE YOUR FRIENDS",
   "sponsorship": "Invite friends",
   "sponsorShipText": "Sponsorship",
-  "sponsorshipTitle": "1 SPONSORSHIP = 50 CREDITS",
+  "sponsorshipTitle": "1 SPONSORSHIP = 20 CREDITS",
   "earnCreditSponsorShip": "Earn 30 credits for each friend you refer",
   "yourCode": "Your code",
   "textShare": "Share your code with a friend. When she uses it during her registration, you will both get 30 credits",
@@ -587,5 +587,665 @@
     }
   },
   "pleaseSelectShippingAddress": "Please select a delivery address",
-  "productSelectedBy": "This product was selected by"
+  "productSelectedBy": "This product was selected by",
+
+  "theHappyPlaceOfFashion": "The happy place of fashion",
+  "email": "Email",
+  "agreeWithAllTermsAndConditions": "I agree with all Terms and Conditions",
+  "enterRegisteredEmailForNewPassword": "Please enter your registered email to get your new password",
+  "sendCode": "Send code",
+  "creator": "CREATOR",
+  "discover": "DISCOVER",
+  "dayAgo": "{days} day ago",
+  "@dayAgo": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "selectSize": "SELECT SIZE",
+  "addToCart": "ADD TO CART",
+  "subTotal": "Subtotal",
+  "shipping": "Shipping",
+  "total": "Total",
+  "continuer": "CONTINUE",
+  "search": "Search...",
+  "shopThePics": "CREATOR'S SHOP",
+  "selectProduct": "Select a product",
+  "useContactInMyProfile": "Use the contact details in my profile",
+  "checkout": "CHECKOUT",
+  "payNow": "PAY NOW",
+  "saveCardForFuturePayments": "Save this card for future payments",
+  "profile": "PROFILE",
+  "myPictures": "My pictures",
+  "promo": "Promo",
+  "paid": "PAID",
+  "sent": "SENT",
+  "delivered": "DELIVERED",
+  "referralCode": "Referral code",
+  "won": "WON",
+  "verify": "VERIFY",
+  "procedure": "Procedure",
+  "contactCustomerServiceNotice": "For any question or issue, contact customer service at contact@happer.fr. Average response time: 72h.",
+  "contactByEmail": "CONTACT BY EMAIL",
+  "sharedPictures": "Shared pictures",
+  "likedPictures": "Liked pictures",
+  "details": "DETAILS",
+  "weContactYouWithin72Hours": "We will contact you by email within 72 hours!",
+  "theseArticlesSelectedBy": "These articles have been selected by",
+  "seconds": "seconds",
+  "sixth": "6th",
+  "seventh": "7th",
+  "eighth": "8th",
+  "ninth": "9th",
+  "settings": "Settings",
+  "currentPassword": "Current password",
+  "changePassword": "Change password",
+  "update": "Update",
+  "gcs": "GCS",
+  "gcu": "GCU",
+  "myPurchases": "MY PURCHASES",
+  "codeVerified": "CODE VERIFIED",
+  "minimumDateBeforePlay": "Minimum date and time before you can play on the product",
+  "nightBiddingPaused": "Between midnight and 8 am you cannot bid on products. Resume in {hours} hours.",
+  "@nightBiddingPaused": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "moreCoins": "Need more credits?",
+  "country": "Country",
+  "publishMyLook": "PUBLISH MY LOOK",
+  "searchProducts": "Search products...",
+  "myLooks": "My looks",
+  "confirmed": "CONFIRMED",
+  "shippingLink": "SHIPPING LINK",
+  "orderDetails": "ORDER DETAILS",
+  "deliveredOn": "Delivered on",
+  "confirmedStatus": "Confirmed",
+  "shippedStatus": "Shipped",
+  "deliveredStatus": "Delivered",
+  "delivery": "Delivery",
+  "trackingNumber": "Tracking number",
+  "deliveryAddress": "Delivery address",
+  "orderInformation": "Order information",
+  "orderNumber": "Order number",
+  "viewInvoicePdf": "View invoice (PDF)",
+  "purchasedVia": "Purchased via",
+  "viewLook": "View look",
+  "returnOrReplaceItem": "Return or replace item",
+  "makeAReturnRequest": "Make a return request",
+  "returnThisItem": "RETURN THIS ITEM",
+  "returnWindowNotice": "You have 14 days after receipt to make a return request",
+  "incorrectSize": "Incorrect size",
+  "damagedItem": "Damaged item",
+  "itemNotAsDescribed": "Item not as described",
+  "itemDoesNotSuitMe": "The item does not suit me",
+  "otherReason": "Other reason",
+  "addComment": "Add a comment",
+  "addItemPhotos": "Add photos of the item",
+  "viewReturnConditions": "View return conditions",
+  "submitReturnRequest": "SUBMIT RETURN REQUEST",
+  "returnRequest": "RETURN REQUEST",
+  "returnRequestReceived": "We received your request on {date} at {time}. Follow its progress below.",
+  "@returnRequestReceived": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "request": "Request",
+  "dispatch": "Dispatch",
+  "receipt": "Receipt",
+  "refund": "Refund",
+  "inProgress": "In progress",
+  "upcoming": "Upcoming",
+  "returnReason": "Return reason",
+  "requestDate": "Request date",
+  "requestNumber": "Request number",
+  "returnAddress": "Return address",
+  "returnFees": "Return fees",
+  "customerPays": "Paid by the customer",
+  "returnDeadlineNotice": "You have until {date} to ship your return. After this deadline your request will be cancelled.",
+  "@returnDeadlineNotice": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "trackMyReturn": "Track my return",
+  "trackReturnDescription": "Follow the delivery after shipping.",
+  "contactSupport": "CONTACT SUPPORT",
+  "forAnyQuestionNeedOrIssue": "For any question, need or issue, please contact customer service at support@happer.fr.",
+  "averageResponseTime": "Average response time is 72h.",
+  "viewFaq": "VIEW FAQ",
+  "contactByWhatsapp": "CONTACT BY WHATSAPP",
+  "activateYourAccount": "ACTIVATE YOUR ACCOUNT",
+  "happerCreator": "HAPPER CREATOR",
+  "creatorActivationIntro": "You can now activate your Happer creator account.",
+  "creatorActivationBenefits": "You will be able to receive products from our partner brands, share them on Happer and earn revenue on sales made through your content.",
+  "byAcceptingYouConfirm": "By accepting, you confirm:",
+  "publishReceivedProducts": "Publish the products received within the agreed deadlines",
+  "respectCollaborationRules": "Respect the collaboration rules",
+  "guaranteeAuthenticity": "Guarantee the authenticity of your content",
+  "authorizeContentUse": "Authorize Happer to use the content in accordance with the contract",
+  "creatorContractNotice": "This collaboration is governed by the Happer Creator Contract.",
+  "creatorTermsCheckbox": "I acknowledge that I have read the Happer Creator Contract, accept it without reservation and undertake to comply with it.",
+  "logoutButton": "LOG OUT",
+  "newPasswordLabel": "New password",
+  "confirmPasswordLabel": "Confirm password",
+  "enterNewPassword": "Enter your new password",
+  "confirmNewPassword": "Confirm your new password",
+  "myLooksTitle": "MY LOOKS",
+
+  "authLoginRequired": "Login required",
+  "authLoginToContinue": "Log in to continue.",
+  "authEnterEmail": "Please enter your email",
+  "authEnterPassword": "Please enter your password",
+  "authEnterFirstName": "Please enter your first name",
+  "authEnterLastName": "Please enter your last name",
+  "authEnterUsername": "Please enter a username",
+  "authUsernameTooShort": "Username must be at least 3 characters",
+  "authUsernameInvalidChars": "Username can only contain lowercase letters, numbers, _ and .",
+  "authEnterAPassword": "Please enter a password",
+  "authPasswordTooShort": "Password must be at least 6 characters",
+  "authUsernameTaken": "Username is already taken. Please choose another.",
+  "authVerifyEmailTitle": "Verify Email",
+  "authEnterVerificationCode": "Enter Verification Code",
+  "authCodeSentTo": "We sent a 6-digit code to\n{email}",
+  "@authCodeSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "authEnterSixDigitCodeHint": "Enter 6-digit code",
+  "authVerify": "Verify",
+  "authEnterSixDigitCode": "Please enter the 6-digit code.",
+  "authDidntReceiveCode": "Didn't receive the code? ",
+  "authResend": "Resend",
+  "authVerifyAndContinue": "Verify & Continue",
+  "authForgotPasswordHeading": "Forgot password",
+  "authFillRequiredFields": "Please fill in all required fields.",
+  "authVerificationCodeSent": "A verification code has been sent to your email.",
+  "authAccountVerified": "Account verified successfully!",
+  "authAccountVerifiedPleaseLogin": "Account verified. Please log in.",
+  "authOtpVerificationFailed": "Code verification failed. Please try again.",
+  "authNewCodeSent": "A new code has been sent to your email.",
+  "authResendCodeFailed": "Failed to resend the code. Please try again.",
+  "authAppleSignInNoFirebaseToken": "Apple Sign In failed: could not get Firebase token. Please try again.",
+  "authAppleSignInNoAccessToken": "Apple Sign In failed: no access token from server. Please try again.",
+  "authAppleSignInSimulator": "Apple Sign In requires a real iPhone — not supported on iOS Simulator.",
+  "authAuthenticationError": "Authentication error: {details}",
+  "@authAuthenticationError": {
+    "placeholders": {
+      "details": { "type": "String" }
+    }
+  },
+  "authPleaseTryAgain": "Please try again.",
+  "authGoogleSignInNoAccessToken": "Google Sign In failed: no access token from server.",
+  "authEnterEmailAndPassword": "Please enter your email and password.",
+  "authSendResetCodeFailed": "Failed to send reset code. Please try again.",
+  "authFillAllFields": "Please fill in all fields.",
+  "authPasswordResetSuccess": "Password has been reset successfully.",
+  "authHapperCreatorContract": "Happer Creator Contract",
+  "authCreatorInfoRequired": "This information is required to set up your Creator contract.",
+  "authAddressLabel": "Address",
+  "authNextUpper": "NEXT",
+  "authContractNoticePrefix": "This collaboration is governed by the ",
+  "authEditMyInfo": "Edit my information",
+  "authUsernameExampleHint": "e.g. jean.dupont_12",
+  "authRequired": "Required",
+  "authUsernameRules": "3–20 characters: lowercase letters, numbers, _ or .",
+  "authUsernameAlreadyTaken": "This username is already taken",
+  "authStepOf": "Step {step} of {total}",
+  "@authStepOf": {
+    "placeholders": {
+      "step": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "cartPaymentMethodCard": "Card",
+  "cartRemoveItemTitle": "Remove item",
+  "cartRemoveButton": "Remove",
+  "cartPaymentDataMissing": "Error: missing payment data",
+  "cartGooglePayUnavailable": "Google Pay is not available on this device",
+  "cartPaymentSuccess": "Payment successful!",
+  "cartChoosePaymentMethod": "Choose a payment method",
+  "cartMyCartTitle": "MY CART",
+  "cartProductsAddedCount": "{count, plural, =1{{count} Product Added} other{{count} Products Added}}",
+  "@cartProductsAddedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "cartDeliveryTo": "Deliver to",
+  "cartSelectAddress": "Select an address",
+  "cartChange": "Change",
+  "cartChoose": "Choose",
+  "cartPayWith": "PAY WITH",
+  "cartSecure": "Secure",
+  "cartTotalInclVatUpper": "TOTAL INCL. VAT",
+  "cartOrderButton": "Order",
+  "cartPayByCard": "Pay by card",
+  "cartPayAmount": "Pay {amount}",
+  "@cartPayAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "cartAddProductsToStart": "Add products to get started",
+  "cartDeliveredIn2To5Days": "Delivered in 2-5 days",
+  "cartPaymentTitle": "Payment",
+  "cartAddToOrderComingSoon": "Adding to your order coming soon",
+  "cartThankYouTitle": "THANK YOU",
+  "cartThankYouForOrder": "Thank you for your order!",
+  "cartPaymentConfirmedPreparing": "Your payment has been confirmed and your order\nis being prepared.",
+  "cartOrderConfirmed": "Order confirmed",
+  "cartOrderReference": "Order #{reference}",
+  "@cartOrderReference": {
+    "placeholders": {
+      "reference": { "type": "String" }
+    }
+  },
+  "cartConfirmationEmailSent": "A confirmation email has been sent to you.",
+  "cartFreeDelivery": "Free delivery",
+  "cartFreeDeliveryDescription": "Your order qualifies for free delivery.\nEstimated time: 3 to 5 business days.",
+  "cartTrackMyOrder": "Track my order",
+  "cartTrackMyOrderDescription": "Follow the shipping and delivery of your order in real time.",
+  "cartViewMyOrder": "View my order",
+  "cartBackToHome": "Back to home",
+  "cartNeedHelp": "Need help?",
+  "cartNeedHelpDescription": "Our team is here to help.\nContact us at any time.",
+  "cartCompleteYourLook": "Complete your look",
+  "cartCompleteYourLookDescription": "Add 1 or 2 pieces to your order in one click.",
+  "cartNoExtraPayment": "No extra payment. You only pay the difference.",
+  "cartConfirmAndAddToOrder": "Confirm and add to my order",
+  "cartNoThanksGoToOrder": "No thanks, go to my order",
+  "cartAdded": "Added",
+  "cartAddToMyOrder": "Add to my order",
+  "cartLoadDetailsFailed": "Could not load cart details. Please try again.",
+  "cartUseProfileAddress": "Use my profile address",
+  "cartBillingAddressTitle": "BILLING ADDRESS",
+  "cartUseAddressFromMyProfile": "Use the address entered in My Profile",
+  "cartAddressLabel": "Address",
+  "cartEnterLastName": "Enter your last name",
+  "cartEnterFirstName": "Enter your first name",
+  "cartEnterStreetAddress": "Enter your street address",
+  "cartEnterPostalCode": "Enter postal code",
+  "cartEnterCityName": "Enter city name",
+  "cartEnterEmailAddress": "Enter email address",
+  "cartEnterPhoneNumber": "Enter phone number",
+  "cartMinTwoCharacters": "Minimum 2 characters",
+  "cartEnterValidAddress": "Enter a valid address",
+  "cartEnterValidPostalCode": "Enter a valid postal code",
+  "cartEnterValidCityName": "Enter a valid city name",
+  "cartEnterValidPhoneNumber": "Enter a valid phone number",
+  "cartAdd": "Add",
+  "cartDefault": "Default",
+  "cartAddAddressToContinue": "Add an address to continue your order",
+  "cartLoginToAccessCart": "Log in to access your cart.",
+  "cartViewCart": "View cart",
+  "cartItemsCount": "{count, plural, =1{{count} item} other{{count} items}}",
+  "@cartItemsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "cartInCartCount": "In cart ({count})",
+  "@cartInCartCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "cartColorUpper": "COLOR",
+  "cartSizeUpper": "SIZE",
+  "cartQuantityUpper": "QUANTITY",
+  "cartOutOfStock": "Out of stock",
+  "cartOutOfStockUpper": "OUT OF STOCK",
+  "cartSelectASize": "Select a size",
+  "cartSelectYourOptions": "Select your options",
+  "cartInStockCount": "{count} in stock",
+  "@cartInStockCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "cartStateActiveBidding": "Active bidding",
+  "cartStateStartingSoon": "Starting soon",
+  "cartStateBiddingEnded": "Bidding ended",
+  "cartStateContestExpired": "Contest expired",
+  "cartStatePlaceBidNow": "Place your bid now!",
+  "cartNoDescription": "No description",
+  "cartUnknownBrand": "Unknown brand",
+  "cartNoUser": "No user",
+  "creatorTheCollection": "THE COLLECTION",
+  "creatorNoMoreProducts": "No more products",
+  "creatorCheckBackLaterNewArrivals": "Check back later for new arrivals",
+  "creatorBrandInspirations": "INSPIRATIONS {brand}",
+  "@creatorBrandInspirations": {
+    "placeholders": {
+      "brand": { "type": "String" }
+    }
+  },
+  "creatorNoInspiration": "No inspiration yet",
+  "creatorAllCaughtUp": "You're all caught up.",
+  "creatorNewLooksComingSoon": "New looks are coming soon.",
+  "creatorProductAddedToCart": "Product added to cart",
+  "creatorProductDetailsTitle": "PRODUCT DETAILS",
+  "creatorOutOfStockUpper": "OUT OF STOCK",
+  "creatorSelectColor": "SELECT COLOR",
+  "creatorSelectSize": "SELECT SIZE",
+  "creatorOutOfStock": "Out of stock",
+  "creatorSoldBy": "Sold by {brand}",
+  "@creatorSoldBy": {
+    "placeholders": {
+      "brand": { "type": "String" }
+    }
+  },
+  "creatorNoDescriptionAvailable": "No description available",
+  "creatorSeeMore": "See more",
+  "creatorLoginToAddLookToCart": "Log in to add this look to your cart.",
+  "creatorNoItemAvailable": "No item available",
+  "creatorItemsAddedToCart": "{count, plural, =1{1 item added to cart} other{{count} items added to cart}}",
+  "@creatorItemsAddedToCart": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "creatorFailedAddItemsToCart": "Unable to add the items to the cart",
+  "creatorSelectionOf": "The selection of ",
+  "creatorAroundTheLook": "Around the look",
+  "creatorCollectionPrefix": "Collection ",
+  "creatorExploreCollection": "Explore the collection",
+  "creatorShopTheLook": "SHOP THE LOOK",
+  "creatorShareUnavailable": "Sharing is unavailable at the moment",
+  "creatorLookComposedWith": "Look created with ",
+  "creatorHapperExclusivePrice": "Happer Exclusive Price",
+  "creatorFreeDeliveryTitle": "Free Delivery",
+  "creatorAddLookToCartWithPrice": "ADD THE LOOK TO CART - {price}€",
+  "@creatorAddLookToCartWithPrice": {
+    "placeholders": {
+      "price": { "type": "int" }
+    }
+  },
+  "creatorAddLookToCart": "ADD THE LOOK TO CART",
+  "creatorLookSavings": " - Save {amount}€ - ",
+  "@creatorLookSavings": {
+    "placeholders": {
+      "amount": { "type": "int" }
+    }
+  },
+  "creatorFreeDelivery": "Free delivery",
+  "creatorCompleteTheLook": "Complete the look",
+  "creatorChooseSizeForEachPiece": "Choose your size for each piece",
+  "creatorRequired": "· required",
+  "creatorQuantity": "Quantity",
+  "creatorTotalWithCount": "Total ({count})",
+  "@creatorTotalWithCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "creatorSavingsAmount": "You save {amount} €",
+  "@creatorSavingsAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "creatorAddToCartButton": "Add to cart",
+  "creatorChooseSizes": "Choose sizes",
+  "creatorSessionExpired": "Session expired. Please log in again.",
+  "creatorFailedLoadSelfies": "Failed to load selfies.",
+  "creatorFailedLoadSelfiesRetry": "Failed to load selfies. Please try again.",
+  "creatorFailedDeleteRetry": "Failed to delete. Please try again.",
+  "creatorRemovedFromLikes": "Removed from your likes",
+  "creatorAddedToLikes": "Added to your likes",
+  "creatorFailedUpdateLikeRetry": "Failed to update like. Please try again.",
+  "creatorSelfiePublishedSuccess": "Selfie published successfully!",
+  "creatorSelfieSentPendingValidation": "Selfie sent! It will be visible once approved.",
+  "creatorFailedPostSelfieRetry": "Failed to post selfie. Please try again.",
+  "creatorInspirationTitle": "INSPIRATION",
+  "creatorShareProfileMessage": "I discovered {creatorName}'s fashion boutique on Happer and I love their style ✨\n\nSharing their profile with you!\n\n{link}",
+  "@creatorShareProfileMessage": {
+    "placeholders": {
+      "creatorName": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
+  "creatorShareOutfitMessage": "I found {creatorName}'s outfit on Happer, I think you might like it ✨\n\n{link}",
+  "@creatorShareOutfitMessage": {
+    "placeholders": {
+      "creatorName": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
+  "creatorShareFailed": "Sharing failed. Please try again.",
+  "creatorCouldNotOpenUrl": "Could not open {url}",
+  "@creatorCouldNotOpenUrl": {
+    "placeholders": {
+      "url": { "type": "String" }
+    }
+  },
+  "creatorErrorOpeningLink": "Error opening link: {error}",
+  "@creatorErrorOpeningLink": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "creatorSearchCreatorBrandHint": "Search creator, brand...",
+  "creatorCreatorLabel": "Creator",
+  "dashLoginToAccessCommunity": "Please log in to access the community",
+  "dashLoginToAccessProfile": "Please log in to access your profile",
+  "dashLoginToAccessFavorites": "Please log in to access your favorites",
+  "dashLoginToPublishPhoto": "Please log in to publish a photo",
+  "dashLoginToSearch": "Please log in to search",
+  "dashSearchingForCreator": "Searching for creator: {query}",
+  "@dashSearchingForCreator": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "dashCropProgress": "Crop ({current}/{total})",
+  "@dashCropProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "dashCropYourPhoto": "Crop your photo",
+  "dashImageEditingCanceled": "Image editing canceled",
+  "dashDragToReorder": "Drag a photo to change the order",
+  "dashMessageTitle": "MESSAGE",
+  "dashImageFailedToLoad": "Image failed to load",
+  "dashComingSoon": "Coming soon",
+  "dashCountdownComplete": "Countdown complete!",
+  "dashWebSocketConnectionFailed": "WebSocket connection failed",
+  "dashWebSocketConnectError": "Error connecting to WebSocket",
+  "dashGetHapperPlusUnlimited": "Get Happer Plus for unlimited access",
+  "dashPremiumOffersSoon": "Premium offers coming soon!",
+  "dashCreditAdsSoon": "Credit ads coming soon!",
+  "dashPrizeTitle": "PRIZE",
+  "dashStartDate": "Start date",
+  "dashHappDate": "Happ date",
+  "dashNoImageAvailable": "No image available",
+  "dashContestDateTooltip": "Contest {label}: {date}",
+  "@dashContestDateTooltip": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "dashAddedToWishlistUpper": "ADDED TO WISHLIST",
+  "dashYouAlreadyHaveTheHand": "You already hold the lead",
+  "dashFeatureComingSoon": "Feature coming soon",
+  "dashIHaveTheHand": "I'm in the lead",
+  "dashContestExpired": "Contest expired",
+  "dashNoParticipants": "No participants in this contest",
+  "dashExpiredUpper": "EXPIRED",
+  "dashConnectingToServer": "Connecting to server...",
+  "dashGettingLatestProducts": "Getting the latest products",
+  "dashCheckBackLater": "Check back later for new items",
+  "dashRefreshUpper": "REFRESH",
+  "dashNoImage": "No image",
+  "dashServerProblemLocalData": "Problem connecting to the server. Using local data.",
+  "dashServerUnreachableCachedData": "Could not connect to the server. Using cached data.",
+  "dashStartingSoonUpper": "STARTING SOON",
+  "dashSoonUpper": "SOON",
+  "dashImageUnavailable": "Image unavailable",
+  "dashContestStartingSoon": "Contest starting soon!",
+  "dashContestEnded": "Contest has ended",
+  "dashContestNotAvailable": "Contest not available",
+  "dashOpeningProductPage": "Opening product page...",
+  "dashProductAddedToCart": "Product added to cart!",
+  "dashPreparingShare": "Preparing to share...",
+  "dashShareProductText": "{title}\n{brand}\nPrice: {price} €\nPromo price: {promoPrice} €\n\nDiscover this product on Happer!\n",
+  "@dashShareProductText": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "brand": { "type": "String" },
+      "price": { "type": "String" },
+      "promoPrice": { "type": "String" }
+    }
+  },
+  "dashShareProductSubject": "Check out this product on Happer!",
+  "dashShareError": "Error while sharing",
+  "dashLoadingLatestUsers": "Loading latest users...",
+  "dashTapToRefreshUsers": "Tap to refresh user list",
+  "dashNoUsersYet": "No users yet.",
+  "dashRefresh": "Refresh",
+  "dashLoadingProductInfo": "Loading product information...",
+  "dashStatus": "Status",
+  "dashTotalUsers": "Total users",
+  "orderCancelled": "Order cancelled",
+  "orderCancelledOn": "Cancelled on {date}",
+  "@orderCancelledOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "orderShippedOn": "Shipped on {date}",
+  "@orderShippedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "orderConfirmedOn": "Confirmed on {date}",
+  "@orderConfirmedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "orderNotShippedYet": "Not shipped yet",
+  "orderCancelOrder": "Cancel order",
+  "orderCancelThisItem": "Cancel this item",
+  "orderCancelConfirmTitle": "Cancel the order?",
+  "orderCancelConfirmMessage": "This item will be cancelled. This action is permanent.",
+  "orderCancelConfirmYes": "Yes, cancel",
+  "orderTrackingLinkUnavailable": "Tracking link not available yet",
+  "orderDeliveryTracking": "Delivery tracking",
+  "orderLookUnavailable": "Look unavailable for this order",
+  "orderLinkUnavailable": "Link unavailable",
+  "orderInvoice": "Invoice",
+  "orderInvoiceTitle": "INVOICE",
+  "orderLoadingInvoice": "Loading invoice...",
+  "orderCouldNotLoadPage": "Could not load “{title}”.",
+  "@orderCouldNotLoadPage": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "orderCancelButton": "CANCEL",
+  "orderReturnButton": "RETURN",
+  "orderShippedBadge": "SHIPPED",
+  "orderReturnWindowPrefix": "You have ",
+  "orderReturnWindowDays": "14 days",
+  "orderReturnWindowSuffix": " after receipt to make a return request",
+  "orderYourCommentHint": "Your comment…",
+  "orderReturnConditionsSoon": "Return conditions coming soon",
+  "orderTimeHourMinute": "{hour}:{minute}",
+  "@orderTimeHourMinute": {
+    "placeholders": {
+      "hour": { "type": "String" },
+      "minute": { "type": "String" }
+    }
+  },
+  "orderDateAtTime": "{date} at {time}",
+  "@orderDateAtTime": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "orderReturnAddressValue": "Happer - {brand} Returns\n25 rue d'Uzès, 75002 Paris, France",
+  "@orderReturnAddressValue": {
+    "placeholders": {
+      "brand": { "type": "String" }
+    }
+  },
+  "orderSupportEmailSubject": "Support request",
+  "orderFaqUnavailable": "FAQ unavailable",
+  "orderFaqLoadError": "Unable to load the FAQ right now. Check your connection and try again.",
+  "orderRetryButton": "TRY AGAIN",
+  "orderSizeLabel": "Size {size}",
+  "@orderSizeLabel": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "orderQuantityLabel": "Quantity {quantity}",
+  "@orderQuantityLabel": {
+    "placeholders": {
+      "quantity": { "type": "int" }
+    }
+  },
+  "orderWinnerYou": "You",
+  "profileMySelections": "My Selections",
+  "profileGameContestComingSoon": "The game contest is coming soon",
+  "profileInvalidCodeTryAgain": "Invalid code. Please try again.",
+  "profileUpdatedSuccess": "Profile updated successfully",
+  "profilePleaseEnterCurrentPassword": "Please enter your current password",
+  "profilePleaseEnterNewPassword": "Please enter a new password",
+  "profilePasswordMinLength": "Password must be at least {count} characters",
+  "@profilePasswordMinLength": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "profilePleaseConfirmNewPassword": "Please confirm your new password",
+  "profileMyShares": "My Shares",
+  "profileWonProducts": "Won Products",
+  "profileWishlist": "Wishlist",
+  "profileMyPurchases": "My Purchases",
+  "profileYourPromoCode": "YOUR PROMO CODE",
+  "profileYourPromoCodes": "YOUR PROMO CODES",
+  "profileNoPromoCodes": "No promo codes available",
+  "profileCreditsCount": "{count} Credits",
+  "@profileCreditsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "profileTapToApply": "Tap to apply",
+  "profileDeleteAccountWarning": "This action is permanent. All your data will be deleted and cannot be recovered.",
+  "profileLogoutConfirm": "Do you really want to log out?",
+  "profileCouldNotOpenInstagram": "Could not open Instagram",
+  "profileShare": "Share",
+  "profileLookTab": "Look",
+  "profileAdd": "Add",
+  "profileNoAddress": "No address",
+  "profileDefault": "Default",
+  "profileDefaultAddress": "Default address",
+  "profileDefaultAddressDesc": "Used automatically at checkout",
+  "profileGenderOther": "Other",
+  "profileGender": "Gender",
+  "profileBio": "Bio",
+  "profileStreetAddress": "Address",
+  "profileErrorLoadingWishlist": "Error loading wishlist items",
+  "profileWishlistEmpty": "Your wishlist is empty",
+  "profileWishlistEmptyDesc": "Items you add to your wishlist will appear here",
+  "profileAlreadyInWishlist": "Item is already in your wishlist",
+  "profileNoWonProducts": "You haven't won any products yet",
+  "profileNoWonProductsDesc": "Participate in contests to win amazing products",
+  "profileCollected": "COLLECTED",
+
+  "networkNoInternet": "No internet connection. Please check your network.",
+  "networkTimeout": "Request timed out. Please try again."
 }

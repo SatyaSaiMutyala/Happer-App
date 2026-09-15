@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/core/constants/app_colors.dart';
 import 'package:happer_app/core/constants/app_dimensions.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/profile/bindings/user_profile_binding.dart';
 import 'package:happer_app/features/profile/controllers/user_profile_controller.dart';
@@ -222,7 +223,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   String _formatDate(String? iso) {
     if (iso == null || iso.isEmpty) return '—';
     try {
-      return DateFormat('dd MMM yyyy').format(DateTime.parse(iso));
+      return DateFormat('dd MMM yyyy', AppLocalizations.of(context).localeName)
+          .format(DateTime.parse(iso));
     } catch (_) {
       return '—';
     }
@@ -729,11 +731,11 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
 
   late final UserProfileController _controller;
 
-  static const _genderOptions = [
-    (label: 'Homme', value: 1),
-    (label: 'Femme', value: 2),
-    (label: 'Autre', value: 3),
-  ];
+  List<({String label, int value})> _genderOptions(AppLocalizations l) => [
+        (label: l.homme, value: 1),
+        (label: l.femme, value: 2),
+        (label: l.profileGenderOther, value: 3),
+      ];
 
   @override
   void initState() {
@@ -779,7 +781,8 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
   // "15 Jun 1995" ← "1995-06-15T00:00:00.000Z"
   static String _isoToDisplay(String iso) {
     try {
-      return DateFormat('dd MMM yyyy').format(DateTime.parse(iso));
+      return DateFormat('dd MMM yyyy', appL10n.localeName)
+          .format(DateTime.parse(iso));
     } catch (_) {
       return iso;
     }
@@ -790,7 +793,7 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
     if (display.trim().isEmpty) return null;
     try {
       return DateFormat('yyyy-MM-dd')
-          .format(DateFormat('dd MMM yyyy').parse(display));
+          .format(DateFormat('dd MMM yyyy', appL10n.localeName).parse(display));
     } catch (_) {
       return null;
     }
@@ -818,7 +821,8 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
       ),
     );
     if (picked != null) {
-      _dobCtrl.text = DateFormat('dd MMM yyyy').format(picked);
+      _dobCtrl.text =
+          DateFormat('dd MMM yyyy', appL10n.localeName).format(picked);
     }
   }
 
@@ -1084,10 +1088,10 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: DropdownButtonFormField<int>(
                   value: _selectedGender,
-                  decoration: _dec('Genre'),
+                  decoration: _dec(l.profileGender),
                   style: const TextStyle(
                       fontFamily: 'Lato', fontSize: 15, color: Colors.black),
-                  items: _genderOptions
+                  items: _genderOptions(l)
                       .map((g) => DropdownMenuItem(
                             value: g.value,
                             child: Text(g.label,
@@ -1098,16 +1102,16 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                 ),
               ),
 
-              _field('Bio', _bioCtrl,
+              _field(l.profileBio, _bioCtrl,
                   required: false,
                   maxLines: 3,
                   keyboard: TextInputType.multiline),
               _field('Instagram', _instagramCtrl,
                   required: false, keyboard: TextInputType.url),
-              _field('Adresse', _streetCtrl, required: false),
-              _field('Code postal', _postalCtrl,
+              _field(l.profileStreetAddress, _streetCtrl, required: false),
+              _field(l.codePostal, _postalCtrl,
                   required: false, keyboard: TextInputType.number),
-              _field('Ville', _cityCtrl, required: false),
+              _field(l.ville, _cityCtrl, required: false),
 
               const SizedBox(height: 8),
 

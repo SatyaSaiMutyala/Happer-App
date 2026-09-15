@@ -66,10 +66,10 @@ class _GameContestScreenState extends State<DummyGameContestScreen>
             ),
             const SizedBox(height: 30),
             // Coming Soon
-            const Text(
+            Text(
               // 'Coming Soon...',
-              'Bientôt disponible',
-              style: TextStyle(
+              AppLocalizations.of(context).dashComingSoon,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 16,
                 fontWeight: FontWeight.w500,

@@ -135,7 +135,7 @@ class _ImageGridScreenState extends State<ImageGridScreen> {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: HapperAppBar(
-          title: profile?.usersType == 1 ? 'BOUTIQUE CRÉATEUR' : 'PROFIL',
+          title: profile?.usersType == 1 ? l10n.shopThePics : l10n.profile,
         ),
         body: RefreshIndicator(
           onRefresh: _controller.refresh,
@@ -191,7 +191,7 @@ class _ImageGridScreenState extends State<ImageGridScreen> {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open Instagram')),
+          SnackBar(content: Text(AppLocalizations.of(context).profileCouldNotOpenInstagram)),
         );
       }
     }
@@ -420,9 +420,9 @@ class _ActionButtons extends StatelessWidget {
                   padding: EdgeInsets.zero,
                 ),
                 icon: const ShareIcon(size: 16, color: Colors.black),
-                label: const Text(
-                  'Partager',
-                  style: TextStyle(
+                label: Text(
+                  l10n.profileShare,
+                  style: const TextStyle(
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       fontSize: 13,

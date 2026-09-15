@@ -8,6 +8,7 @@ import 'package:happer_app/app/routes/app_routes.dart';
 import 'package:happer_app/core/config/api_config.dart';
 import 'package:happer_app/core/network/api_exceptions.dart';
 import 'package:happer_app/core/network/token_refresh_service.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 
 class ApiClient {
@@ -120,10 +121,9 @@ class ApiClient {
         return http.get(uri, headers: headers).timeout(_timeout);
       });
     } on SocketException {
-      throw NetworkException(
-          'No internet connection. Please check your network.');
+      throw NetworkException(appL10n.networkNoInternet);
     } on TimeoutException {
-      throw NetworkException('Request timed out. Please try again.');
+      throw NetworkException(appL10n.networkTimeout);
     }
   }
 
@@ -146,10 +146,9 @@ class ApiClient {
             .timeout(_timeout);
       });
     } on SocketException {
-      throw NetworkException(
-          'No internet connection. Please check your network.');
+      throw NetworkException(appL10n.networkNoInternet);
     } on TimeoutException {
-      throw NetworkException('Request timed out. Please try again.');
+      throw NetworkException(appL10n.networkTimeout);
     }
   }
 
@@ -172,10 +171,9 @@ class ApiClient {
             .timeout(_timeout);
       });
     } on SocketException {
-      throw NetworkException(
-          'No internet connection. Please check your network.');
+      throw NetworkException(appL10n.networkNoInternet);
     } on TimeoutException {
-      throw NetworkException('Request timed out. Please try again.');
+      throw NetworkException(appL10n.networkTimeout);
     }
   }
 
@@ -198,10 +196,9 @@ class ApiClient {
             .timeout(_timeout);
       });
     } on SocketException {
-      throw NetworkException(
-          'No internet connection. Please check your network.');
+      throw NetworkException(appL10n.networkNoInternet);
     } on TimeoutException {
-      throw NetworkException('Request timed out. Please try again.');
+      throw NetworkException(appL10n.networkTimeout);
     }
   }
 
@@ -232,10 +229,9 @@ class ApiClient {
       sw.stop();
       return _handleResponse(response, durationMs: sw.elapsedMilliseconds);
     } on SocketException {
-      throw NetworkException(
-          'No internet connection. Please check your network.');
+      throw NetworkException(appL10n.networkNoInternet);
     } on TimeoutException {
-      throw NetworkException('Request timed out. Please try again.');
+      throw NetworkException(appL10n.networkTimeout);
     }
   }
 
@@ -262,7 +258,7 @@ class ApiClient {
     if (response.statusCode >= 200 && response.statusCode < 300) return body;
 
     final message =
-        body['message'] as String? ?? 'Something went wrong. Please try again.';
+        body['message'] as String? ?? appL10n.errorOccurred;
 
     switch (response.statusCode) {
       case 400:

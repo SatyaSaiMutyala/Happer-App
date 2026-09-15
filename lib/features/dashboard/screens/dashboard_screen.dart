@@ -294,12 +294,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                   onTap: (index) {
                     if (index == 1 && AppManager.isLoginAsGuest) {
                       showAppSnackBar(
-                          'Veuillez vous connecter pour accéder à la communauté',
+                          AppLocalizations.of(context).dashLoginToAccessCommunity,
                           isSuccess: false);
                       _tabController.animateTo(_tabController.previousIndex);
                     }
                   },
-                  tabs: [Tab(text: "CRÉATEUR"), Tab(text: "DÉCOUVRIR")],
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context).creator),
+                    Tab(text: AppLocalizations.of(context).discover)
+                  ],
                 ),
               ),
             ),
@@ -421,7 +424,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   void _onTabTapped(int index) async {
     if (index == 4) {
       if (AppManager.isLoginAsGuest) {
-        showAppSnackBar('Veuillez vous connecter pour accéder au profil',
+        showAppSnackBar(AppLocalizations.of(context).dashLoginToAccessProfile,
             isSuccess: false);
         setState(() => _currentIndex = 0);
         return;
@@ -436,7 +439,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     } else if (index == 3) {
       // ⭐ WISHLIST
       if (AppManager.isLoginAsGuest) {
-        showAppSnackBar('Veuillez vous connecter pour acc\u00e9der aux favoris',
+        showAppSnackBar(AppLocalizations.of(context).dashLoginToAccessFavorites,
             isSuccess: false);
         return;
       }
@@ -447,7 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       );
     } else if (index == 2) {
       if (AppManager.isLoginAsGuest) {
-        showAppSnackBar('Veuillez vous connecter pour publier une photo',
+        showAppSnackBar(AppLocalizations.of(context).dashLoginToPublishPhoto,
             isSuccess: false);
         return;
       }
@@ -462,7 +465,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       // Search button index
       // If currently on the discover tab (index 1), switch to creator tab (index 0) first
       if (AppManager.isLoginAsGuest) {
-        showAppSnackBar('Veuillez vous connecter pour rechercher',
+        showAppSnackBar(AppLocalizations.of(context).dashLoginToSearch,
             isSuccess: false);
         return;
       }
@@ -486,7 +489,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     final status = await Permission.camera.request();
     if (!status.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Camera permission is required')),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context).cameraPermissionRequired)),
       );
     }
   }
@@ -504,7 +509,8 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Searching for creator: $query'),
+          content:
+              Text(AppLocalizations.of(context).dashSearchingForCreator(query)),
           duration: Duration(seconds: 2),
         ),
       );
@@ -738,6 +744,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     List<String> imagePaths,
     BuildContext context,
   ) async {
+    final l = AppLocalizations.of(context);
     final croppedPaths = <String>[];
 
     for (var i = 0; i < imagePaths.length; i++) {
@@ -745,8 +752,8 @@ class _DashboardScreenState extends State<DashboardScreen>
         imagePaths[i],
         // Only meaningful for a batch — tells the user where they are.
         title: imagePaths.length > 1
-            ? 'Recadrez (${i + 1}/${imagePaths.length})'
-            : 'Recadrez votre photo',
+            ? l.dashCropProgress(i + 1, imagePaths.length)
+            : l.dashCropYourPhoto,
       );
       if (cropped != null) croppedPaths.add(cropped);
     }
@@ -755,7 +762,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       debugPrint('CROPPING CANCELED BY USER');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image editing canceled')),
+          SnackBar(content: Text(l.dashImageEditingCanceled)),
         );
       }
       return;

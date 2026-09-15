@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/features/profile/screens/faq_screen.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,7 +25,7 @@ class ReturnRefundScreen extends StatelessWidget {
   Future<void> _sendEmail() => _launch(Uri(
         scheme: 'mailto',
         path: _supportEmail,
-        queryParameters: {'subject': 'Demande de support'},
+        queryParameters: {'subject': appL10n.orderSupportEmailSubject},
       ));
 
   Future<void> _openWhatsApp() => _launch(Uri.parse(_whatsappLink));
@@ -36,15 +38,16 @@ class ReturnRefundScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const HapperAppBar(title: 'CONTACTER LE SUPPORT'),
+      appBar: HapperAppBar(title: l.contactSupport),
       body: Column(
         children: [
           const SizedBox(height: 24),
-          const Text(
-            'Procédure',
-            style: TextStyle(
+          Text(
+            l.procedure,
+            style: const TextStyle(
               fontFamily: 'Lato',
               fontWeight: FontWeight.w700,
               fontSize: 18,
@@ -54,12 +57,12 @@ class ReturnRefundScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
           const SizedBox(height: 28),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Pour toute question, besoin ou disfonctionnalité rencontré, merci de contacter le service client via $_supportEmail.',
+              l.forAnyQuestionNeedOrIssue,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 16,
                 height: 1.5,
@@ -68,12 +71,12 @@ class ReturnRefundScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Les délais de réponses sont en moyenne de 72h.',
+              l.averageResponseTime,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 16,
                 height: 1.5,
@@ -90,7 +93,7 @@ class ReturnRefundScreen extends StatelessWidget {
                 children: [
                   // FAQ (outlined)
                   _supportButton(
-                    label: 'CONSULTER LA FAQ',
+                    label: l.viewFaq,
                     icon: Icons.quiz_outlined,
                     onTap: () => _openFaq(context),
                     background: Colors.white,
@@ -100,7 +103,7 @@ class ReturnRefundScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   // WhatsApp (green)
                   _supportButton(
-                    label: 'CONTACTER PAR WHATSAPP',
+                    label: l.contactByWhatsapp,
                     icon: Icons.chat,
                     onTap: _openWhatsApp,
                     background: const Color(0xFF32C25A),
@@ -109,7 +112,7 @@ class ReturnRefundScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Email (black)
                   _supportButton(
-                    label: 'CONTACTER PAR E-MAIL',
+                    label: l.contactByEmail,
                     icon: Icons.mail_outline,
                     onTap: _sendEmail,
                     background: Colors.black,

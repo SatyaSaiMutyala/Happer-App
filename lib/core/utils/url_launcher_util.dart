@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class UrlLauncherUtil {
   static Future<void> launchUrl(
@@ -23,7 +24,7 @@ class UrlLauncherUtil {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Could not open $url'),
+              content: Text(AppLocalizations.of(context).creatorCouldNotOpenUrl(url)),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -34,7 +35,8 @@ class UrlLauncherUtil {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error opening link: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)
+                .creatorErrorOpeningLink(e.toString())),
             behavior: SnackBarBehavior.floating,
           ),
         );

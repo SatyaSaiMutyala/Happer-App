@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -236,6 +237,7 @@ class _FaqErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -256,9 +258,9 @@ class _FaqErrorView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'FAQ indisponible',
-              style: TextStyle(
+            Text(
+              l.orderFaqUnavailable,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
@@ -266,11 +268,10 @@ class _FaqErrorView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Impossible de charger la FAQ pour le moment. '
-              'Vérifiez votre connexion et réessayez.',
+            Text(
+              l.orderFaqLoadError,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 15,
                 height: 1.5,
@@ -288,9 +289,9 @@ class _FaqErrorView extends StatelessWidget {
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'RÉESSAYER',
-                  style: TextStyle(
+                child: Text(
+                  l.orderRetryButton,
+                  style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
                     fontSize: 14,

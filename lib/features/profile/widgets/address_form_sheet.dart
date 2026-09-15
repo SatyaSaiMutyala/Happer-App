@@ -279,18 +279,18 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
                   child: SwitchListTile(
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                    title: const Text(
-                      'Adresse par défaut',
-                      style: TextStyle(
+                    title: Text(
+                      l.profileDefaultAddress,
+                      style: const TextStyle(
                         fontFamily: 'Lato',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Colors.black,
                       ),
                     ),
-                    subtitle: const Text(
-                      'Utilisée automatiquement lors du paiement',
-                      style: TextStyle(
+                    subtitle: Text(
+                      l.profileDefaultAddressDesc,
+                      style: const TextStyle(
                         fontFamily: 'Lato',
                         fontSize: 11,
                         color: Color(0xFF9E9E9E),

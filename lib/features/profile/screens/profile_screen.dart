@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gal/gal.dart';
-// import 'package:happer_app/core/controllers/locale_controller.dart';
+import 'package:happer_app/core/controllers/locale_controller.dart';
 import 'package:happer_app/features/dashboard/screens/notifications_screen.dart';
 import 'package:happer_app/features/profile/bindings/user_profile_binding.dart';
 import 'package:happer_app/features/profile/controllers/user_profile_controller.dart';
@@ -198,86 +198,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // ─── Language picker ─────────────────────────────────────────────────────────
 
-  // void _showLanguagePicker() {
-  //   final localeController = Get.find<LocaleController>();
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.white,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-  //     ),
-  //     builder: (bsCtx) => Obx(() {
-  //       final current = localeController.currentCode;
-  //       return Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Text(
-  //               AppLocalizations.of(bsCtx).languageLabel,
-  //               style: const TextStyle(
-  //                 fontFamily: 'Lato',
-  //                 fontWeight: FontWeight.w600,
-  //                 fontSize: 16,
-  //                 color: Colors.black,
-  //               ),
-  //             ),
-  //             const SizedBox(height: 16),
-  //             _buildLanguageOption(
-  //                 label: 'Français',
-  //                 code: 'fr',
-  //                 current: current,
-  //                 controller: localeController),
-  //             const Divider(color: Color(0xFFE8E8E8)),
-  //             _buildLanguageOption(
-  //                 label: 'English',
-  //                 code: 'en',
-  //                 current: current,
-  //                 controller: localeController),
-  //             const SizedBox(height: 16),
-  //           ],
-  //         ),
-  //       );
-  //     }),
-  //   );
-  // }
+  void _showLanguagePicker() {
+    final localeController = Get.find<LocaleController>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (bsCtx) => Obx(() {
+        final current = localeController.currentCode;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(bsCtx).languageLabel,
+                style: const TextStyle(
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildLanguageOption(
+                  label: 'Français',
+                  code: 'fr',
+                  current: current,
+                  controller: localeController),
+              const Divider(color: Color(0xFFE8E8E8)),
+              _buildLanguageOption(
+                  label: 'English',
+                  code: 'en',
+                  current: current,
+                  controller: localeController),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      }),
+    );
+  }
 
-  // Widget _buildLanguageOption({
-  //   required String label,
-  //   required String code,
-  //   required String current,
-  //   required LocaleController controller,
-  // }) {
-  //   final isSelected = current == code;
-  //   return GestureDetector(
-  //     onTap: () {
-  //       controller.changeLocale(code);
-  //       Navigator.pop(context);
-  //     },
-  //     behavior: HitTestBehavior.opaque,
-  //     child: Padding(
-  //       padding: const EdgeInsets.symmetric(vertical: 12),
-  //       child: Row(
-  //         children: [
-  //           Expanded(
-  //             child: Text(
-  //               label,
-  //               style: TextStyle(
-  //                 fontFamily: 'Lato',
-  //                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-  //                 fontSize: 14,
-  //                 color: isSelected ? Colors.black : const Color(0xFF5C5C5C),
-  //               ),
-  //             ),
-  //           ),
-  //           if (isSelected)
-  //             const Icon(Icons.check, size: 18, color: Colors.black),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildLanguageOption({
+    required String label,
+    required String code,
+    required String current,
+    required LocaleController controller,
+  }) {
+    final isSelected = current == code;
+    return GestureDetector(
+      onTap: () {
+        controller.changeLocale(code);
+        Navigator.pop(context);
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Lato',
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontSize: 14,
+                  color: isSelected ? Colors.black : const Color(0xFF5C5C5C),
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check, size: 18, color: Colors.black),
+          ],
+        ),
+      ),
+    );
+  }
 
   // ─── Build ────────────────────────────────────────────────────────────────────
 
@@ -404,7 +404,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileMenuItem(
                 // Renamed for the profile menu only; the target screens keep
                 // "Ma boutique" (l.mesLooksTitle) as their title.
-                title: 'Mes Sélections',
+                title: l.profileMySelections,
                 svgPath: 'assets/images/styles_Svg.svg',
                 onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => StylesScreen())),
@@ -413,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: l.gameContestTitle,
                 imagePath: 'assets/images/gift.png',
                 onTap: () => showAppSnackBar(
-                    'Le jeu concours arrive bientôt',
+                    l.profileGameContestComingSoon,
                     isSuccess: false),
               ),
               ProfileMenuItem(
@@ -431,22 +431,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => MyAccountScreen())),
               ),
-              // Obx(() {
-              //   final code = Get.find<LocaleController>().currentCode;
-              //   return ProfileMenuItem(
-              //     title: l.languageLabel,
-              //     trailingWidget: Text(
-              //       code == 'fr' ? 'FR' : 'EN',
-              //       style: const TextStyle(
-              //         fontFamily: 'Lato',
-              //         fontWeight: FontWeight.w500,
-              //         fontSize: 13,
-              //         color: Color(0xFF5C5C5C),
-              //       ),
-              //     ),
-              //     onTap: _showLanguagePicker,
-              //   );
-              // }),
+              Obx(() {
+                final code = Get.find<LocaleController>().currentCode;
+                return ProfileMenuItem(
+                  title: l.languageLabel,
+                  trailingWidget: Text(
+                    code == 'fr' ? 'FR' : 'EN',
+                    style: const TextStyle(
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                      color: Color(0xFF5C5C5C),
+                    ),
+                  ),
+                  onTap: _showLanguagePicker,
+                );
+              }),
 
               const SizedBox(height: 24),
               Padding(

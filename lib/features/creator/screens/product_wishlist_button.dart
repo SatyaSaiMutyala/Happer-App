@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/features/profile/screens/wishlist_screen.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class ProductWishlistButton extends StatefulWidget {
   final String productId;
@@ -36,11 +37,12 @@ class _ProductWishlistButtonState extends State<ProductWishlistButton> {
     });
 
     if (mounted) {
+      final l = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_isInWishlist ? 'Added to wishlist' : 'Removed from wishlist'),
+          content: Text(_isInWishlist ? l.addedToWishlist : l.removedFromWishlist),
           action: SnackBarAction(
-            label: 'VIEW WISHLIST',
+            label: l.viewWishlist,
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => WishlistScreen()),
@@ -74,7 +76,7 @@ class _ProductWishlistButtonState extends State<ProductWishlistButton> {
                   )
                 : Icon(_isInWishlist ? Icons.favorite : Icons.favorite_border, size: 20),
             const SizedBox(width: 8),
-            const Text('WISHLIST', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1)),
+            Text(AppLocalizations.of(context).wishlistTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1)),
             if (_isInWishlist) ...[
               const SizedBox(width: 8),
               const Icon(Icons.check, size: 16),

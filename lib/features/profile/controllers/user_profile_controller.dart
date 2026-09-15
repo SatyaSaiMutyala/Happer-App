@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/profile/data/repositories/user_profile_repository.dart';
 import 'package:happer_app/features/profile/models/user_profile_model.dart';
@@ -85,7 +86,7 @@ class UserProfileController extends GetxController {
         postalCode: postalCode,
         city: city,
       );
-      showAppSnackBar('Profil mis à jour avec succès');
+      showAppSnackBar(appL10n.profileUpdatedSuccess);
       return true;
     } catch (e) {
       showAppSnackBar(e.toString(), isSuccess: false);

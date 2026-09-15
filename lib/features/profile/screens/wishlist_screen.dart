@@ -63,7 +63,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          'Error loading wishlist items',
+                          AppLocalizations.of(context).profileErrorLoadingWishlist,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 18,
@@ -90,7 +90,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                             ),
                           ),
                           child: Text(
-                            'Retry',
+                            AppLocalizations.of(context).retry,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               color: Colors.white,
@@ -108,7 +108,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         Icon(Icons.favorite_border, size: 64, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
-                          'Your wishlist is empty',
+                          AppLocalizations.of(context).profileWishlistEmpty,
                           style: TextStyle(
                             fontSize: 18,
                             fontFamily: 'Inter',
@@ -117,7 +117,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Items you add to your wishlist will appear here',
+                          AppLocalizations.of(context).profileWishlistEmptyDesc,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             color: Colors.grey,
@@ -237,7 +237,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                     Row(
                       children: [
                         Text(
-                          'Prix réel',
+                          AppLocalizations.of(context).prixReel,
                           style: TextStyle(
                             fontSize: 12,
                             fontFamily: 'Inter',
@@ -265,7 +265,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       Row(
                         children: [
                           Text(
-                            'Prix PROMO',
+                            AppLocalizations.of(context).discountPrice,
                             style: TextStyle(
                               fontSize: 12,
                               fontFamily: 'Inter',
@@ -297,7 +297,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           // Already in wishlist - showing check mark as in screenshot
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Item is already in your wishlist'),
+                              content: Text(AppLocalizations.of(context).profileAlreadyInWishlist),
                               duration: Duration(seconds: 1),
                             ),
                           );
@@ -312,7 +312,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'WISHLIST',
+                              AppLocalizations.of(context).wishlistTitle,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,

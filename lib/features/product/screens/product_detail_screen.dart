@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import '../models/product_model.dart';
 
 
@@ -66,9 +67,9 @@ class ProductDetailScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Description',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context).description,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),

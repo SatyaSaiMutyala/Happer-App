@@ -4,6 +4,7 @@ import 'package:happer_app/features/profile/bindings/address_binding.dart';
 import 'package:happer_app/features/profile/controllers/address_controller.dart';
 import 'package:happer_app/features/profile/models/address_model.dart';
 import 'package:happer_app/features/profile/widgets/address_form_sheet.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -50,10 +51,11 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: HapperAppBar(
-        title: 'MES ADRESSES',
+        title: l.myAddressesTitle,
         actions: [
           GestureDetector(
             onTap: _openAddAddress,
@@ -66,12 +68,12 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.add, color: Colors.white, size: 15),
-                  SizedBox(width: 4),
+                children: [
+                  const Icon(Icons.add, color: Colors.white, size: 15),
+                  const SizedBox(width: 4),
                   Text(
-                    'Ajouter',
-                    style: TextStyle(
+                    l.cartAdd,
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -204,7 +206,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                         ),
                       ),
                       child: Text(
-                        'Par défaut',
+                        AppLocalizations.of(context).cartDefault,
                         style: TextStyle(
                           fontFamily: 'Lato',
                           fontSize: 10,
@@ -290,7 +292,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'CONFIRMER',
+                    AppLocalizations.of(context).confirmButton,
                     style: TextStyle(
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w800,
@@ -309,6 +311,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
   }
 
   Widget _buildEmpty() {
+    final l = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -333,9 +336,9 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                   size: 40, color: Colors.black38),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Aucune adresse',
-              style: TextStyle(
+            Text(
+              l.noAddressRegistered,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -343,10 +346,10 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Ajoutez une adresse pour continuer votre commande',
+            Text(
+              l.cartAddAddressToContinue,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 14,
                 color: Color(0xFF888888),
@@ -365,12 +368,12 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.add, color: Colors.white, size: 18),
-                    SizedBox(width: 8),
+                  children: [
+                    const Icon(Icons.add, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
                     Text(
-                      'Ajouter une adresse',
-                      style: TextStyle(
+                      l.addAddress,
+                      style: const TextStyle(
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w700,
                         fontSize: 14,

@@ -37,12 +37,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   bool _validate() {
     final email = _emailController.text.trim();
+    final l = AppLocalizations.of(context);
     if (email.isEmpty) {
-      showAppSnackBar('Please enter your email', isSuccess: false);
+      showAppSnackBar(l.authEnterEmail, isSuccess: false);
       return false;
     }
     if (!_emailRegex.hasMatch(email)) {
-      showAppSnackBar('Please enter a valid email address', isSuccess: false);
+      showAppSnackBar(l.invalidEmail, isSuccess: false);
       return false;
     }
     return true;
@@ -65,26 +66,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: AppDimensions.p40),
-                    const Text(
-                      'Mot de passe oublié',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context).authForgotPasswordHeading,
+                      style: const TextStyle(
                         fontSize: AppDimensions.fontXXL,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: AppDimensions.p8),
-                    const Text(
-                      'Veuillez saisir votre adresse e-mail enregistrée pour obtenir votre nouveau mot de passe',
+                    Text(
+                      AppLocalizations.of(context)
+                          .enterRegisteredEmailForNewPassword,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: AppDimensions.fontM,
                           color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: AppDimensions.p40),
                     AppInputField(
                       controller: _emailController,
-                      hintText: 'Email',
+                      hintText: AppLocalizations.of(context).email,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (v) {
                         if (v != v.toLowerCase()) {
@@ -97,7 +99,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                     const SizedBox(height: AppDimensions.p24),
                     AppButton(
-                      text: 'Envoyer le code',
+                      text: AppLocalizations.of(context).sendCode,
                       isLoading: _auth.isLoading.value,
                       onPressed: () {
                         if (!_validate()) return;

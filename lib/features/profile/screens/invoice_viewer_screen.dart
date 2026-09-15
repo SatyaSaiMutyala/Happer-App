@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -67,10 +68,11 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: widget.orderTitle ?? 'FACTURE',
+        title: widget.orderTitle ?? l.orderInvoiceTitle,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.black),
@@ -98,9 +100,9 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
                       color: Colors.grey.shade400,
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Impossible de charger la facture',
-                      style: TextStyle(
+                    Text(
+                      l.couldNotLoadInvoice,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -109,7 +111,7 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _errorMessage ?? 'Une erreur s\'est produite',
+                      _errorMessage ?? l.anErrorOccurred,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -125,7 +127,7 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
                         _initializeWebView();
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Réessayer'),
+                      label: Text(l.retry),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
@@ -156,7 +158,7 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Chargement de la facture...',
+                      l.orderLoadingInvoice,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,

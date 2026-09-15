@@ -42,7 +42,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: HapperAppBar(title: 'Verify Email'),
+      appBar: HapperAppBar(title: l10n.authVerifyEmailTitle),
       body: Obx(() {
         final loading = _auth.isLoading.value;
         return Stack(
@@ -54,9 +54,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: AppDimensions.p40),
-                    const Text(
-                      'Enter Verification Code',
-                      style: TextStyle(
+                    Text(
+                      l10n.authEnterVerificationCode,
+                      style: const TextStyle(
                         fontSize: AppDimensions.fontXXL,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
@@ -64,7 +64,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     const SizedBox(height: AppDimensions.p8),
                     Text(
-                      'We sent a 6-digit code to\n$_email',
+                      l10n.authCodeSentTo(_email),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: AppDimensions.fontM,
@@ -74,7 +74,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     const SizedBox(height: AppDimensions.p40),
                     AppInputField(
                       controller: _otpController,
-                      hintText: 'Enter 6-digit code',
+                      hintText: l10n.authEnterSixDigitCodeHint,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
                       textAlign: TextAlign.center,
@@ -90,10 +90,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     const SizedBox(height: AppDimensions.p24),
                     AppButton(
-                      text: 'Verify',
+                      text: l10n.authVerify,
                       onPressed: () {
                         if (_otpController.text.trim().length < 6) {
-                          showAppSnackBar('Please enter the 6-digit code', isSuccess: false);
+                          showAppSnackBar(l10n.authEnterSixDigitCode, isSuccess: false);
                           return;
                         }
                         _auth.verifySignupOtp(_email, _otpController.text.trim(), password: _password);
@@ -103,15 +103,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Didn't receive the code? ",
-                          style: TextStyle(color: AppColors.textSecondary),
+                        Text(
+                          l10n.authDidntReceiveCode,
+                          style: const TextStyle(color: AppColors.textSecondary),
                         ),
                         GestureDetector(
                           onTap: loading ? null : () => _auth.resendSignupOtp(_email),
-                          child: const Text(
-                            'Resend',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.authResend,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
                               color: AppColors.textPrimary,

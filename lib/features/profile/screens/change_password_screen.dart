@@ -49,7 +49,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Error: $e';
+        _errorMessage = '${AppLocalizations.of(context).error}: $e';
       });
     }
   }
@@ -84,7 +84,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: false,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your current password';
+                    return AppLocalizations.of(context).profilePleaseEnterCurrentPassword;
                   }
                   return null;
                 },
@@ -95,7 +95,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               TextFormField(
                 controller: _newPasswordController,
                 decoration: InputDecoration(
-                  hintText: 'Entrez votre nouveau mot de passe',
+                  hintText: AppLocalizations.of(context).enterNewPassword,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -109,10 +109,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: false,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a new password';
+                    return AppLocalizations.of(context).profilePleaseEnterNewPassword;
                   }
                   if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                    return AppLocalizations.of(context).profilePasswordMinLength(6);
                   }
                   return null;
                 },
@@ -123,7 +123,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               TextFormField(
                 controller: _confirmPasswordController,
                 decoration: InputDecoration(
-                  hintText: 'Confirmez votre nouveau mot de passe',
+                  hintText: AppLocalizations.of(context).confirmNewPassword,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -137,10 +137,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: false,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please confirm your new password';
+                    return AppLocalizations.of(context).profilePleaseConfirmNewPassword;
                   }
                   if (value != _newPasswordController.text) {
-                    return 'Passwords do not match';
+                    return AppLocalizations.of(context).passwordMustBeTheSame;
                   }
                   return null;
                 },
@@ -181,7 +181,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           ),
                         )
                       : Text(
-                          'ENREGISTRER',
+                          AppLocalizations.of(context).saveButton,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

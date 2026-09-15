@@ -9,6 +9,7 @@ import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/creator/models/creator_model.dart';
 import 'package:happer_app/features/creator/screens/brand_details_screen.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
@@ -177,7 +178,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     if (AppManager.isLoginAsGuest) {
       await showLoginRequiredDialog(
         context,
-        message: 'Connectez-vous pour ajouter ce look à votre panier.',
+        message: AppLocalizations.of(context).creatorLoginToAddLookToCart,
       );
       return;
     }
@@ -186,7 +187,8 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
         .whereType<_LookLineItem>()
         .toList();
     if (items.isEmpty) {
-      showAppSnackBar('Aucun article disponible', isSuccess: false);
+      showAppSnackBar(AppLocalizations.of(context).creatorNoItemAvailable,
+          isSuccess: false);
       return;
     }
     // The selfie response carries no per-variant stock, but the product
@@ -205,11 +207,10 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     );
     if (!mounted || added == null) return;
     if (added > 0) {
-      showAppSnackBar(
-          '$added article${added > 1 ? 's' : ''} ajouté${added > 1 ? 's' : ''} au panier',
+      showAppSnackBar(AppLocalizations.of(context).creatorItemsAddedToCart(added),
           isSuccess: true);
     } else {
-      showAppSnackBar('Impossible d\'ajouter les articles au panier',
+      showAppSnackBar(AppLocalizations.of(context).creatorFailedAddItemsToCart,
           isSuccess: false);
     }
   }
@@ -295,7 +296,8 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
       );
       if (!mounted) return null;
       Get.find<CartController>().fetchCartItemCount();
-      showAppSnackBar('Article ajouté au panier', isSuccess: true);
+      showAppSnackBar(AppLocalizations.of(context).itemAddedToCart,
+          isSuccess: true);
       return cartItemId;
     } catch (e) {
       if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
@@ -343,20 +345,24 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
   int get _lookSavings => _lookOriginalPrice - _lookTotalPrice;
 
   String _getTimeDifference(String createdAt) {
+    final l = AppLocalizations.of(context);
     final diff = DateTime.now().difference(DateTime.parse(createdAt));
-    if (diff.inMinutes < 1) return 'À l\'instant';
-    if (diff.inMinutes < 60) return 'il y a ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'il y a ${diff.inHours} h';
-    if (diff.inDays < 7) return 'il y a ${diff.inDays} j';
+    if (diff.inMinutes < 1) return l.justNow;
+    if (diff.inMinutes < 60) return l.minutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l.hoursAgo(diff.inHours);
+    if (diff.inDays < 7) {
+      return diff.inDays == 1 ? l.dayAgo(diff.inDays) : l.daysAgo(diff.inDays);
+    }
     if (diff.inDays < 30) {
       final w = (diff.inDays / 7).floor();
-      return 'il y a $w ${w == 1 ? 'semaine' : 'semaines'}';
+      return w == 1 ? l.weekAgo(w) : l.weeksAgo(w);
     }
     if (diff.inDays < 365) {
-      return 'il y a ${(diff.inDays / 30).floor()} mois';
+      final m = (diff.inDays / 30).floor();
+      return m == 1 ? l.monthAgo(m) : l.monthsAgo(m);
     }
     final y = (diff.inDays / 365).floor();
-    return 'il y a $y ${y == 1 ? 'an' : 'ans'}';
+    return y == 1 ? l.yearAgo(y) : l.yearsAgo(y);
   }
 
   void _onDoubleTap() {
@@ -429,7 +435,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                 color: Color(0xFF8D8D8D),
               ),
               children: [
-                const TextSpan(text: 'La Séléction de '),
+                TextSpan(text: AppLocalizations.of(context).creatorSelectionOf),
                 TextSpan(
                   text:
                       _selfie!.user?.userName ?? _selfie!.user?.firstName ?? '',
@@ -467,11 +473,11 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 11),
+        Padding(
+          padding: const EdgeInsets.only(left: 11),
           child: Text(
-            'Autour du look',
-            style: TextStyle(
+            AppLocalizations.of(context).creatorAroundTheLook,
+            style: const TextStyle(
               fontFamily: 'Lato',
               fontWeight: FontWeight.w600,
               fontSize: 14,
@@ -527,9 +533,9 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                       color: Colors.black,
                     ),
                     children: [
-                      const TextSpan(
-                        text: 'Collection ',
-                        style: TextStyle(fontWeight: FontWeight.w400),
+                      TextSpan(
+                        text: AppLocalizations.of(context).creatorCollectionPrefix,
+                        style: const TextStyle(fontWeight: FontWeight.w400),
                       ),
                       TextSpan(
                         text: brandName,
@@ -585,9 +591,9 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                               offset: Offset(0, 1))
                         ],
                       ),
-                      child: const Text(
-                        'Explorer la collection',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context).creatorExploreCollection,
+                        style: const TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w500,
                           fontSize: 12,
@@ -690,10 +696,11 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
-      appBar: HapperAppBar(title: 'SHOP LE LOOK', actions: const []),
+      appBar: HapperAppBar(title: l.creatorShopTheLook, actions: const []),
       // Original layout, kept as-is: the spacer below the pill is what lifts it
       // clear of the system navigation bar. Removing it dropped the pill onto
       // the nav bar and clipped its label.
@@ -802,7 +809,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                     final selfieId = _selfie?.sId ?? '';
                                     if (selfieId.isEmpty) {
                                       showAppSnackBar(
-                                          'Partage indisponible pour le moment',
+                                          l.creatorShareUnavailable,
                                           isSuccess: false);
                                       return;
                                     }
@@ -818,7 +825,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                             : (_selfie?.user?.sId ?? '');
                                     if (username.isEmpty) {
                                       showAppSnackBar(
-                                          'Partage indisponible pour le moment',
+                                          l.creatorShareUnavailable,
                                           isSuccess: false);
                                       return;
                                     }
@@ -1010,7 +1017,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                             color: Color(0xFF8D8D8D),
                           ),
                           children: [
-                            const TextSpan(text: 'Look composé avec '),
+                            TextSpan(text: l.creatorLookComposedWith),
                             TextSpan(
                               text: () {
                                 final seen = <String>{};
@@ -1053,15 +1060,15 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                           const EdgeInsets.only(right: 16, top: 4, bottom: 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          Text('Prix Exclusif Happer',
-                              style: TextStyle(
+                        children: [
+                          Text(l.creatorHapperExclusivePrice,
+                              style: const TextStyle(
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w400,
                                   fontSize: 12,
                                   color: Color(0xFF8D8D8D))),
-                          Text('Livraison Offerte',
-                              style: TextStyle(
+                          Text(l.creatorFreeDeliveryTitle,
+                              style: const TextStyle(
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w400,
                                   fontSize: 12,
@@ -1101,8 +1108,9 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                   const SizedBox(width: 8),
                                   Text(
                                     _lookTotalPrice > 0
-                                        ? 'AJOUTER LE LOOK AU PANIER - $_lookTotalPrice€'
-                                        : 'AJOUTER LE LOOK AU PANIER',
+                                        ? l.creatorAddLookToCartWithPrice(
+                                            _lookTotalPrice)
+                                        : l.creatorAddLookToCart,
                                     style: const TextStyle(
                                       fontFamily: 'Poppins',
                                       fontWeight: FontWeight.w400,
@@ -1139,10 +1147,10 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
                                         ),
                                       ),
                                       TextSpan(
-                                        text: ' - Economie $_lookSavings€ - ',
+                                        text: l.creatorLookSavings(_lookSavings),
                                       ),
                                     ],
-                                    const TextSpan(text: 'Livraison offerte'),
+                                    TextSpan(text: l.creatorFreeDelivery),
                                   ],
                                 ),
                               ),
@@ -1417,6 +1425,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final maxHeight = MediaQuery.of(context).size.height * 0.88;
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
@@ -1445,9 +1454,9 @@ class _LookCartSheetState extends State<_LookCartSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Compléter le look',
-                        style: TextStyle(
+                      Text(
+                        l.creatorCompleteTheLook,
+                        style: const TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w800,
                           fontSize: 19,
@@ -1456,7 +1465,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Choisissez votre taille pour chaque pièce',
+                        l.creatorChooseSizeForEachPiece,
                         style: TextStyle(
                           fontFamily: 'Lato',
                           fontSize: 12.5,
@@ -1499,6 +1508,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
   }
 
   Widget _buildRow(_LookLineItem item) {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -1610,7 +1620,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
             Row(
               children: [
                 Text(
-                  'SÉLECTION TAILLE',
+                  l.creatorSelectSize,
                   style: TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
@@ -1621,9 +1631,9 @@ class _LookCartSheetState extends State<_LookCartSheet> {
                 ),
                 if (item.selectedSize == null) ...[
                   const SizedBox(width: 6),
-                  const Text(
-                    '· requise',
-                    style: TextStyle(
+                  Text(
+                    l.creatorRequired,
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 10.5,
                       color: Color(0xFFE53935),
@@ -1646,12 +1656,12 @@ class _LookCartSheetState extends State<_LookCartSheet> {
           if (item.isOutOfStock) ...[
             const SizedBox(height: 10),
             Row(
-              children: const [
-                Icon(Icons.info_outline, size: 15, color: Color(0xFFB00020)),
-                SizedBox(width: 6),
+              children: [
+                const Icon(Icons.info_outline, size: 15, color: Color(0xFFB00020)),
+                const SizedBox(width: 6),
                 Text(
-                  'Rupture de stock',
-                  style: TextStyle(
+                  l.creatorOutOfStock,
+                  style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -1667,7 +1677,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Quantité',
+                l.creatorQuantity,
                 style: TextStyle(
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w600,
@@ -1775,6 +1785,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
   }
 
   Widget _buildFooter() {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 14, 20, 14 + MediaQuery.of(context).padding.bottom),
@@ -1796,7 +1807,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Total ($_totalQty)',
+                l.creatorTotalWithCount(_totalQty),
                 style: const TextStyle(
                   fontFamily: 'Lato',
                   fontSize: 11.5,
@@ -1815,7 +1826,7 @@ class _LookCartSheetState extends State<_LookCartSheet> {
               ),
               if (_savings > 0)
                 Text(
-                  'Économie ${_fmt(_savings)} €',
+                  l.creatorSavingsAmount(_fmt(_savings)),
                   style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
@@ -1861,8 +1872,8 @@ class _LookCartSheetState extends State<_LookCartSheet> {
                           const SizedBox(width: 8),
                           Text(
                             _allChosen
-                                ? 'Ajouter au panier'
-                                : 'Choisir les tailles',
+                                ? l.creatorAddToCartButton
+                                : l.creatorChooseSizes,
                             style: TextStyle(
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w700,

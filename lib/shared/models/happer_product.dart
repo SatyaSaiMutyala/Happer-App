@@ -1,4 +1,5 @@
 // Model class for Happer Product data from WebSocket
+import 'package:happer_app/core/utils/app_l10n.dart';
 
 /// Represents the different states of a product in the bidding process
 /// 
@@ -43,13 +44,13 @@ extension ProductStateExtension on ProductState {
   String get description {
     switch (this) {
       case ProductState.AVAILABLE:
-        return "Active bidding";
+        return appL10n.cartStateActiveBidding;
       case ProductState.SOON:
-        return "Starting soon";
+        return appL10n.cartStateStartingSoon;
       case ProductState.WIN:
-        return "Bidding ended";
+        return appL10n.cartStateBiddingEnded;
       case ProductState.EXPIRED:
-        return "Contest expired";
+        return appL10n.cartStateContestExpired;
     }
   }
 }
@@ -214,12 +215,12 @@ class HapperProduct {
     } else if (description.fr != null && description.fr!.isNotEmpty) {
       return description.fr!;
     }
-    return 'No Description';
+    return appL10n.cartNoDescription;
   }
   
   // Get the brand name or a default value
   String getBrandName() {
-    return brand.name.isNotEmpty ? brand.name : 'Unknown Brand';
+    return brand.name.isNotEmpty ? brand.name : appL10n.cartUnknownBrand;
   }
   
   // Get first user from users list
@@ -255,11 +256,11 @@ String getFirstUserName() {
   /// Returns the appropriate message based on product state
   String get stateMessage {
     switch (state) {
-      case 0: return "Place your bid now!";
-      case 1: return "Starting soon";
-      case 2: return "Bidding ended";
-      case 3: return "Contest expired";
-      default: return "Unknown state";
+      case 0: return appL10n.cartStatePlaceBidNow;
+      case 1: return appL10n.cartStateStartingSoon;
+      case 2: return appL10n.cartStateBiddingEnded;
+      case 3: return appL10n.cartStateContestExpired;
+      default: return appL10n.unknown;
     }
   }
   

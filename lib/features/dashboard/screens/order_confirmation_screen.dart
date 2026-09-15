@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/profile/screens/my_purchases_screen.dart';
 import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 
 /// A product offered to round out the look that was just bought.
@@ -118,7 +119,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
   /// difference. Until then this is a demo stub.
   void _confirmAddition() {
     showAppSnackBar(
-      'Ajout à la commande bientôt disponible',
+      AppLocalizations.of(context).cartAddToOrderComingSoon,
       isSuccess: false,
     );
     _openOrders();
@@ -126,6 +127,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final reference = widget.orderReference?.trim() ?? '';
 
     return PopScope(
@@ -137,7 +139,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: HapperAppBar(
-          title: 'MERCI',
+          title: l.cartThankYouTitle,
           showBack: false,
           actions: [
             IconButton(
@@ -154,10 +156,10 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
                 const Icon(Icons.check_circle_outline,
                     size: 44, color: Colors.black),
                 const SizedBox(height: 20),
-                const Text(
-                  'Merci pour votre commande !',
+                Text(
+                  l.cartThankYouForOrder,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
                     fontSize: 22,
@@ -165,11 +167,10 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Votre paiement a été confirmé et votre commande\n'
-                  'est en cours de préparation.',
+                Text(
+                  l.cartPaymentConfirmedPreparing,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Lato',
                     fontSize: 13,
                     height: 1.5,
@@ -180,9 +181,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
                 _InfoTile(
                   icon: Icons.shopping_bag_outlined,
                   title: reference.isEmpty
-                      ? 'Commande confirmée'
-                      : 'Commande #$reference',
-                  subtitle: 'Un email de confirmation vous a été envoyé.',
+                      ? l.cartOrderConfirmed
+                      : l.cartOrderReference(reference),
+                  subtitle: l.cartConfirmationEmailSent,
                   onTap: _openOrders,
                 ),
                 if (_hasLook) ...[
@@ -190,34 +191,31 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
                   _buildLookSection(),
                 ],
                 const SizedBox(height: 12),
-                const _InfoTile(
+                _InfoTile(
                   icon: Icons.local_shipping_outlined,
-                  title: 'Livraison offerte',
-                  subtitle: 'Votre commande bénéficie de la livraison offerte.\n'
-                      'Délai estimé : 3 à 5 jours ouvrés.',
+                  title: l.cartFreeDelivery,
+                  subtitle: l.cartFreeDeliveryDescription,
                 ),
                 const SizedBox(height: 12),
                 _InfoTile(
                   icon: Icons.inventory_2_outlined,
-                  title: 'Suivre ma commande',
-                  subtitle: 'Suivez l\'expédition et la livraison de votre '
-                      'commande en temps réel.',
+                  title: l.cartTrackMyOrder,
+                  subtitle: l.cartTrackMyOrderDescription,
                   onTap: _openOrders,
                 ),
                 const SizedBox(height: 28),
                 // With a look on offer the primary action belongs to that
                 // section, so this pair steps down to a single quiet link.
                 if (!_hasLook) ...[
-                  _primaryButton('Voir ma commande', _openOrders),
+                  _primaryButton(l.cartViewMyOrder, _openOrders),
                   const SizedBox(height: 16),
                 ],
-                _quietLink('Retourner à l\'accueil', _goHome),
+                _quietLink(l.cartBackToHome, _goHome),
                 const SizedBox(height: 28),
                 _InfoTile(
                   icon: Icons.headset_mic_outlined,
-                  title: 'Besoin d\'aide ?',
-                  subtitle: 'Notre équipe est disponible pour vous aider.\n'
-                      'Contactez-nous à tout moment.',
+                  title: l.cartNeedHelp,
+                  subtitle: l.cartNeedHelpDescription,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -235,6 +233,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
   // ─── "Complétez votre look" ───────────────────────────────────────────────
 
   Widget _buildLookSection() {
+    final l = AppLocalizations.of(context);
     final anySelected = _selectedIds.isNotEmpty;
 
     return Column(
@@ -244,9 +243,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
           children: [
             const Icon(Icons.favorite_border, size: 20, color: Colors.black),
             const SizedBox(width: 8),
-            const Text(
-              'Complétez votre look',
-              style: TextStyle(
+            Text(
+              l.cartCompleteYourLook,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
@@ -255,11 +254,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
             ),
           ],
         ),
-        const Padding(
-          padding: EdgeInsets.only(left: 28, top: 2),
+        Padding(
+          padding: const EdgeInsets.only(left: 28, top: 2),
           child: Text(
-            'Ajoutez 1 ou 2 pièces à votre commande en un clic.',
-            style: TextStyle(
+            l.cartCompleteYourLookDescription,
+            style: const TextStyle(
               fontFamily: 'Lato',
               fontSize: 12,
               color: Color(0xFF8D8D8D),
@@ -292,7 +291,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
             const SizedBox(width: 6),
             Flexible(
               child: Text(
-                'Aucun paiement supplémentaire. Vous ne payez que la différence.',
+                l.cartNoExtraPayment,
                 style: TextStyle(
                   fontFamily: 'Lato',
                   fontSize: 11,
@@ -304,12 +303,12 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
         ),
         const SizedBox(height: 18),
         _primaryButton(
-          'Confirmer et ajouter à ma commande',
+          l.cartConfirmAndAddToOrder,
           anySelected ? _confirmAddition : null,
         ),
         const SizedBox(height: 14),
         Center(
-          child: _quietLink('Non merci, aller à ma commande', _openOrders),
+          child: _quietLink(l.cartNoThanksGoToOrder, _openOrders),
         ),
       ],
     );
@@ -519,7 +518,9 @@ class _SuggestionCard extends StatelessWidget {
               border: Border.all(color: Colors.black87),
             ),
             child: Text(
-              isSelected ? 'Ajouté' : 'Ajouter à ma commande',
+              isSelected
+                  ? AppLocalizations.of(context).cartAdded
+                  : AppLocalizations.of(context).cartAddToMyOrder,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

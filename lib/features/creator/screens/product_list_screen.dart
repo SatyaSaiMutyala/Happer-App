@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/features/product/models/category_model.dart';
 import 'package:happer_app/features/product/models/product_model.dart';
 
@@ -49,6 +50,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildBody() {
+    final l = AppLocalizations.of(context);
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -62,7 +64,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadProducts,
-              child: const Text('Retry'),
+              child: Text(l.retry),
             ),
           ],
         ),
@@ -74,7 +76,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('No products found in this category'),
+            Text(l.noProductsInCategory),
             const SizedBox(height: 16),
            
           ],

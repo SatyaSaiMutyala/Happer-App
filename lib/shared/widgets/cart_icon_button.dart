@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/features/dashboard/screens/cart_screen.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class CartIconButton extends StatelessWidget {
   final int cartItemCount;
@@ -18,7 +19,8 @@ class CartIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (AppManager.isLoginAsGuest) {
-          showAppSnackBar('Please Login to access Cart', isSuccess: false);
+          showAppSnackBar(AppLocalizations.of(context).cartLoginToAccessCart,
+              isSuccess: false);
           return;
         }
         Navigator.push(

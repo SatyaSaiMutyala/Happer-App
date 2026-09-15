@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 
 const String kDeepLinkBase = 'https://api.happer.fr';
 
@@ -11,10 +12,10 @@ String buildOutfitDeepLink(String username, String selfieId) =>
     '$kDeepLinkBase/store/$username/$selfieId';
 
 String shareProfileMessage(String creatorName, String link) =>
-    "J'ai découvert la boutique de mode de $creatorName sur Happer et j'adore son style ✨\n\nJe te partage son profil !\n\n$link";
+    appL10n.creatorShareProfileMessage(creatorName, link);
 
 String shareOutfitMessage(String creatorName, String link) =>
-    "J'ai trouvé l'outfit de $creatorName sur Happer, je pense qu'il pourrait te plaire ✨\n\n$link";
+    appL10n.creatorShareOutfitMessage(creatorName, link);
 
 Future<void> shareOutfit({
   required String username,
@@ -35,7 +36,7 @@ Future<void> shareOutfit({
     debugPrint('[shareOutfit] result=${result.status}');
   } catch (e, st) {
     debugPrint('[shareOutfit] FAILED: $e\n$st');
-    showAppSnackBar('Le partage a échoué. Veuillez réessayer.',
+    showAppSnackBar(appL10n.creatorShareFailed,
         isSuccess: false);
   }
 }
@@ -58,7 +59,7 @@ Future<void> shareProfile({
     debugPrint('[shareProfile] result=${result.status}');
   } catch (e, st) {
     debugPrint('[shareProfile] FAILED: $e\n$st');
-    showAppSnackBar('Le partage a échoué. Veuillez réessayer.',
+    showAppSnackBar(appL10n.creatorShareFailed,
         isSuccess: false);
   }
 }

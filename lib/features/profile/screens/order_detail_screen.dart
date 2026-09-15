@@ -9,8 +9,10 @@ import 'package:happer_app/features/profile/screens/invoice_webview_screen.dart'
 import 'package:happer_app/features/profile/screens/return_article_screen.dart';
 import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
 import 'package:happer_app/features/profile/widgets/order_product_header.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/confirm_dialog.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:intl/intl.dart';
 
 /// "DÉTAIL DE LA COMMANDE" — full order detail with product summary, a delivery
 /// status tracker, delivery/address/order info, the affiliate the item was
@@ -62,15 +64,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   // ─── Formatting helpers ───────────────────────────────────────────────────
 
-  static const _frMonths = [
-    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-  ];
-
+  /// Day + month name (optionally + year) in the current app language,
+  /// e.g. "5 janvier" / "5 January".
   String _frDate(DateTime? d, {bool withYear = false}) {
     if (d == null) return '';
-    final m = _frMonths[d.month - 1];
-    return withYear ? '${d.day} $m ${d.year}' : '${d.day} $m';
+    final locale = Localizations.localeOf(context).languageCode;
+    return DateFormat(withYear ? 'd MMMM y' : 'd MMMM', locale).format(d);
   }
 
   // 0 = Confirmée, 1 = Expédiée, 2 = Livrée
@@ -90,10 +89,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: 'DÉTAIL DE LA COMMANDE',
+        title: l.orderDetails,
         actions: [
           IconButton(
             icon: const Icon(Icons.headset_mic_outlined,
@@ -159,7 +159,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   // ─── Status tracker card ──────────────────────────────────────────────────
 
   Widget _buildStatusCard() {
-    const labels = ['Confirmée', 'Expédiée', 'Livrée'];
+    final l = AppLocalizations.of(context);
+    final labels = [l.confirmedStatus, l.shippedStatus, l.deliveredStatus];
 
     // Timeline first: each step's date comes from its own log entry. Steps with
     // no log show no date — they haven't happened yet. This replaces the old
@@ -189,12 +190,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         ? _logs.dateOf('cancelled')
         : stepDates[current] ?? order.paidAt);
     final pillText = cancelled
-        ? (pillDate.isEmpty ? 'Commande annulée' : 'Annulée le $pillDate')
+        ? (pillDate.isEmpty ? l.orderCancelled : l.orderCancelledOn(pillDate))
         : current == 2
-            ? 'Livré le $pillDate'
+            ? '${l.deliveredOn} $pillDate'
             : current == 1
-                ? 'Expédié le $pillDate'
-                : 'Confirmée le $pillDate';
+                ? l.orderShippedOn(pillDate)
+                : l.orderConfirmedOn(pillDate);
 
     return _card(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
@@ -327,6 +328,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   // ─── Info card (delivery / address / order / invoice) ─────────────────────
 
   Widget _buildInfoCard(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final addr = order.shippingAddress;
     final addressText = addr != null
         ? [
@@ -344,9 +346,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final deliverySubtitle = trackingNo != null
         ? [
             if (carrier != null) carrier,
-            'N° de suivi $trackingNo',
+            '${l.trackingNumber} $trackingNo',
           ].join(' · ')
-        : 'Pas encore expédié';
+        : l.orderNotShippedYet;
 
     final orderNo =
         order.paymentReference.isNotEmpty ? order.paymentReference : order.orderId;
@@ -357,27 +359,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         children: [
           _infoRow(
             icon: Icons.inventory_2_outlined,
-            title: 'Livraison',
+            title: l.delivery,
             subtitle: deliverySubtitle,
             trailing: _externalButton(() => _openTracking(context)),
           ),
           _rowDivider(),
           _infoRow(
             icon: Icons.location_on_outlined,
-            title: 'Adresse de livraison',
+            title: l.deliveryAddress,
             subtitle: addressText,
           ),
           _rowDivider(),
           _infoRow(
             icon: Icons.info_outline,
-            title: 'Informations de la commande',
+            title: l.orderInformation,
             subtitle:
-                'N° de la commande $orderNo${order.paidAt != null ? ' - ${_frDate(order.paidAt, withYear: true)}' : ''}',
+                '${l.orderNumber} $orderNo${order.paidAt != null ? ' - ${_frDate(order.paidAt, withYear: true)}' : ''}',
           ),
           _rowDivider(),
           _infoRow(
             icon: Icons.receipt_long_outlined,
-            title: 'Voir la facture (PDF)',
+            title: l.viewInvoicePdf,
             onTap: (order.invoiceUrl != null && order.invoiceUrl!.isNotEmpty)
                 ? () => _openLink(context, order.invoiceUrl!)
                 : null,
@@ -477,9 +479,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Acheté via',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context).purchasedVia,
+            style: const TextStyle(
               fontFamily: 'Lato',
               fontWeight: FontWeight.w700,
               fontSize: 15,
@@ -538,20 +540,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Voir le look',
-              style: TextStyle(
+              AppLocalizations.of(context).viewLook,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
                 color: Colors.black,
               ),
             ),
-            SizedBox(width: 8),
-            Icon(Icons.open_in_new, size: 18, color: Colors.black),
+            const SizedBox(width: 8),
+            const Icon(Icons.open_in_new, size: 18, color: Colors.black),
           ],
         ),
       ),
@@ -565,8 +567,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       padding: EdgeInsets.zero,
       child: _infoRow(
         icon: Icons.assignment_return_outlined,
-        title: 'Retourner ou remplacer l\'article',
-        subtitle: 'Faire une demande de retour',
+        title: AppLocalizations.of(context).returnOrReplaceItem,
+        subtitle: AppLocalizations.of(context).makeAReturnRequest,
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => ReturnArticleScreen(order: order)),
@@ -582,8 +584,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       padding: EdgeInsets.zero,
       child: _infoRow(
         icon: Icons.cancel_outlined,
-        title: 'Annuler la commande',
-        subtitle: 'Annuler cet article',
+        title: AppLocalizations.of(context).orderCancelOrder,
+        subtitle: AppLocalizations.of(context).orderCancelThisItem,
         onTap: () => _cancelOrder(context),
       ),
     );
@@ -592,12 +594,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   /// Cancels this item, then pops with `true` so the purchases list knows to
   /// refresh — the item's status and its is_cancellable flag both change.
   Future<void> _cancelOrder(BuildContext context) async {
+    final l = AppLocalizations.of(context);
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Annuler la commande ?',
-      message: 'Cet article sera annulé. Cette action est définitive.',
-      confirmLabel: 'Oui, annuler',
-      cancelLabel: 'Non',
+      title: l.orderCancelConfirmTitle,
+      message: l.orderCancelConfirmMessage,
+      confirmLabel: l.orderCancelConfirmYes,
+      cancelLabel: l.non,
       icon: Icons.cancel_outlined,
       type: ConfirmType.danger,
     );
@@ -608,7 +611,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         orderId: order.orderId,
         cartItemId: order.cartItemId,
       );
-      showAppSnackBar('Commande annulée');
+      showAppSnackBar(l.orderCancelled);
       if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
       showAppSnackBar(e.toString(), isSuccess: false);
@@ -627,11 +630,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         (_logs.shipment?.trackingUrl ?? order.deliveryLink)?.trim() ?? '';
     if (link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lien de suivi indisponible pour le moment')),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context).orderTrackingLinkUnavailable)),
       );
       return;
     }
-    _openLink(context, link, title: 'Suivi de livraison');
+    _openLink(context, link,
+        title: AppLocalizations.of(context).orderDeliveryTracking);
   }
 
   /// Opens the look this item was bought from.
@@ -639,7 +645,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final selfieId = order.selfieId ?? '';
     if (selfieId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Look indisponible pour cette commande')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context).orderLookUnavailable)),
       );
       return;
     }
@@ -654,7 +661,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   void _openLink(BuildContext context, String url, {String? title}) {
     if (url.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lien indisponible')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context).orderLinkUnavailable)),
       );
       return;
     }
@@ -663,7 +671,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       MaterialPageRoute(
         builder: (_) => InvoiceWebViewScreen(
           url: url,
-          title: title ?? 'Facture',
+          title: title ?? AppLocalizations.of(context).orderInvoice,
         ),
       ),
     );

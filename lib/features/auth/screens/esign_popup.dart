@@ -8,6 +8,7 @@ import 'package:happer_app/features/auth/screens/contract_webview_screen.dart';
 import 'package:happer_app/features/profile/bindings/user_profile_binding.dart';
 import 'package:happer_app/features/profile/controllers/user_profile_controller.dart';
 import 'package:happer_app/features/profile/models/user_profile_model.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class EsignPopup extends StatefulWidget {
   final UserProfileModel user;
@@ -200,6 +201,7 @@ class _EsignPopupState extends State<EsignPopup>
   // ─── Step 1: Required profile fields ──────────────────────────────────────
 
   Widget _buildStep1() {
+    final l = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       child: Form(
@@ -209,9 +211,9 @@ class _EsignPopupState extends State<EsignPopup>
           children: [
             _buildHeader(step: 1),
             const SizedBox(height: 8),
-            const Text(
-              'Ces informations sont requises pour établir votre contrat Creator.',
-              style: TextStyle(
+            Text(
+              l.authCreatorInfoRequired,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 13,
                 color: Colors.black54,
@@ -221,9 +223,9 @@ class _EsignPopupState extends State<EsignPopup>
             const SizedBox(height: 20),
             Row(
               children: [
-                Expanded(child: _field(_firstNameCtrl, 'Prénom')),
+                Expanded(child: _field(_firstNameCtrl, l.firstNameLabel)),
                 const SizedBox(width: 12),
-                Expanded(child: _field(_lastNameCtrl, 'Nom')),
+                Expanded(child: _field(_lastNameCtrl, l.lastNameLabel)),
               ],
             ),
             if (_needsUsername) ...[
@@ -264,23 +266,23 @@ class _EsignPopupState extends State<EsignPopup>
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _field(_phoneCtrl, 'Téléphone',
+                  child: _field(_phoneCtrl, l.phoneLabel,
                       keyboardType: TextInputType.phone),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            _field(_streetCtrl, 'Adresse'),
+            _field(_streetCtrl, l.authAddressLabel),
             const SizedBox(height: 12),
             Row(
               children: [
                 SizedBox(
                   width: 120,
-                  child: _field(_postalCtrl, 'Code Postal',
+                  child: _field(_postalCtrl, l.postalCode,
                       keyboardType: TextInputType.number),
                 ),
                 const SizedBox(width: 12),
-                Expanded(child: _field(_cityCtrl, 'Ville')),
+                Expanded(child: _field(_cityCtrl, l.city)),
               ],
             ),
             const SizedBox(height: 24),
@@ -305,12 +307,12 @@ class _EsignPopupState extends State<EsignPopup>
                             valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.white)),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'SUIVANT',
-                            style: TextStyle(
+                            l.authNextUpper,
+                            style: const TextStyle(
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
@@ -318,8 +320,8 @@ class _EsignPopupState extends State<EsignPopup>
                               letterSpacing: 0.5,
                             ),
                           ),
-                          SizedBox(width: 6),
-                          Icon(Icons.arrow_forward,
+                          const SizedBox(width: 6),
+                          const Icon(Icons.arrow_forward,
                               size: 16, color: Colors.white),
                         ],
                       ),
@@ -334,6 +336,7 @@ class _EsignPopupState extends State<EsignPopup>
   // ─── Step 2: Contract + checkbox ──────────────────────────────────────────
 
   Widget _buildStep2() {
+    final l = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       child: Column(
@@ -341,38 +344,37 @@ class _EsignPopupState extends State<EsignPopup>
         children: [
           _buildHeader(step: 2),
           const SizedBox(height: 16),
-          const Text(
-            'Vous pouvez désormais activer votre compte de créateur Happer.',
-            style: TextStyle(
+          Text(
+            l.creatorActivationIntro,
+            style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 14,
                 color: Colors.black,
                 height: 1.5),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Vous pourrez recevoir des produits de nos marques partenaires, les partager sur Happer et générer des revenus sur les ventes réalisées via votre contenu.',
-            style: TextStyle(
+          Text(
+            l.creatorActivationBenefits,
+            style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 14,
                 color: Colors.black,
                 height: 1.5),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'En acceptant, vous confirmez :',
-            style: TextStyle(
+          Text(
+            l.byAcceptingYouConfirm,
+            style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 14,
                 color: Colors.black,
                 height: 1.5),
           ),
           const SizedBox(height: 8),
-          _bullet('Publier les produits reçus selon les délais convenus'),
-          _bullet('Respecter les règles de collaboration'),
-          _bullet('Garantir l\'authenticité de votre contenu'),
-          _bullet(
-              'Autoriser Happer à exploiter le contenu conformément au contrat'),
+          _bullet(l.publishReceivedProducts),
+          _bullet(l.respectCollaborationRules),
+          _bullet(l.guaranteeAuthenticity),
+          _bullet(l.authorizeContentUse),
           const SizedBox(height: 16),
           RichText(
             text: TextSpan(
@@ -382,10 +384,10 @@ class _EsignPopupState extends State<EsignPopup>
                   color: Colors.black,
                   height: 1.5),
               children: [
-                const TextSpan(
-                    text: 'Cette collaboration est encadrée par le '),
                 TextSpan(
-                  text: 'Contrat Happer Creator',
+                    text: l.authContractNoticePrefix),
+                TextSpan(
+                  text: l.authHapperCreatorContract,
                   style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
@@ -425,10 +427,10 @@ class _EsignPopupState extends State<EsignPopup>
                       : null,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Je reconnais avoir pris connaissance du Contrat Happer Creator, l\'accepter sans réserve et m\'engager à le respecter.',
-                    style: TextStyle(
+                    l.creatorTermsCheckbox,
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 12,
                       color: Colors.black54,
@@ -450,14 +452,14 @@ class _EsignPopupState extends State<EsignPopup>
                   setState(() => _step = 1);
                   _animCtrl.forward();
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.arrow_back, size: 14, color: Colors.black54),
-                    SizedBox(width: 4),
+                    const Icon(Icons.arrow_back, size: 14, color: Colors.black54),
+                    const SizedBox(width: 4),
                     Text(
-                      'Modifier mes informations',
-                      style: TextStyle(
+                      l.authEditMyInfo,
+                      style: const TextStyle(
                         fontFamily: 'Lato',
                         fontSize: 12,
                         color: Colors.black54,
@@ -490,7 +492,7 @@ class _EsignPopupState extends State<EsignPopup>
                               AlwaysStoppedAnimation<Color>(Colors.white)),
                     )
                   : Text(
-                      'ACTIVER MON COMPTE CREATOR',
+                      l.activateCreatorAccount,
                       style: TextStyle(
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w700,
@@ -509,6 +511,7 @@ class _EsignPopupState extends State<EsignPopup>
   // ─── Shared widgets ────────────────────────────────────────────────────────
 
   Widget _buildUsernameField() {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -526,10 +529,10 @@ class _EsignPopupState extends State<EsignPopup>
             if (_usernameError) setState(() => _usernameError = false);
           },
           decoration: InputDecoration(
-            labelText: 'Nom d\'utilisateur',
+            labelText: l.usernameLabel,
             labelStyle: const TextStyle(
                 fontFamily: 'Lato', fontSize: 13, color: Colors.black54),
-            hintText: 'ex: jean.dupont_12',
+            hintText: l.authUsernameExampleHint,
             hintStyle: const TextStyle(
                 fontFamily: 'Lato', fontSize: 13, color: Colors.black26),
             contentPadding:
@@ -575,19 +578,19 @@ class _EsignPopupState extends State<EsignPopup>
                     : null,
           ),
           validator: (v) {
-            if (v == null || v.trim().isEmpty) return 'Requis';
+            if (v == null || v.trim().isEmpty) return l.authRequired;
             if (!_usernameRegex.hasMatch(v.trim())) {
-              return '3–20 caractères : lettres minuscules, chiffres, _ ou .';
+              return l.authUsernameRules;
             }
             return null;
           },
         ),
         if (_usernameError)
-          const Padding(
-            padding: EdgeInsets.only(top: 4, left: 4),
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 4),
             child: Text(
-              'Ce nom d\'utilisateur est déjà pris',
-              style: TextStyle(
+              l.authUsernameAlreadyTaken,
+              style: const TextStyle(
                   fontFamily: 'Lato', fontSize: 11, color: Colors.red),
             ),
           ),
@@ -596,14 +599,15 @@ class _EsignPopupState extends State<EsignPopup>
   }
 
   Widget _buildHeader({required int step}) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(
+        Center(
           child: Text(
-            'ACTIVEZ VOTRE COMPTE\nHAPPER CREATOR',
+            '${l.activateYourAccount}\n${l.happerCreator}',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Lato',
               fontWeight: FontWeight.w800,
               fontSize: 17,
@@ -640,7 +644,7 @@ class _EsignPopupState extends State<EsignPopup>
         ),
         const SizedBox(height: 6),
         Text(
-          'Étape $step sur 2',
+          l.authStepOf(step, 2),
           style: const TextStyle(
             fontFamily: 'Lato',
             fontSize: 11,
@@ -689,7 +693,9 @@ class _EsignPopupState extends State<EsignPopup>
         ),
         isDense: true,
       ),
-      validator: (v) => (v == null || v.trim().isEmpty) ? 'Requis' : null,
+      validator: (v) => (v == null || v.trim().isEmpty)
+          ? AppLocalizations.of(context).authRequired
+          : null,
     );
   }
 

@@ -91,43 +91,44 @@ class _SignupScreenState extends State<SignupScreen> {
     final password = _passwordController.text;
     final confirm = _confirmPasswordController.text;
 
+    final l = AppLocalizations.of(context);
     if (firstName.isEmpty) {
-      showAppSnackBar('Please enter your first name', isSuccess: false);
+      showAppSnackBar(l.authEnterFirstName, isSuccess: false);
       return false;
     }
     if (lastName.isEmpty) {
-      showAppSnackBar('Please enter your last name', isSuccess: false);
+      showAppSnackBar(l.authEnterLastName, isSuccess: false);
       return false;
     }
     if (username.isEmpty) {
-      showAppSnackBar('Please enter a username', isSuccess: false);
+      showAppSnackBar(l.authEnterUsername, isSuccess: false);
       return false;
     }
     if (username.length < 3) {
-      showAppSnackBar('Username must be at least 3 characters',
+      showAppSnackBar(l.authUsernameTooShort,
           isSuccess: false);
       return false;
     }
     if (!_usernameRegex.hasMatch(username)) {
       showAppSnackBar(
-          'Username can only contain lowercase letters, numbers, _ and .',
+          l.authUsernameInvalidChars,
           isSuccess: false);
       return false;
     }
     if (email.isEmpty) {
-      showAppSnackBar('Please enter your email', isSuccess: false);
+      showAppSnackBar(l.authEnterEmail, isSuccess: false);
       return false;
     }
     if (!_emailRegex.hasMatch(email)) {
-      showAppSnackBar('Please enter a valid email address', isSuccess: false);
+      showAppSnackBar(l.invalidEmail, isSuccess: false);
       return false;
     }
     if (password.isEmpty) {
-      showAppSnackBar('Please enter a password', isSuccess: false);
+      showAppSnackBar(l.authEnterAPassword, isSuccess: false);
       return false;
     }
     if (password.length < 6) {
-      showAppSnackBar('Password must be at least 6 characters',
+      showAppSnackBar(l.authPasswordTooShort,
           isSuccess: false);
       return false;
     }
@@ -156,7 +157,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _submit() {
     if (_usernameError) {
-      showAppSnackBar('Username is already taken. Please choose another.',
+      showAppSnackBar(AppLocalizations.of(context).authUsernameTaken,
           isSuccess: false);
       return;
     }
@@ -204,14 +205,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     // First Name
                     AppInputField(
                       controller: _firstNameController,
-                      hintText: 'First Name',
+                      hintText: AppLocalizations.of(context).firstNameHint,
                     ),
                     const SizedBox(height: AppDimensions.p12),
 
                     // Last Name
                     AppInputField(
                       controller: _lastNameController,
-                      hintText: 'Last Name',
+                      hintText: AppLocalizations.of(context).lastNameHint,
                     ),
                     const SizedBox(height: AppDimensions.p12),
 
@@ -219,7 +220,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     AppInputField(
                       controller: _usernameController,
                       focusNode: _usernameFocusNode,
-                      hintText: 'Username',
+                      hintText: AppLocalizations.of(context).usernameLabel,
                       maxLength: 20,
                       borderColor: _usernameError ? Colors.red : null,
                       suffixIcon: _isCheckingUsername
@@ -252,11 +253,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     if (_usernameError) ...[
                       const SizedBox(height: 4),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 4),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
                         child: Text(
-                          'Username is already used, choose another',
-                          style: TextStyle(
+                          AppLocalizations.of(context).authUsernameTaken,
+                          style: const TextStyle(
                             color: Colors.red,
                             fontSize: 12,
                             fontFamily: 'Lato',
@@ -269,7 +270,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     // Email
                     AppInputField(
                       controller: _emailController,
-                      hintText: 'Email',
+                      hintText: AppLocalizations.of(context).email,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (v) {
                         if (v != v.toLowerCase()) {

@@ -10,6 +10,8 @@ import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/cart_preview_pill.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BrandDetailsScreen extends StatefulWidget {
@@ -134,7 +136,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
       );
       if (!mounted) return null;
       Get.find<CartController>().fetchCartItemCount();
-      showAppSnackBar('Article ajouté au panier', isSuccess: true);
+      showAppSnackBar(appL10n.itemAddedToCart, isSuccess: true);
       return cartItemId;
     } catch (e) {
       if (mounted) showAppSnackBar(e.toString(), isSuccess: false);
@@ -331,11 +333,12 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
       appBar: HapperAppBar(
-        title: 'LA COLLECTION',
+        title: l.creatorTheCollection,
       ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
@@ -496,7 +499,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Center(
                         child: Text(
-                          'No more products',
+                          l.creatorNoMoreProducts,
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 14,
@@ -520,7 +523,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No products available',
+                            l.noProductAvailable,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey.shade600,
@@ -528,7 +531,7 @@ class _BrandDetailsScreenState extends State<BrandDetailsScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Check back later for new arrivals',
+                            l.creatorCheckBackLaterNewArrivals,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade500,

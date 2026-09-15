@@ -63,7 +63,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          'Error loading won products',
+                          AppLocalizations.of(context).failedLoadWonProducts,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 18,
@@ -90,7 +90,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                             ),
                           ),
                           child: Text(
-                            'Retry',
+                            AppLocalizations.of(context).retry,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               color: Colors.white,
@@ -108,7 +108,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                         Icon(Icons.card_giftcard, size: 64, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
-                          'You haven\'t won any products yet',
+                          AppLocalizations.of(context).profileNoWonProducts,
                           style: TextStyle(
                             fontSize: 18,
                             fontFamily: 'Inter',
@@ -117,7 +117,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Participate in contests to win amazing products',
+                          AppLocalizations.of(context).profileNoWonProductsDesc,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             color: Colors.grey,
@@ -227,7 +227,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                   Row(
                     children: [
                       Text(
-                        'Prix réel',
+                        AppLocalizations.of(context).prixReel,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.black54,
@@ -249,7 +249,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                   Row(
                     children: [
                       Text(
-                        'Prix PROMO',
+                        AppLocalizations.of(context).discountPrice,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.black,
@@ -282,7 +282,7 @@ class _WonProductsScreenState extends State<WonProductsScreen> {
                         ),
                       ),
                       child: Text(
-                        'RÉCUPÉRÉ',
+                        AppLocalizations.of(context).profileCollected,
                         style: TextStyle(
                           color: Colors.black87,
                           fontSize: 14,

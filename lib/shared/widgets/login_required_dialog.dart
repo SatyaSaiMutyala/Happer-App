@@ -3,6 +3,7 @@ import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:happer_app/features/auth/screens/register_screen.dart';
 import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 /// Prompts a guest to sign in before an action that needs a real account.
 ///
@@ -12,8 +13,9 @@ import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 /// login screen, matching the header's guest sign-in button.
 Future<void> showLoginRequiredDialog(
   BuildContext context, {
-  String message = 'Connectez-vous pour continuer.',
+  String? message,
 }) {
+  final l = AppLocalizations.of(context);
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -34,12 +36,12 @@ Future<void> showLoginRequiredDialog(
             child: const Icon(Icons.lock_outline, color: Colors.black, size: 26),
           ),
           const SizedBox(height: 18),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'Connexion requise',
+              l.authLoginRequired,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -51,7 +53,7 @@ Future<void> showLoginRequiredDialog(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              message,
+              message ?? l.authLoginToContinue,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: 'Lato',
@@ -76,8 +78,8 @@ Future<void> showLoginRequiredDialog(
                           borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: () => Navigator.of(dialogContext).pop(),
-                    child: const Text('Annuler',
-                        style: TextStyle(
+                    child: Text(l.cancel,
+                        style: const TextStyle(
                             fontFamily: 'Lato', fontWeight: FontWeight.w600)),
                   ),
                 ),
@@ -102,8 +104,8 @@ Future<void> showLoginRequiredDialog(
                         (route) => false,
                       );
                     },
-                    child: const Text('Se connecter',
-                        style: TextStyle(
+                    child: Text(l.seConnecter,
+                        style: const TextStyle(
                             fontFamily: 'Lato', fontWeight: FontWeight.w600)),
                   ),
                 ),

@@ -11,13 +11,13 @@ class StylesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: HapperAppBar(title: 'Mes Sélections'),
+      appBar: HapperAppBar(title: AppLocalizations.of(context).profileMySelections),
       body: SafeArea(
         child: Column(
           children: [
             const Divider(height: 1),
             _buildListTile(
-              title: 'Mes Partages',
+              title: AppLocalizations.of(context).profileMyShares,
               icon: Image.asset('assets/images/myimages.png', width: 24, height: 24),
               onTap: () {
                 Navigator.of(context).push(

@@ -3,19 +3,21 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class InvoiceWebViewScreen extends StatefulWidget {
   final String url;
 
-  /// What the page actually is. Defaults to the invoice, but the same viewer
-  /// also shows carrier tracking pages, which shouldn't be titled "Facture".
-  final String title;
+  /// What the page actually is. Defaults to the invoice (localized), but the
+  /// same viewer also shows carrier tracking pages, which shouldn't be titled
+  /// "Facture".
+  final String? title;
 
   const InvoiceWebViewScreen({
     super.key,
     required this.url,
-    this.title = 'Facture',
+    this.title,
   });
 
   @override
@@ -26,6 +28,8 @@ class _InvoiceWebViewScreenState extends State<InvoiceWebViewScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
   String? _errorMessage;
+
+  String get _title => widget.title ?? AppLocalizations.of(context).orderInvoice;
 
   // Android WebView cannot render PDFs natively — wrap with Google Docs Viewer.
   // iOS WKWebView handles PDFs directly.
@@ -49,7 +53,8 @@ class _InvoiceWebViewScreenState extends State<InvoiceWebViewScreen> {
         onPageFinished: (_) => setState(() => _isLoading = false),
         onWebResourceError: (error) => setState(() {
           _isLoading = false;
-          _errorMessage = 'Impossible de charger « ${widget.title} ».';
+          _errorMessage =
+              AppLocalizations.of(context).orderCouldNotLoadPage(_title);
         }),
         onNavigationRequest: (_) => NavigationDecision.navigate,
       ))
@@ -64,7 +69,7 @@ class _InvoiceWebViewScreenState extends State<InvoiceWebViewScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          widget.title,
+          _title,
           style: const TextStyle(
             fontFamily: 'Lato',
             fontWeight: FontWeight.w700,

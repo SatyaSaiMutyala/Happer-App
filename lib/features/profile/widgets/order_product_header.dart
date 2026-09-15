@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:happer_app/features/profile/models/purchase_model.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 /// Shared product summary shown at the top of the order-detail and return
 /// screens: image + brand logo + brand name + product name + size + quantity +
@@ -25,6 +26,7 @@ class OrderProductHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final imageUrl = order.displayImage;
     final imgW =
         (MediaQuery.of(context).size.width * 0.36).clamp(120.0, 170.0);
@@ -83,8 +85,8 @@ class OrderProductHeader extends StatelessWidget {
               const SizedBox(height: 6),
               Text(order.product?.name ?? '', style: _infoStyle),
               if (size != null && size.isNotEmpty)
-                Text('Taille $size', style: _infoStyle),
-              Text('Quantité ${order.quantity}', style: _infoStyle),
+                Text(l.orderSizeLabel(size), style: _infoStyle),
+              Text(l.orderQuantityLabel(order.quantity), style: _infoStyle),
               const SizedBox(height: 8),
               Text(
                 _price(order.unitPrice, order.currency),

@@ -269,7 +269,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  "Problem connecting to the server. Using local data.",
+                  AppLocalizations.of(context).dashServerProblemLocalData,
                 ),
                 duration: Duration(seconds: 3),
               ),
@@ -298,7 +298,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Could not connect to the server. Using cached data.",
+              AppLocalizations.of(context).dashServerUnreachableCachedData,
             ),
             duration: Duration(seconds: 3),
           ),
@@ -415,13 +415,14 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
 
   // Add this method to handle different product states
   String _getButtonText() {
+    final l = AppLocalizations.of(context);
     switch (widget.product.state) {
       case 0: // AVAILABLE
         return 'HAPPER';
       case 1: // SOON
-        return 'STARTING SOON';
+        return l.dashStartingSoonUpper;
       case 3: // EXPIRED
-        return 'EXPIRED';
+        return l.dashExpiredUpper;
       default:
         return 'HAPPER';
     }
@@ -461,14 +462,15 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
   }
 
   String _getTimerText() {
+    final l = AppLocalizations.of(context);
     switch (widget.product.state) {
       case 0: // AVAILABLE
         return _timeRemaining;
       case 1: // SOON
-        return "SOON";
+        return l.dashSoonUpper;
      
       case 3: // EXPIRED
-        return "EXPIRED";
+        return l.dashExpiredUpper;
       default:
         return _timeRemaining;
     }
@@ -477,12 +479,13 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     // We're already initializing _productDetail in initState, so we can use it directly
+    final l = AppLocalizations.of(context);
     final promotionalPrice = _productDetail!.price * 0.5; // 50% off
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: AppLocalizations.of(context).happerProductsTitle,
+        title: l.happerProductsTitle,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -553,7 +556,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                       ),
                     ),
                     child: Text(
-                      "PARTAGER",
+                      l.partager,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Lato',
@@ -629,7 +632,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                                                 ),
                                                 SizedBox(height: 16),
                                                 Text(
-                                                  'Image unavailable',
+                                                  l.dashImageUnavailable,
                                                   style: TextStyle(
                                                     color: Colors.grey[600],
                                                   ),
@@ -718,7 +721,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                                 ),
                               ),
                               Text(
-                                _shouldShowTimer() ? "seconds" : "",
+                                _shouldShowTimer() ? l.seconds : "",
                                 style: TextStyle(
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w400,
@@ -740,16 +743,16 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                             String message;
                             switch (widget.product.state) {
                               case 1:
-                                message = 'Contest starting soon!';
+                                message = l.dashContestStartingSoon;
                                 break;
                               case 2:
-                                message = 'Contest has ended';
+                                message = l.dashContestEnded;
                                 break;
                               case 3:
-                                message = 'Contest expired';
+                                message = l.dashContestExpired;
                                 break;
                               default:
-                                message = 'Contest not available';
+                                message = l.dashContestNotAvailable;
                             }
                             
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -765,9 +768,9 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                           // HAPPER button — feature coming soon
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Fonctionnalité bientôt disponible'),
-                                duration: Duration(seconds: 2),
+                              SnackBar(
+                                content: Text(l.dashFeatureComingSoon),
+                                duration: const Duration(seconds: 2),
                               ),
                             );
                           }
@@ -836,7 +839,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                   Row(
                     children: [
                       Text(
-                        "Prix réel   ",
+                        "${l.prixReel}   ",
                         style: TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w400,
@@ -865,7 +868,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Prix PROMO   ",
+                        "${l.discountPrice}   ",
                         style: TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w700,
@@ -900,11 +903,11 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                         // Open the buy URL if available
                         if (_productDetail!.buyUrl != null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Opening product page...')),
+                            SnackBar(content: Text(l.dashOpeningProductPage)),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Product added to cart!')),
+                            SnackBar(content: Text(l.dashProductAddedToCart)),
                           );
                         }
                       },
@@ -917,7 +920,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                         ),
                       ),
                       child: Text(
-                        "JE LE VEUX",
+                        l.iWantIt,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -958,7 +961,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                "Dernières Happeuses",
+                                l.dernieresHappeuses,
                                 style: TextStyle(
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w700,
@@ -994,7 +997,7 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                "Informations produit",
+                                l.productInformation,
                                 style: TextStyle(
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w700,
@@ -1051,21 +1054,20 @@ class _GameProductDetailsScreenState extends State<GameProductDetailsScreen> {
     final productDetail =
         _productDetail ?? HapperProductDetail.fromHapperProduct(widget.product);
 
+    final l = AppLocalizations.of(context);
     try {
       // Notify user that sharing is being prepared
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Préparation du partage...')));
+      ).showSnackBar(SnackBar(content: Text(l.dashPreparingShare)));
 
       // Create share text with product details
-      final String shareText = """
-${productDetail.title}
-${productDetail.brand.name}
-Prix: ${productDetail.price.toStringAsFixed(2)} €
-Prix Promo: ${(productDetail.price * 0.5).toStringAsFixed(2)} €
-    
-Découvrez ce produit sur Happer!
-""";
+      final String shareText = l.dashShareProductText(
+        productDetail.title,
+        productDetail.brand.name,
+        productDetail.price.toStringAsFixed(2),
+        (productDetail.price * 0.5).toStringAsFixed(2),
+      );
 
       // If there's a buy URL, include it in the share
       final String shareUrl = productDetail.buyUrl ?? "https://happer.fr";
@@ -1075,13 +1077,13 @@ Découvrez ce produit sur Happer!
         // Share with just the text for now (implementing image sharing would require downloading the image first)
         Share.share(
           '$shareText\n\n$shareUrl',
-          subject: 'Regardez ce produit sur Happer!',
+          subject: l.dashShareProductSubject,
         );
       } else {
         // Simple text sharing
         Share.share(
           '$shareText\n\n$shareUrl',
-          subject: 'Regardez ce produit sur Happer!',
+          subject: l.dashShareProductSubject,
         );
       }
 
@@ -1091,7 +1093,7 @@ Découvrez ce produit sur Happer!
       debugPrint("Error sharing product: $error");
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erreur lors du partage')));
+      ).showSnackBar(SnackBar(content: Text(l.dashShareError)));
     }
   }
 
@@ -1132,7 +1134,7 @@ class _LastBuyersList extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE8A30A)),
             ),
             const SizedBox(height: 16),
-            Text('Loading latest users...',
+            Text(AppLocalizations.of(context).dashLoadingLatestUsers,
                 style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey.shade600)),
           ],
         ),
@@ -1174,8 +1176,8 @@ class _LastBuyersList extends StatelessWidget {
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Icon(Icons.refresh, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
-                const Text('Tap to refresh user list',
-                    style: TextStyle(fontFamily: 'Lato', fontSize: 12, color: Colors.grey)),
+                Text(AppLocalizations.of(context).dashTapToRefreshUsers,
+                    style: const TextStyle(fontFamily: 'Lato', fontSize: 12, color: Colors.grey)),
               ]),
             ),
           ),
@@ -1197,7 +1199,7 @@ class _LastBuyersList extends StatelessWidget {
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          Text("Pas encore d'utilisateurs.",
+          Text(AppLocalizations.of(context).dashNoUsersYet,
               style: TextStyle(fontFamily: 'Lato', fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[600])),
           const SizedBox(height: 24),
           GestureDetector(
@@ -1205,10 +1207,10 @@ class _LastBuyersList extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
-              child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.refresh, size: 16),
-                SizedBox(width: 4),
-                Text('Refresh', style: TextStyle(fontFamily: 'Lato', fontSize: 14, fontWeight: FontWeight.w500)),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                const Icon(Icons.refresh, size: 16),
+                const SizedBox(width: 4),
+                Text(AppLocalizations.of(context).dashRefresh, style: const TextStyle(fontFamily: 'Lato', fontSize: 14, fontWeight: FontWeight.w500)),
               ]),
             ),
           ),
@@ -1239,8 +1241,8 @@ class _LastBuyersList extends StatelessWidget {
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             const Icon(Icons.refresh, size: 16, color: Colors.grey),
             const SizedBox(width: 4),
-            const Text('Tap to refresh user list',
-                style: TextStyle(fontFamily: 'Lato', fontSize: 12, color: Colors.grey)),
+            Text(AppLocalizations.of(context).dashTapToRefreshUsers,
+                style: const TextStyle(fontFamily: 'Lato', fontSize: 12, color: Colors.grey)),
           ]),
         ),
       ),
@@ -1270,26 +1272,27 @@ class _ProductInfoTab extends StatelessWidget {
           const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE8A30A))),
           const SizedBox(height: 16),
-          Text('Loading product information...',
+          Text(AppLocalizations.of(context).dashLoadingProductInfo,
               style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey.shade600)),
         ]),
       );
     }
 
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(l.description, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 8),
         Text(productDetail.getDescription(), style: const TextStyle(fontSize: 14)),
         const SizedBox(height: 16),
-        const Text('Country', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(l.country, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 8),
-        Text(productDetail.country ?? 'Unknown', style: const TextStyle(fontSize: 14)),
+        Text(productDetail.country ?? l.unknown, style: const TextStyle(fontSize: 14)),
         const SizedBox(height: 16),
         if (webSocketProductDetail?.productStatus != null)
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(l.dashStatus, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 8),
             Row(children: [
               Container(
@@ -1312,7 +1315,7 @@ class _ProductInfoTab extends StatelessWidget {
           ]),
         if (totalUsers > 0)
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Total Users', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(l.dashTotalUsers, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 8),
             Text('$totalUsers', style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 16),

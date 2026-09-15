@@ -91,7 +91,7 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
       ),
       child: Row(
         children: [
-          _segment('Look', 0),
+          _segment(l.profileLookTab, 0),
           _segment(l.favTabProducts, 1),
         ],
       ),

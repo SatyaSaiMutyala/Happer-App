@@ -8,6 +8,7 @@ import 'package:happer_app/features/creator/data/models/creator_selfie_model.dar
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
 import 'package:happer_app/features/creator/screens/selfie_details_screen.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// "INSPIRATIONS {BRAND}" — a DECOUVRIR-style masonry grid of selfies linked to
@@ -78,8 +79,9 @@ class _BrandInspirationsScreenState extends State<BrandInspirationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar:
-          HapperAppBar(title: 'INSPIRATIONS ${widget.brandName.toUpperCase()}'),
+      appBar: HapperAppBar(
+          title: AppLocalizations.of(context)
+              .creatorBrandInspirations(widget.brandName.toUpperCase())),
       body: Obx(() {
         final selfies = _controller.selfies;
         final isLoading = _controller.isLoading.value;
@@ -242,10 +244,10 @@ class _BrandInspirationsScreenState extends State<BrandInspirationsScreen> {
                   Icon(Icons.image_outlined,
                       size: 64, color: Colors.grey.shade300),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Aucune inspiration',
+                  Text(
+                    AppLocalizations.of(context).creatorNoInspiration,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -271,8 +273,8 @@ class _BrandInspirationsScreenState extends State<BrandInspirationsScreen> {
           ElevatedButton(
             onPressed: _controller.refresh,
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-            child: const Text('Réessayer',
-                style: TextStyle(color: Colors.white)),
+            child: Text(AppLocalizations.of(context).retry,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

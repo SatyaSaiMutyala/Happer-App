@@ -10,14 +10,12 @@ class ApiConfig {
   //   https://api.happer.fr      → HAPPER-V2-production-APP
   //   https://api.dev.happer.fr  → HAPPER-V2-development-APP
   //
-  // Currently pointed at DEV, because features land there first — e.g. the
-  // purchases list's is_cancellable / is_returnable flags exist on the backend
-  // `development` branch but not yet on `production`.
+  // Defaults to PRODUCTION.
   //
-  // Build against production without touching this file:
-  //   flutter build apk --dart-define=USE_DEV_API=false
+  // Build/run against dev without touching this file:
+  //   flutter run --dart-define=USE_DEV_API=true
   static const bool useDevApi =
-      bool.fromEnvironment('USE_DEV_API', defaultValue: true);
+      bool.fromEnvironment('USE_DEV_API', defaultValue: false);
 
   static const String prodBaseUrl = 'https://api.happer.fr/api/v1';
   static const String devBaseUrl = 'https://api.dev.happer.fr/api/v1';

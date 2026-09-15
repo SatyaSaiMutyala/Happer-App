@@ -1,3 +1,5 @@
+import 'package:happer_app/core/utils/app_l10n.dart';
+
 class WonProduct {
   final String id;
   final String brand;
@@ -72,7 +74,7 @@ class WonProduct {
 
     // Get the winner information from users_list if available
     String winnerId = '';
-    String winnerName = 'You';
+    String winnerName = appL10n.orderWinnerYou;
     
     if (json['users_list'] != null && (json['users_list'] as List).isNotEmpty) {
       final String userInfo = (json['users_list'] as List).first.toString();

@@ -100,7 +100,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: 'MES COMMANDES',
+        title: AppLocalizations.of(context).myOrdersTitle,
         onBack: widget.fromCart
             ? () => Navigator.of(context).popUntil((route) => route.isFirst)
             : null,
@@ -177,7 +177,9 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
     final link = p.deliveryLink?.trim() ?? '';
     if (link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lien de suivi indisponible pour le moment')),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context).orderTrackingLinkUnavailable)),
       );
       return;
     }
@@ -186,7 +188,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
       MaterialPageRoute(
         builder: (_) => InvoiceWebViewScreen(
           url: link,
-          title: 'Suivi de livraison',
+          title: AppLocalizations.of(context).orderDeliveryTracking,
         ),
       ),
     );
@@ -195,13 +197,13 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
   /// Cancels a single line item after confirmation, then reloads the list so
   /// the card comes back with the server's new status and flags.
   Future<void> _cancelOrder(PurchasedProduct p) async {
+    final l = AppLocalizations.of(context);
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Annuler la commande ?',
-      message:
-          'Cet article sera annulé. Cette action est définitive.',
-      confirmLabel: 'Oui, annuler',
-      cancelLabel: 'Non',
+      title: l.orderCancelConfirmTitle,
+      message: l.orderCancelConfirmMessage,
+      confirmLabel: l.orderCancelConfirmYes,
+      cancelLabel: l.non,
       icon: Icons.cancel_outlined,
       type: ConfirmType.danger,
     );
@@ -213,7 +215,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
         orderId: p.orderId,
         cartItemId: p.cartItemId,
       );
-      showAppSnackBar('Commande annulée');
+      showAppSnackBar(l.orderCancelled);
       if (!mounted) return;
       setState(() => _cancellingItemId = null);
       await _fetchPurchases(firstLoad: true);
@@ -234,6 +236,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
   }
 
   Widget _buildPurchaseCard(PurchasedProduct p) {
+    final l = AppLocalizations.of(context);
     final imageUrl = p.displayImage;
     final brandName = (p.brand?.name ?? '').toUpperCase();
     final brandLogo = p.brand?.picture ?? '';
@@ -365,9 +368,9 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
                         if (hasPromo)
                           Row(
                             children: [
-                              const Text(
-                                'Prix réel  ',
-                                style: TextStyle(
+                              Text(
+                                '${l.realPrice}  ',
+                                style: const TextStyle(
                                   fontFamily: 'Lato',
                                   fontSize: 13,
                                   color: Color(0xFF8D8D8D),
@@ -392,7 +395,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
                         Row(
                           children: [
                             Text(
-                              hasPromo ? 'Prix PROMO ' : 'Prix ',
+                              hasPromo ? '${l.promoPrice} ' : '${l.prix} ',
                               style: const TextStyle(
                                 fontFamily: 'Lato',
                                 fontSize: 14,
@@ -424,9 +427,9 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
                               color: Colors.black,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
-                              'LIEN LIVRAISON',
-                              style: TextStyle(
+                            child: Text(
+                              l.shippingLink,
+                              style: const TextStyle(
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
@@ -469,7 +472,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
           if (p.isCancellable)
             Expanded(
               child: _secondaryButton(
-                label: 'ANNULER',
+                label: AppLocalizations.of(context).orderCancelButton,
                 busy: isCancelling,
                 onTap: isCancelling ? null : () => _cancelOrder(p),
               ),
@@ -478,7 +481,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
           if (p.isReturnable)
             Expanded(
               child: _secondaryButton(
-                label: 'RETOURNER',
+                label: AppLocalizations.of(context).orderReturnButton,
                 onTap: () => _openReturnFlow(p),
               ),
             ),
@@ -530,17 +533,18 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
   // Maps an order status to its French label + colour, matching the design:
   // CONFIRMÉE (purple), EXPÉDIÉE (blue), LIVRÉ (green).
   (String, Color) _statusStyle(String raw) {
+    final l = AppLocalizations.of(context);
     final s = raw.toLowerCase();
     if (s.contains('livr') || s.contains('deliver')) {
-      return ('LIVRÉ', const Color(0xFF1FA463));
+      return (l.delivered, const Color(0xFF1FA463));
     }
     if (s.contains('exp') ||
         s.contains('ship') ||
         s.contains('sent') ||
         s.contains('dispatch')) {
-      return ('EXPÉDIÉE', const Color(0xFF2F6BEA));
+      return (l.orderShippedBadge, const Color(0xFF2F6BEA));
     }
-    return ('CONFIRMÉE', const Color(0xFF7B4DE3));
+    return (l.confirmed, const Color(0xFF7B4DE3));
   }
 
   Widget _buildStatusBadge(String status) {
@@ -623,8 +627,8 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
             onPressed: () => _fetchPurchases(firstLoad: true),
-            child:
-                const Text('Réessayer', style: TextStyle(color: Colors.white)),
+            child: Text(AppLocalizations.of(context).retry,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

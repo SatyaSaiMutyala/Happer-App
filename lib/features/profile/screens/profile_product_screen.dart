@@ -19,14 +19,14 @@ class ProductsScreen extends StatelessWidget {
         child: Column(
           children: [
             const Divider(height: 1),
-            _buildListTile(context, title: 'My Purchases', icon: Icon(Icons.shopping_bag, color: Colors.grey)),
+            _buildListTile(context, title: AppLocalizations.of(context).profileMyPurchases, icon: Icon(Icons.shopping_bag, color: Colors.grey)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: const Divider(height: 1),
             ),
             
            
-            _buildListTile(context, title: 'Return and Refund', icon: SvgPicture.asset('assets/images/return_svg.svg', width: 24, height: 24)), ],
+            _buildListTile(context, title: AppLocalizations.of(context).returnAndRefund, icon: SvgPicture.asset('assets/images/return_svg.svg', width: 24, height: 24)), ],
         ),
       ),
     );
@@ -36,13 +36,13 @@ class ProductsScreen extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       onTap: () {
-        if (title == 'My Purchases') {
+        if (title == AppLocalizations.of(context).profileMyPurchases) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => MyPurchasesScreen()),
           );
         } 
-        else if(title == 'Return and Refund'){
+        else if(title == AppLocalizations.of(context).returnAndRefund){
           Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -7,6 +7,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/profile/data/repositories/address_repository.dart';
 import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
@@ -160,7 +161,7 @@ extension _PaymentMethodExt on _PaymentMethod {
       case _PaymentMethod.klarna:
         return 'Klarna';
       case _PaymentMethod.card:
-        return 'Carte';
+        return appL10n.cartPaymentMethodCard;
     }
   }
 }
@@ -220,11 +221,10 @@ class _CartScreenState extends State<CartScreen> {
   Future<bool> _confirmAndRemove(_CartItem item) async {
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Retirer l\'article',
-      message:
-          'Voulez-vous retirer cet article de votre panier ?',
-      confirmLabel: 'Retirer',
-      cancelLabel: 'Annuler',
+      title: AppLocalizations.of(context).cartRemoveItemTitle,
+      message: AppLocalizations.of(context).confirmRemoveFromCart,
+      confirmLabel: AppLocalizations.of(context).cartRemoveButton,
+      cancelLabel: AppLocalizations.of(context).cancel,
       icon: Icons.delete_outline_rounded,
       type: ConfirmType.danger,
     );
@@ -350,7 +350,7 @@ class _CartScreenState extends State<CartScreen> {
       final currency = (data['currency'] as String? ?? 'eur').toUpperCase();
 
       if (clientSecret.isEmpty || publishableKey.isEmpty) {
-        showAppSnackBar('Erreur: données de paiement manquantes',
+        showAppSnackBar(AppLocalizations.of(context).cartPaymentDataMissing,
             isSuccess: false);
         return;
       }
@@ -388,7 +388,7 @@ class _CartScreenState extends State<CartScreen> {
         if (!supported) {
           if (mounted) {
             showAppSnackBar(
-                "Google Pay n'est pas disponible sur cet appareil",
+                AppLocalizations.of(context).cartGooglePayUnavailable,
                 isSuccess: false);
           }
           return;
@@ -465,7 +465,7 @@ class _CartScreenState extends State<CartScreen> {
       }
 
       if (!mounted) return;
-      showAppSnackBar('Paiement effectué avec succès !');
+      showAppSnackBar(AppLocalizations.of(context).cartPaymentSuccess);
 
       // Clear cart locally
       setState(() {
@@ -492,7 +492,9 @@ class _CartScreenState extends State<CartScreen> {
       if (!mounted) return;
       if (e.error.code != FailureCode.Canceled) {
         showAppSnackBar(
-            e.error.localizedMessage ?? e.error.message ?? 'Erreur de paiement',
+            e.error.localizedMessage ??
+                e.error.message ??
+                AppLocalizations.of(context).paymentFailed,
             isSuccess: false);
       }
     } catch (e) {
@@ -523,13 +525,13 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Choisir un moyen de paiement',
-                    style: TextStyle(
+                    AppLocalizations.of(context).cartChoosePaymentMethod,
+                    style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Lato'),
@@ -560,9 +562,10 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: HapperAppBar(title: 'MON PANIER'),
+      appBar: HapperAppBar(title: l.cartMyCartTitle),
       body: _isLoading
           ? const _CartShimmer()
           : _items.isEmpty
@@ -572,7 +575,7 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     Center(
                       child: Text(
-                        '${_items.length} Produit${_items.length > 1 ? 's' : ''} Ajouté${_items.length > 1 ? 's' : ''}',
+                        l.cartProductsAddedCount(_items.length),
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
@@ -658,9 +661,9 @@ class _CartScreenState extends State<CartScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
-                                    'Livraison à',
-                                    style: TextStyle(
+                                  Text(
+                                    l.cartDeliveryTo,
+                                    style: const TextStyle(
                                         fontSize: 11,
                                         color: Colors.grey,
                                         fontFamily: 'Lato'),
@@ -670,7 +673,7 @@ class _CartScreenState extends State<CartScreen> {
                                         ? (_selectedAddress!.city.isNotEmpty
                                             ? _selectedAddress!.city
                                             : _selectedAddress!.streetAddress)
-                                        : 'Sélectionner une adresse',
+                                        : l.cartSelectAddress,
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -697,7 +700,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              _selectedAddress != null ? 'Changer' : 'Choisir',
+                              _selectedAddress != null ? l.cartChange : l.cartChoose,
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -717,24 +720,24 @@ class _CartScreenState extends State<CartScreen> {
                       child: Column(
                         children: [
                           _CartPriceRow(
-                              title: 'Sous-total TTC',
+                              title: l.subtotalLabel,
                               value:
                                   '${(_subtotal + _avantages).toStringAsFixed(2)} €',
                               isItalic: false),
                           if (_avantages > 0)
                             _CartPriceRow(
-                                title: 'Avantages Happer',
+                                title: l.happerBenefits,
                                 value: '- ${_avantages.toStringAsFixed(2)} €',
                                 isItalic: false),
                           _CartPriceRow(
-                              title: 'Frais de Livraison',
+                              title: l.shippingLabel,
                               value: _shippingAmount > 0
                                   ? '${_shippingAmount.toStringAsFixed(2)} €'
-                                  : 'Gratuit',
+                                  : l.freeLabel,
                               isItalic: true),
                           const Divider(),
                           _CartPriceRow(
-                              title: 'Total TTC',
+                              title: l.totalLabel,
                               value: '${_total.toStringAsFixed(2)} €',
                               isItalic: false,
                               isBold: true),
@@ -761,12 +764,12 @@ class _CartScreenState extends State<CartScreen> {
                           Expanded(
                             child: Text.rich(
                               TextSpan(
-                                text: "J'accepte les ",
+                                text: l.iAcceptThe,
                                 style: const TextStyle(
                                     fontSize: 13, color: Colors.black87),
                                 children: [
                                   TextSpan(
-                                    text: 'Conditions générales de vente',
+                                    text: l.cgvLabel,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold),
                                     recognizer: TapGestureRecognizer()
@@ -798,9 +801,9 @@ class _CartScreenState extends State<CartScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  'PAY AVEC',
-                                  style: TextStyle(
+                                Text(
+                                  l.cartPayWith,
+                                  style: const TextStyle(
                                       fontSize: 10,
                                       color: Colors.grey,
                                       fontFamily: 'Lato',
@@ -840,7 +843,7 @@ class _CartScreenState extends State<CartScreen> {
                                             width: 0.5),
                                       ),
                                       child: Text(
-                                        'Sécurisé',
+                                        l.cartSecure,
                                         style: TextStyle(
                                             fontSize: 10,
                                             color: Colors.green.shade700,
@@ -893,9 +896,9 @@ class _CartScreenState extends State<CartScreen> {
                                                   fontSize: 16,
                                                   fontFamily: 'Lato'),
                                             ),
-                                            const Text(
-                                              'TOTAL TTC',
-                                              style: TextStyle(
+                                            Text(
+                                              l.cartTotalInclVatUpper,
+                                              style: const TextStyle(
                                                   color: Colors.white70,
                                                   fontSize: 10,
                                                   fontFamily: 'Lato'),
@@ -909,9 +912,9 @@ class _CartScreenState extends State<CartScreen> {
                                           margin: const EdgeInsets.symmetric(
                                               horizontal: 12),
                                         ),
-                                        const Text(
-                                          'Commander',
-                                          style: TextStyle(
+                                        Text(
+                                          l.cartOrderButton,
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
                                               fontSize: 14,
@@ -1009,7 +1012,9 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
       // Let the user retry on failure; only surface non-cancel errors.
       if (e.error.code != FailureCode.Canceled) {
         showAppSnackBar(
-            e.error.localizedMessage ?? e.error.message ?? 'Erreur de paiement',
+            e.error.localizedMessage ??
+                e.error.message ??
+                AppLocalizations.of(context).paymentFailed,
             isSuccess: false);
       }
     } catch (e) {
@@ -1043,9 +1048,9 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Payer par carte',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context).cartPayByCard,
+            style: const TextStyle(
                 fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Lato'),
           ),
           const SizedBox(height: 16),
@@ -1078,7 +1083,8 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
                         color: Colors.white, strokeWidth: 2),
                   )
                 : Text(
-                    'Payer ${widget.amountLabel}',
+                    AppLocalizations.of(context)
+                        .cartPayAmount(widget.amountLabel),
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1129,7 +1135,7 @@ class _EmptyCartView extends StatelessWidget {
               size: 72, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
-            'Votre panier est vide',
+            AppLocalizations.of(context).cartEmpty,
             style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey.shade600,
@@ -1137,7 +1143,7 @@ class _EmptyCartView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ajoutez des produits pour commencer',
+            AppLocalizations.of(context).cartAddProductsToStart,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
           ),
         ],
@@ -1290,15 +1296,15 @@ class _CartItemCard extends StatelessWidget {
                 // actually charged) earns the "Prix Spécial Happer" label.
                 if (hasDiscount) ...[
                   const SizedBox(height: 2),
-                  const Text('Prix Spécial Happer',
-                      style: TextStyle(
+                  Text(AppLocalizations.of(context).happerSpecialPrice,
+                      style: const TextStyle(
                           fontSize: 11,
                           color: Colors.grey,
                           fontStyle: FontStyle.italic)),
                 ],
                 const SizedBox(height: 4),
-                const Text('Livré dans 2-5 jours',
-                    style: TextStyle(fontSize: 11, color: Colors.grey)),
+                Text(AppLocalizations.of(context).cartDeliveredIn2To5Days,
+                    style: const TextStyle(fontSize: 11, color: Colors.grey)),
               ],
             ),
           ),
@@ -1404,7 +1410,8 @@ class _PaymentWebViewScreenState extends State<_PaymentWebViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: HapperAppBar(title: 'Paiement'),
+      appBar: HapperAppBar(
+          title: AppLocalizations.of(context).cartPaymentTitle),
       body: Stack(
         children: [
           WebViewWidget(controller: _controller),

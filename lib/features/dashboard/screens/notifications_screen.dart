@@ -317,8 +317,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ElevatedButton(
             onPressed: _controller.refresh,
             style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-            child: const Text('Réessayer',
-                style: TextStyle(color: Colors.white)),
+            child: Text(l.retry,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

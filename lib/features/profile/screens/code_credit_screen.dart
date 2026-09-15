@@ -113,9 +113,9 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
                         padding: const EdgeInsets.only(top: 20.0),
                         child: Column(
                           children: [
-                            const Text(
-                              'YOUR PROMO CODE',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context).profileYourPromoCode,
+                              style: const TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
                             ),
                             const SizedBox(height: 8),
@@ -144,9 +144,9 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
                     }),
 
                     // Credit code input
-                    const Text(
-                      'CREDIT CODE',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    Text(
+                      AppLocalizations.of(context).codeCreditTitle,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -211,8 +211,8 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
                                           : Colors.black87,
                                     ),
                                   )
-                                : const Text('VERIFY',
-                                    style: TextStyle(
+                                : Text(AppLocalizations.of(context).verify,
+                                    style: const TextStyle(
                                         fontSize: 16, fontWeight: FontWeight.w500)),
                           ),
                         )),
@@ -223,9 +223,9 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'YOUR PROMO CODES',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        Text(
+                          AppLocalizations.of(context).profileYourPromoCodes,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Obx(() => IconButton(
                               icon: Icon(
@@ -245,9 +245,9 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
                         return Container(
                           height: 100,
                           alignment: Alignment.center,
-                          child: const Text(
-                            'No promo codes available',
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          child: Text(
+                            AppLocalizations.of(context).profileNoPromoCodes,
+                            style: const TextStyle(color: Colors.grey, fontSize: 14),
                           ),
                         );
                       }
@@ -321,7 +321,7 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      '${code.nbCredits} Credits',
+                      AppLocalizations.of(context).profileCreditsCount(code.nbCredits),
                       style: const TextStyle(
                           fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
@@ -330,9 +330,9 @@ class _CodeCreditScreenState extends State<CodeCreditScreen> {
               ),
               const SizedBox(height: 8),
               if (!code.used)
-                const Text(
-                  'Tap to apply',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context).profileTapToApply,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: Colors.blue,

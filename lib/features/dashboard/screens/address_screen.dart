@@ -7,6 +7,7 @@ import 'package:happer_app/features/dashboard/bindings/cart_binding.dart';
 import 'package:happer_app/features/dashboard/data/repositories/cart_repository.dart';
 import 'package:happer_app/features/profile/data/repositories/address_repository.dart';
 import 'package:happer_app/features/profile/models/address_model.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class AddressScreen extends StatefulWidget {
   final String cartId;
@@ -134,7 +135,7 @@ class _AddressScreenState extends State<AddressScreen> {
     } catch (e) {
       debugPrint('Error fetching cart details: $e');
       if (_mounted) {
-        _showErrorSnackbar('Could not load cart details. Please try again.');
+        _showErrorSnackbar(AppLocalizations.of(context).cartLoadDetailsFailed);
       }
     }
   }
@@ -232,7 +233,7 @@ class _AddressScreenState extends State<AddressScreen> {
       appBar: AppBar(
         title: Text(
           // 'ADDRESS',
-          'ADRESSE',
+          AppLocalizations.of(context).address,
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -360,9 +361,9 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              "Utiliser l'adresse de mon profil",
-              style: TextStyle(fontSize: 14, color: Colors.black),
+            Text(
+              AppLocalizations.of(context).cartUseProfileAddress,
+              style: const TextStyle(fontSize: 14, color: Colors.black),
             ),
           ],
         ),
@@ -406,7 +407,7 @@ class _AddressScreenState extends State<AddressScreen> {
       children: [
         SizedBox(height: 24),
         Text(
-          'ADDRESSE DE FACTURATION',
+          AppLocalizations.of(context).cartBillingAddressTitle,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -494,9 +495,9 @@ class _AddressScreenState extends State<AddressScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                "Utiliser l'adresse saisie dans Mon Profil",
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context).cartUseAddressFromMyProfile,
+                style: const TextStyle(
                   fontSize: 14,
                   fontFamily: 'Lato',
                   color: Colors.black,
@@ -543,21 +544,22 @@ class _AddressScreenState extends State<AddressScreen> {
 
   Widget _buildCheckoutSection() {
     debugPrint('Building checkout section - Button enabled: $_isButtonEnabled');
+    final l = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Divider(color: Colors.grey[300], height: 1),
         _buildSummaryRow(
-            'Sous-total TTC', "${_calculateSubTotal().toStringAsFixed(2)} €"),
+            l.subtotalLabel, "${_calculateSubTotal().toStringAsFixed(2)} €"),
         _buildSummaryRow(
-            'Frais de Livraison',
+            l.shippingLabel,
             _cartData?.totalShippingPrice == null || _cartData!.totalShippingPrice == 0
-                ? "Offerts"
+                ? l.freeLabel
                 : "${_cartData!.totalShippingPrice!.toStringAsFixed(2)} €"),
         SizedBox(height: 8),
         Divider(color: Colors.grey[300], height: 1),
         SizedBox(height: 8),
-        _buildSummaryRow('Total TTC', '${_cartData?.total?.toStringAsFixed(2) ?? '0.00'} €', isBold: true),
+        _buildSummaryRow(l.totalLabel, '${_cartData?.total?.toStringAsFixed(2) ?? '0.00'} €', isBold: true),
         
         SizedBox(height: 16),
         ElevatedButton(
@@ -574,9 +576,9 @@ class _AddressScreenState extends State<AddressScreen> {
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          child: const Text(
-            'ENREGISTRER',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          child: Text(
+            l.saveButton,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -584,22 +586,46 @@ class _AddressScreenState extends State<AddressScreen> {
   }
 
   Widget _buildAddressField(String label, TextEditingController controller) {
+    final l = AppLocalizations.of(context);
+
+    // `label` is the field's internal key; this is what the user sees.
+    String getDisplayLabel() {
+      switch (label) {
+        case 'Nom':
+          return l.lastNameLabel;
+        case 'Prénom':
+          return l.firstNameLabel;
+        case 'Adresse':
+          return l.cartAddressLabel;
+        case 'Code postal':
+          return l.codePostal;
+        case 'Ville':
+          return l.ville;
+        case 'E-mail':
+          return l.adresseEmail;
+        case 'Phone':
+          return l.phoneLabel;
+        default:
+          return label;
+      }
+    }
+
     String getHintText() {
       switch (label) {
         case 'Name':
-          return 'Enter your last name';
+          return l.cartEnterLastName;
         case 'Prénom':
-          return 'Enter your first name';
+          return l.cartEnterFirstName;
         case 'Adresse':
-          return 'Enter your street address';
+          return l.cartEnterStreetAddress;
         case 'Code postal':
-          return 'Enter postal code';
+          return l.cartEnterPostalCode;
         case 'Ville':
-          return 'Enter city name';
+          return l.cartEnterCityName;
         case 'E-mail':
-          return 'Enter email address';
+          return l.cartEnterEmailAddress;
         case 'Phone':
-          return 'Enter phone number';
+          return l.cartEnterPhoneNumber;
         default:
           return '';
       }
@@ -607,37 +633,37 @@ class _AddressScreenState extends State<AddressScreen> {
 
     String? validator(String? value) {
       if (value == null || value.trim().isEmpty) {
-        return 'Required';
+        return l.fieldRequired;
       }
       if (label == 'Nom' || label == 'Prénom') {
         if (value.trim().length < 2) {
-          return 'Minimum 2 characters';
+          return l.cartMinTwoCharacters;
         }
       }
       if (label == 'Adresse') {
         if (value.trim().length < 5) {
-          return 'Enter a valid address';
+          return l.cartEnterValidAddress;
         }
       }
       if (label == 'Code postal') {
         if (!RegExp(r'^\d{4,10}$').hasMatch(value.trim())) {
-          return 'Enter a valid postal code';
+          return l.cartEnterValidPostalCode;
         }
       }
       if (label == 'Ville') {
         if (value.trim().length < 2) {
-          return 'Enter a valid city name';
+          return l.cartEnterValidCityName;
         }
       }
       if (label == 'E-mail') {
         final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
         if (!emailRegex.hasMatch(value.trim())) {
-          return 'Enter a valid email';
+          return l.invalidEmail;
         }
       }
       if (label == 'Phone') {
         if (value.trim().length < 8) {
-          return 'Enter a valid phone number';
+          return l.cartEnterValidPhoneNumber;
         }
       }
       return null;
@@ -651,7 +677,7 @@ class _AddressScreenState extends State<AddressScreen> {
           SizedBox(
             width: 110,
             child: Text(
-              label,
+              getDisplayLabel(),
               style: const TextStyle(
                 fontSize: 14,
                 fontFamily: 'Lato',

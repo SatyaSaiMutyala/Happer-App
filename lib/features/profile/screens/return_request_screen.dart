@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:happer_app/features/profile/models/purchase_model.dart';
 import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
 import 'package:happer_app/features/profile/widgets/order_product_header.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
+import 'package:intl/intl.dart';
 
 /// "DEMANDE DE RETOUR" — return-request status: confirmation banner, a 4-step
 /// progress tracker, the return details, an expiry notice and a tracking entry.
@@ -29,15 +31,17 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
     _requestDate = DateTime.now();
   }
 
-  static const _months = [
-    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-  ];
+  /// e.g. "5 janvier 2026" / "5 January 2026", in the current app language.
+  String _frDate(DateTime d) =>
+      DateFormat('d MMMM y', Localizations.localeOf(context).languageCode)
+          .format(d);
 
-  String _frDate(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
+  /// e.g. "14h05" / "14:05".
+  String _frTime(DateTime d) => AppLocalizations.of(context)
+      .orderTimeHourMinute('${d.hour}', d.minute.toString().padLeft(2, '0'));
 
   String _frDateTime(DateTime d) =>
-      '${_frDate(d)} à ${d.hour}h${d.minute.toString().padLeft(2, '0')}';
+      AppLocalizations.of(context).orderDateAtTime(_frDate(d), _frTime(d));
 
   String get _requestNumber =>
       'RET-${(_requestDate.millisecondsSinceEpoch % 1000000).toString().padLeft(6, '0')}';
@@ -49,7 +53,7 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: 'DEMANDE DE RETOUR',
+        title: AppLocalizations.of(context).returnRequest,
         actions: [
           IconButton(
             icon: const Icon(Icons.headset_mic_outlined,
@@ -102,8 +106,9 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
   // ─── Tracker card ─────────────────────────────────────────────────────────
 
   Widget _trackerCard() {
-    const labels = ['Demande', 'Expédition', 'Réception', 'Remboursement'];
-    const subs = ['En cours', 'À venir', 'À venir', 'À venir'];
+    final l = AppLocalizations.of(context);
+    final labels = [l.request, l.dispatch, l.receipt, l.refund];
+    final subs = [l.inProgress, l.upcoming, l.upcoming, l.upcoming];
     final aligns = [
       TextAlign.left,
       TextAlign.center,
@@ -131,7 +136,8 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Nous avons bien reçu votre demande le ${_frDateTime(_requestDate)}. Suivez l\'avancement ci-dessous.',
+                    l.returnRequestReceived(
+                        _frDate(_requestDate), _frTime(_requestDate)),
                     style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 14,
@@ -229,6 +235,7 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
   // ─── Details card ─────────────────────────────────────────────────────────
 
   Widget _detailsCard() {
+    final l = AppLocalizations.of(context);
     final brand = widget.order.brand?.name ?? '';
     return _card(
       padding: EdgeInsets.zero,
@@ -236,33 +243,32 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
         children: [
           _detailRow(
             icon: Icons.inventory_2_outlined,
-            title: 'Motif du retour',
+            title: l.returnReason,
             value: widget.reason,
           ),
           _divider(),
           _detailRow(
             icon: Icons.calendar_month_outlined,
-            title: 'Date de la demande',
+            title: l.requestDate,
             value: _frDateTime(_requestDate),
           ),
           _divider(),
           _detailRow(
             icon: Icons.info_outline,
-            title: 'N° de demande',
+            title: l.requestNumber,
             value: _requestNumber,
           ),
           _divider(),
           _detailRow(
             icon: Icons.location_on_outlined,
-            title: 'Adresse de retour',
-            value:
-                'Happer - Retours ${brand.toUpperCase()}\n25 rue d\'Uzès, 75002 Paris, France',
+            title: l.returnAddress,
+            value: l.orderReturnAddressValue(brand.toUpperCase()),
           ),
           _divider(),
           _detailRow(
             icon: Icons.credit_card_outlined,
-            title: 'Frais de retour',
-            value: 'À la charge du client',
+            title: l.returnFees,
+            value: l.customerPays,
           ),
         ],
       ),
@@ -332,7 +338,8 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Vous avez jusqu\'au ${_frDate(_deadline)} pour expédier votre retour. Passé ce délai votre demande sera annulée.',
+              AppLocalizations.of(context)
+                  .returnDeadlineNotice(_frDate(_deadline)),
               style: const TextStyle(
                 fontFamily: 'Lato',
                 fontSize: 14,
@@ -349,6 +356,7 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
   // ─── Track card ───────────────────────────────────────────────────────────
 
   Widget _trackCard() {
+    final l = AppLocalizations.of(context);
     return _card(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,20 +367,20 @@ class _ReturnRequestScreenState extends State<ReturnRequestScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Suivre mon retour',
-                  style: TextStyle(
+                  l.trackMyReturn,
+                  style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                     color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  'Suivez l\'acheminement après expédition.',
-                  style: TextStyle(
+                  l.trackReturnDescription,
+                  style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w400,
                     fontSize: 13,

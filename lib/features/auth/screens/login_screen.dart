@@ -42,16 +42,17 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _validate() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final l = AppLocalizations.of(context);
     if (email.isEmpty) {
-      showAppSnackBar('Please enter your email', isSuccess: false);
+      showAppSnackBar(l.authEnterEmail, isSuccess: false);
       return false;
     }
     if (!_emailRegex.hasMatch(email)) {
-      showAppSnackBar('Please enter a valid email address', isSuccess: false);
+      showAppSnackBar(l.invalidEmail, isSuccess: false);
       return false;
     }
     if (password.isEmpty) {
-      showAppSnackBar('Please enter your password', isSuccess: false);
+      showAppSnackBar(l.authEnterPassword, isSuccess: false);
       return false;
     }
     return true;
@@ -114,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Email
                     AppInputField(
                       controller: _emailController,
-                      hintText: 'Email',
+                      hintText: AppLocalizations.of(context).email,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (v) {
                         if (v != v.toLowerCase()) {

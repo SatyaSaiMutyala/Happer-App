@@ -9,6 +9,7 @@ import 'package:happer_app/features/selfies/controllers/selfie_controller.dart';
 import 'package:happer_app/features/selfies/bindings/selfie_binding.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:happer_app/l10n/app_localizations.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -68,7 +69,7 @@ class _Product {
       id: json['_id'] as String? ?? '',
       brandId: brandId,
       variantId: variantId,
-      name: json['name'] as String? ?? 'Unknown',
+      name: json['name'] as String? ?? appL10n.unknown,
       brandName: brandName,
       brandPicture: brandPicture,
       imageUrl: imageUrl,
@@ -141,6 +142,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       );
       return;
     }
+    final cropTitle = AppLocalizations.of(context).dashCropYourPhoto;
     final source = await _pickImageSource();
     if (source == null) return;
 
@@ -171,7 +173,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
         compressFormat: ImageCompressFormat.jpg,
         uiSettings: [
           AndroidUiSettings(
-            toolbarTitle: 'Recadrez votre photo',
+            toolbarTitle: cropTitle,
             toolbarColor: Colors.white,
             backgroundColor: Colors.black,
             aspectRatioPresets: const [_Portrait4x5()],
@@ -181,7 +183,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
             hideBottomControls: true,
           ),
           IOSUiSettings(
-            title: 'Recadrez votre photo',
+            title: cropTitle,
             aspectRatioPresets: const [_Portrait4x5()],
             aspectRatioLockEnabled: true,
             aspectRatioPickerButtonHidden: true,
@@ -551,7 +553,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    'Glissez une photo pour changer l\'ordre',
+                    l10n.dashDragToReorder,
                     style: TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 11.5,

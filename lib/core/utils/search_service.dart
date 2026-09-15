@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:happer_app/features/creator/bindings/creator_binding.dart';
 import 'package:happer_app/features/creator/data/models/suggestion_model.dart';
 import 'package:happer_app/features/creator/data/repositories/creator_repository.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// A service class to handle search functionality across the app
@@ -151,17 +152,17 @@ class _SearchOverlayContentState extends State<_SearchOverlayContent> {
               controller: _textController,
               autofocus: true,
               onChanged: _onChanged,
-              decoration: const InputDecoration(
-                hintText: 'Rechercher créateur, marque...',
-                hintStyle: TextStyle(
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context).creatorSearchCreatorBrandHint,
+                hintStyle: const TextStyle(
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
                   color: Color(0xFF8D8D8D),
                 ),
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 border: InputBorder.none,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               ),
               onSubmitted: _submit,
             ),
@@ -267,7 +268,9 @@ class _SearchOverlayContentState extends State<_SearchOverlayContent> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
-          item.isBrand ? 'Marque' : 'Créateur',
+          item.isBrand
+              ? AppLocalizations.of(context).marque
+              : AppLocalizations.of(context).creatorCreatorLabel,
           style: TextStyle(
             fontFamily: 'Lato',
             fontSize: 11,

@@ -45,11 +45,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final password = _passwordController.text;
     final confirm = _confirmController.text;
     if (password.isEmpty) {
-      showAppSnackBar('Please enter a password', isSuccess: false);
+      showAppSnackBar(AppLocalizations.of(context).authEnterAPassword, isSuccess: false);
       return false;
     }
     if (password.length < 6) {
-      showAppSnackBar('Password must be at least 6 characters', isSuccess: false);
+      showAppSnackBar(AppLocalizations.of(context).authPasswordTooShort, isSuccess: false);
       return false;
     }
     if (password != confirm) {

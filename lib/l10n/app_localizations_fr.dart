@@ -21,11 +21,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noDataFound => 'Aucune donnée trouvée.';
 
   @override
-  String get justNow => 'À l\'instant';
+  String get justNow => 'À l’instant';
 
   @override
   String minutesAgo(int minutes) {
-    return 'Il y a $minutes min';
+    return 'il y a $minutes min';
   }
 
   @override
@@ -35,7 +35,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String daysAgo(int days) {
-    return 'Il y a $days jours';
+    return 'il y a $days jours';
   }
 
   @override
@@ -50,26 +50,26 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String monthAgo(int months) {
-    return 'Il y a $months mois';
+    return 'il y a $months mois';
   }
 
   @override
   String monthsAgo(int months) {
-    return 'Il y a $months mois';
+    return 'il y a $months mois';
   }
 
   @override
   String yearAgo(int years) {
-    return 'Il y a $years an';
+    return 'il y a $years an';
   }
 
   @override
   String yearsAgo(int years) {
-    return 'Il y a $years ans';
+    return 'il y a $years ans';
   }
 
   @override
-  String get shopTheStyle => 'MAGASINER LE STYLE';
+  String get shopTheStyle => 'SHOP LE STYLE';
 
   @override
   String get unknown => 'Inconnu';
@@ -108,7 +108,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get seConnecter => 'Se connecter';
 
   @override
-  String get login => 'Connexion';
+  String get login => 'SE CONNECTER';
 
   @override
   String get nomUtilisateur => 'Adresse mail';
@@ -126,7 +126,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forgetPassword => 'Mot de passe oublié ?';
 
   @override
-  String get signUp => 'S\'inscrire';
+  String get signUp => 'Créer un compte';
 
   @override
   String get sInscrire => 'S\'inscrire';
@@ -153,7 +153,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirmerMotDePasse => 'Confirmer mot de passe';
 
   @override
-  String get confirmPassword => 'Confimer mot de passe';
+  String get confirmPassword => 'Confirmer le mot de passe';
 
   @override
   String get codeParainage => 'Code Parrainage';
@@ -207,10 +207,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wonItems => 'Mes Produits Remportés';
 
   @override
-  String get wishlist => 'Ma wishlist';
+  String get wishlist => 'LISTE DE SOUHAITS';
 
   @override
-  String get detailsProduit => 'Détails produit';
+  String get detailsProduit => 'DÉTAILS PRODUIT';
 
   @override
   String get description => 'Description';
@@ -225,34 +225,34 @@ class AppLocalizationsFr extends AppLocalizations {
   String get realPrice => 'Prix réel';
 
   @override
-  String get discountPrice => 'Prix Promo';
+  String get discountPrice => 'Prix PROMO';
 
   @override
   String get iWantIt => 'JE LE VEUX';
 
   @override
-  String get productInformation => 'Informations Produit';
+  String get productInformation => 'Informations sur le produit';
 
   @override
-  String get latestBidder => 'Dernières Happeuses';
+  String get latestBidder => 'Derniers enchérisseurs';
 
   @override
   String get dernieresHappeuses => 'Dernières Happeuses';
 
   @override
-  String get first => '1ère';
+  String get first => '1er';
 
   @override
-  String get second => '2ème';
+  String get second => '2e';
 
   @override
-  String get third => '3ème';
+  String get third => '3e';
 
   @override
-  String get fourth => '4ème';
+  String get fourth => '4e';
 
   @override
-  String get fifth => '5ème';
+  String get fifth => '5e';
 
   @override
   String get credit => 'Crédit';
@@ -421,7 +421,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shareThisPicture => 'Partager la photo';
 
   @override
-  String get cropPicture => 'Recadrer la photo';
+  String get cropPicture => 'RECADRER LA PHOTO';
 
   @override
   String get categorizeThisPicture => 'Catégoriser la photo';
@@ -444,7 +444,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contribuer => 'Contribuer';
 
   @override
-  String get partager => 'Partager';
+  String get partager => 'PARTAGER';
 
   @override
   String get vosPlusBeauxStyles => 'vos plus beaux Styles';
@@ -498,16 +498,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get lastName => 'Nom';
 
   @override
-  String get adresse => 'Adresse';
+  String get adresse => 'ADRESSE';
 
   @override
-  String get address => 'Adresse';
+  String get address => 'ADRESSE';
 
   @override
   String get codePostal => 'Code postal';
 
   @override
-  String get postalCode => 'Code Postal';
+  String get postalCode => 'Code postal';
 
   @override
   String get ville => 'Ville';
@@ -522,16 +522,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dateDeNaissance => 'Date de naissance';
 
   @override
-  String get dateOfBirth => 'Date De Naissance';
+  String get dateOfBirth => 'Date de naissance';
 
   @override
   String get modifier => 'Modifier';
 
   @override
-  String get deconnexion => 'Déconnexion';
+  String get deconnexion => 'DÉCONNEXION';
 
   @override
-  String get logout => 'Déconnexion';
+  String get logout => 'DÉCONNEXION';
 
   @override
   String get deleteMyAccount => 'Supprimer mon compte';
@@ -543,7 +543,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get delete => 'Supprimer';
 
   @override
-  String get invitFriend => 'PARRAINAGE';
+  String get invitFriend => 'INVITEZ VOS AMIS';
 
   @override
   String get sponsorship => 'Inviter des amies';
@@ -552,18 +552,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sponsorShipText => 'Parrainage';
 
   @override
-  String get sponsorshipTitle => '1 PARRAINAGE = 50 CRÉDITS';
+  String get sponsorshipTitle => '1 PARRAINAGE = 20 CRÉDITS';
 
   @override
   String get earnCreditSponsorShip =>
       'Récupérez 30 crédits pour chaque amie parrainée';
 
   @override
-  String get yourCode => 'Votre code';
+  String get yourCode => 'Votre code parrainage';
 
   @override
   String get textShare =>
-      'Partagez votre code avec une amie. Quand elle l\'utilisera lors de son inscription, vous obtiendrez tous les deux 30 crédits';
+      'Partagez votre code parrainage avec vos ami(e)s : s’il est utilisé à l’inscription, vous gagnez des crédits gratuits';
 
   @override
   String get messageSponshipAddFriend =>
@@ -653,11 +653,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get d => 'J';
 
   @override
-  String get titleInfoStartDate => 'Période de réserve non atteint';
+  String get titleInfoStartDate => 'Période de réserve non atteinte';
 
   @override
   String get contentInfoStartDate =>
-      'Date et heure minimum avant de pouvoir remporter l\'article';
+      'Date et heure minimum avant de pouvoir gagner ce produit';
 
   @override
   String get dateHeureMiseEnJeuArticle =>
@@ -710,7 +710,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get succes => 'Succès';
 
   @override
-  String get congratulations => 'Félicitations !';
+  String get congratulations => 'FÉLICITATIONS';
 
   @override
   String get votreCompteModifieAvecSucces =>
@@ -869,14 +869,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exceptOf => 'au lieu de ';
 
   @override
-  String get privacyPolicy => 'Politique Privée';
+  String get privacyPolicy => 'Politique de confidentialité';
 
   @override
   String get termsOfUse => 'Condition d\'utilisation';
 
   @override
   String get enterCodeAndNewPassword =>
-      'Entrez le code reçu par mail ainsi que votre nouveau mot de passe';
+      'Saisissez le code reçu par e-mail et votre nouveau mot de passe';
 
   @override
   String get lang => 'fr';
@@ -924,7 +924,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Recevez des notifications push générales';
 
   @override
-  String get save => 'Sauvegarder';
+  String get save => 'ENREGISTRER';
 
   @override
   String get settingsSaved => 'Paramètres sauvegardés avec succès';
@@ -945,7 +945,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get termsAndConditions => 'Conditions générales de vente';
 
   @override
-  String get changePasswordTitle => 'Changer mot de passe';
+  String get changePasswordTitle => 'CHANGER MOT DE PASSE';
 
   @override
   String get forgotPasswordTitle => 'MOT DE PASSE OUBLIÉ';
@@ -954,16 +954,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get resetPasswordTitle => 'RÉINITIALISER MOT DE PASSE';
 
   @override
-  String get gameContestTitle => 'Jeu Concours';
+  String get gameContestTitle => 'Jeu concours';
 
   @override
-  String get mesCommandesTitle => 'Mes Commandes';
+  String get mesCommandesTitle => 'Mes commandes';
 
   @override
   String get mesLooksTitle => 'Ma boutique';
 
   @override
-  String get mesFavorisTitle => 'Mes Favoris';
+  String get mesFavorisTitle => 'Mes favoris';
 
   @override
   String get sharePhotoTitle => 'PARTAGER LA PHOTO';
@@ -982,7 +982,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chooseFromGallery => 'Choisir dans la galerie';
 
   @override
-  String get myAddressTitle => 'Mon Adresse';
+  String get myAddressTitle => 'Mon adresse';
 
   @override
   String get languageLabel => 'Langue';
@@ -1018,7 +1018,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enterCurrentPassword => 'Entrez votre mot de passe actuel';
 
   @override
-  String get codeCreditTitle => 'CODE CRÉDIT';
+  String get codeCreditTitle => 'CODE DE CRÉDIT';
 
   @override
   String get monCompteTitleLabel => 'MON COMPTE';
@@ -1064,7 +1064,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Échec de l\'inscription. Veuillez réessayer.';
 
   @override
-  String get wishlistTitle => 'WISHLIST';
+  String get wishlistTitle => 'LISTE DE SOUHAITS';
 
   @override
   String get cameraPermissionRequired =>
@@ -1101,7 +1101,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passwordHint => 'Mot de passe';
 
   @override
-  String get forgotPasswordLink => 'Mot De Passe Oublié ?';
+  String get forgotPasswordLink => 'Mot de passe oublié ?';
 
   @override
   String get loginFailedCredentials =>
@@ -1114,7 +1114,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noAccountQuestion => 'Vous n\'avez pas de compte ?';
 
   @override
-  String get signUpLink => 'S\'inscrire';
+  String get signUpLink => 'Créer un compte';
 
   @override
   String get errorLabel => 'Erreur';
@@ -1130,10 +1130,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get lastNameHint => 'Nom';
 
   @override
-  String get confirmPasswordHint => 'Confirmer Mot De Passe';
+  String get confirmPasswordHint => 'Confirmer le mot de passe';
 
   @override
-  String get sponsorCodeHint => 'Code Parrainage (Optionnel)';
+  String get sponsorCodeHint => 'Code parrainage (optionnel)';
 
   @override
   String get iAcceptAllThe => 'J\'accepte toutes les ';
@@ -1149,7 +1149,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get signUpButton => 'S\'INSCRIRE';
 
   @override
-  String get orSignUpWith => 'Ou inscrivez-vous avec';
+  String get orSignUpWith => 'Ou s\'inscrire avec';
 
   @override
   String get resetPasswordHeading => 'Réinitialiser le mot de passe';
@@ -1179,7 +1179,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rejoignez une communauté de passionnés de mode, découvrez des looks incroyables et partagez votre style.';
 
   @override
-  String get getStartedButton => 'Commencer';
+  String get getStartedButton => 'Continuer';
 
   @override
   String get alreadyHaveAccount => 'Vous avez déjà un compte ?';
@@ -1192,7 +1192,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de continuer en tant qu\'invité. Veuillez réessayer.';
 
   @override
-  String get productsAddedCount => 'Produits Ajoutés';
+  String get productsAddedCount => 'Produits ajoutés';
 
   @override
   String get cartEmptyDescription =>
@@ -1336,7 +1336,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get actualPrice => 'Prix réel';
 
   @override
-  String get promoPrice => 'Prix Promo';
+  String get promoPrice => 'Prix PROMO';
 
   @override
   String get deliveryDetailsButton => 'DÉTAILS DE LIVRAISON';
@@ -1436,7 +1436,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fieldRequired => 'Ce champ est requis';
 
   @override
-  String get myProfileTitle => 'Mon profil';
+  String get myProfileTitle => 'MON PROFIL';
 
   @override
   String get personalInfoSection => 'Informations personnelles';
@@ -1466,7 +1466,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unfollow => 'Se désabonner';
 
   @override
-  String get followers => 'Abonnés';
+  String get followers => 'ABONNÉS';
 
   @override
   String get following => 'Abonnements';
@@ -1544,7 +1544,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez vous connecter pour ajouter au panier';
 
   @override
-  String get activateCreatorAccount => 'Activer Creator';
+  String get activateCreatorAccount => 'ACTIVER MON COMPTE CREATOR';
 
   @override
   String get dobLabel => 'Date de naissance';
@@ -1563,4 +1563,1546 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get productSelectedBy => 'Ce produit a été sélectionné par';
+
+  @override
+  String get theHappyPlaceOfFashion => 'La Happy Place de la mode';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get agreeWithAllTermsAndConditions =>
+      'J\'accepte toutes les Conditions Générales';
+
+  @override
+  String get enterRegisteredEmailForNewPassword =>
+      'Veuillez saisir votre adresse e-mail enregistrée pour obtenir votre nouveau mot de passe';
+
+  @override
+  String get sendCode => 'Envoyer le code';
+
+  @override
+  String get creator => 'CRÉATEUR';
+
+  @override
+  String get discover => 'DÉCOUVRIR';
+
+  @override
+  String dayAgo(int days) {
+    return 'il y a $days jour';
+  }
+
+  @override
+  String get selectSize => 'SÉLECTIONNER TAILLE';
+
+  @override
+  String get addToCart => 'AJOUTER AU PANIER';
+
+  @override
+  String get subTotal => 'Sous-total';
+
+  @override
+  String get shipping => 'Livraison';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get continuer => 'CONTINUER';
+
+  @override
+  String get search => 'Rechercher...';
+
+  @override
+  String get shopThePics => 'BOUTIQUE DU CRÉATEUR';
+
+  @override
+  String get selectProduct => 'Sélectionner un produit';
+
+  @override
+  String get useContactInMyProfile =>
+      'Utiliser les coordonnées dans mon profil';
+
+  @override
+  String get checkout => 'PAIEMENT';
+
+  @override
+  String get payNow => 'PAYER MAINTENANT';
+
+  @override
+  String get saveCardForFuturePayments =>
+      'Sauvegarder cette carte pour les paiements futurs';
+
+  @override
+  String get profile => 'PROFIL';
+
+  @override
+  String get myPictures => 'Mes photos';
+
+  @override
+  String get promo => 'Promo';
+
+  @override
+  String get paid => 'PAYÉ';
+
+  @override
+  String get sent => 'EXPÉDIÉ';
+
+  @override
+  String get delivered => 'LIVRÉ';
+
+  @override
+  String get referralCode => 'Code de parrainage';
+
+  @override
+  String get won => 'GAGNÉ';
+
+  @override
+  String get verify => 'VÉRIFIER';
+
+  @override
+  String get procedure => 'Procédure';
+
+  @override
+  String get contactCustomerServiceNotice =>
+      'Pour toute question ou problème, contactez le service client à contact@happer.fr. Temps de réponse moyen : 72h.';
+
+  @override
+  String get contactByEmail => 'CONTACTER PAR EMAIL';
+
+  @override
+  String get sharedPictures => 'Photos partagées';
+
+  @override
+  String get likedPictures => 'Photos Likés';
+
+  @override
+  String get details => 'DÉTAILS';
+
+  @override
+  String get weContactYouWithin72Hours =>
+      'Nous vous contacterons par email sous 72h !';
+
+  @override
+  String get theseArticlesSelectedBy => 'Ces articles ont été sélectionnés par';
+
+  @override
+  String get seconds => 'secondes';
+
+  @override
+  String get sixth => '6e';
+
+  @override
+  String get seventh => '7e';
+
+  @override
+  String get eighth => '8e';
+
+  @override
+  String get ninth => '9e';
+
+  @override
+  String get settings => 'Paramètres';
+
+  @override
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get changePassword => 'Changer le mot de passe';
+
+  @override
+  String get update => 'Mettre à jour';
+
+  @override
+  String get gcs => 'CGV';
+
+  @override
+  String get gcu => 'CGU';
+
+  @override
+  String get myPurchases => 'MES ACHATS';
+
+  @override
+  String get codeVerified => 'CODE VÉRIFIÉ';
+
+  @override
+  String get minimumDateBeforePlay =>
+      'Date et heure minimum avant de pouvoir Happer ce produit';
+
+  @override
+  String nightBiddingPaused(int hours) {
+    return 'Entre minuit et 8h, vous ne pouvez pas enchérir. Reprise dans $hours heures.';
+  }
+
+  @override
+  String get moreCoins => 'Besoin de plus de crédits ?';
+
+  @override
+  String get country => 'Pays';
+
+  @override
+  String get publishMyLook => 'PUBLIER MON LOOK';
+
+  @override
+  String get searchProducts => 'Rechercher des produits...';
+
+  @override
+  String get myLooks => 'Mes looks';
+
+  @override
+  String get confirmed => 'CONFIRMÉE';
+
+  @override
+  String get shippingLink => 'LIEN LIVRAISON';
+
+  @override
+  String get orderDetails => 'DÉTAIL DE LA COMMANDE';
+
+  @override
+  String get deliveredOn => 'Livré le';
+
+  @override
+  String get confirmedStatus => 'Confirmée';
+
+  @override
+  String get shippedStatus => 'Expédiée';
+
+  @override
+  String get deliveredStatus => 'Livrée';
+
+  @override
+  String get delivery => 'Livraison';
+
+  @override
+  String get trackingNumber => 'N° de suivi';
+
+  @override
+  String get deliveryAddress => 'Adresse de livraison';
+
+  @override
+  String get orderInformation => 'Informations de la commande';
+
+  @override
+  String get orderNumber => 'N° de la commande';
+
+  @override
+  String get viewInvoicePdf => 'Voir la facture (PDF)';
+
+  @override
+  String get purchasedVia => 'Acheté via';
+
+  @override
+  String get viewLook => 'Voir le look';
+
+  @override
+  String get returnOrReplaceItem => 'Retourner ou remplacer l\'article';
+
+  @override
+  String get makeAReturnRequest => 'Faire une demande de retour';
+
+  @override
+  String get returnThisItem => 'RETOURNER CET ARTICLE';
+
+  @override
+  String get returnWindowNotice =>
+      'Vous disposez de 14 jours après réception pour effectuer une demande de retour';
+
+  @override
+  String get incorrectSize => 'Taille incorrecte';
+
+  @override
+  String get damagedItem => 'Article endommagé';
+
+  @override
+  String get itemNotAsDescribed => 'Article non conforme à la description';
+
+  @override
+  String get itemDoesNotSuitMe => 'L\'article ne me convient pas';
+
+  @override
+  String get otherReason => 'Autre motif';
+
+  @override
+  String get addComment => 'Ajouter un commentaire';
+
+  @override
+  String get addItemPhotos => 'Ajouter des photos de l\'article';
+
+  @override
+  String get viewReturnConditions => 'Consulter les conditions de retour';
+
+  @override
+  String get submitReturnRequest => 'ENVOYER LA DEMANDE DE RETOUR';
+
+  @override
+  String get returnRequest => 'DEMANDE DE RETOUR';
+
+  @override
+  String returnRequestReceived(String date, String time) {
+    return 'Nous avons bien reçu votre demande le $date à $time. Suivez l\'avancement ci-dessous.';
+  }
+
+  @override
+  String get request => 'Demande';
+
+  @override
+  String get dispatch => 'Expédition';
+
+  @override
+  String get receipt => 'Réception';
+
+  @override
+  String get refund => 'Remboursement';
+
+  @override
+  String get inProgress => 'En cours';
+
+  @override
+  String get upcoming => 'À venir';
+
+  @override
+  String get returnReason => 'Motif du retour';
+
+  @override
+  String get requestDate => 'Date de la demande';
+
+  @override
+  String get requestNumber => 'N° de demande';
+
+  @override
+  String get returnAddress => 'Adresse de retour';
+
+  @override
+  String get returnFees => 'Frais de retour';
+
+  @override
+  String get customerPays => 'À la charge du client';
+
+  @override
+  String returnDeadlineNotice(String date) {
+    return 'Vous avez jusqu’au $date pour expédier votre retour. Passez ce délai votre demande sera annulée.';
+  }
+
+  @override
+  String get trackMyReturn => 'Suivre mon retour';
+
+  @override
+  String get trackReturnDescription =>
+      'Suivez l\'acheminement après expédition.';
+
+  @override
+  String get contactSupport => 'CONTACTER LE SUPPORT';
+
+  @override
+  String get forAnyQuestionNeedOrIssue =>
+      'Pour toute question, besoin ou dysfonctionnalité rencontré, merci de contacter le service client via support@happer.fr.';
+
+  @override
+  String get averageResponseTime =>
+      'Les délais de réponses sont en moyenne de 72h.';
+
+  @override
+  String get viewFaq => 'CONSULTER LA FAQ';
+
+  @override
+  String get contactByWhatsapp => 'CONTACTER PAR WHATSAPP';
+
+  @override
+  String get activateYourAccount => 'ACTIVEZ VOTRE COMPTE';
+
+  @override
+  String get happerCreator => 'HAPPER CREATOR';
+
+  @override
+  String get creatorActivationIntro =>
+      'Vous pouvez désormais activer votre compte de créateur Happer.';
+
+  @override
+  String get creatorActivationBenefits =>
+      'Vous pourrez recevoir des produits de nos marques partenaires, les partager sur Happer et générer des revenus sur les ventes réalisées via votre contenu.';
+
+  @override
+  String get byAcceptingYouConfirm => 'En acceptant, vous confirmez :';
+
+  @override
+  String get publishReceivedProducts =>
+      'Publier les produits reçus selon les délais convenus';
+
+  @override
+  String get respectCollaborationRules =>
+      'Respecter les règles de collaboration';
+
+  @override
+  String get guaranteeAuthenticity =>
+      'Garantir l’authenticité de votre contenu';
+
+  @override
+  String get authorizeContentUse =>
+      'Autoriser Happer à exploiter le contenu conformément au contrat';
+
+  @override
+  String get creatorContractNotice =>
+      'Cette collaboration est encadrée par le Contrat Happer Creator.';
+
+  @override
+  String get creatorTermsCheckbox =>
+      'Je reconnais avoir pris connaissance du Contrat Happer Creator, l’accepter sans réserve et m’engager à le respecter.';
+
+  @override
+  String get logoutButton => 'SE DÉCONNECTER';
+
+  @override
+  String get newPasswordLabel => 'Nouveau mot de passe';
+
+  @override
+  String get confirmPasswordLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get enterNewPassword => 'Entrez votre nouveau mot de passe';
+
+  @override
+  String get confirmNewPassword => 'Confirmez votre nouveau mot de passe';
+
+  @override
+  String get myLooksTitle => 'MES LOOKS';
+
+  @override
+  String get authLoginRequired => 'Connexion requise';
+
+  @override
+  String get authLoginToContinue => 'Connectez-vous pour continuer.';
+
+  @override
+  String get authEnterEmail => 'Veuillez saisir votre adresse e-mail';
+
+  @override
+  String get authEnterPassword => 'Veuillez saisir votre mot de passe';
+
+  @override
+  String get authEnterFirstName => 'Veuillez saisir votre prénom';
+
+  @override
+  String get authEnterLastName => 'Veuillez saisir votre nom';
+
+  @override
+  String get authEnterUsername => 'Veuillez saisir un nom d\'utilisateur';
+
+  @override
+  String get authUsernameTooShort =>
+      'Le nom d\'utilisateur doit contenir au moins 3 caractères';
+
+  @override
+  String get authUsernameInvalidChars =>
+      'Le nom d\'utilisateur ne peut contenir que des lettres minuscules, des chiffres, _ et .';
+
+  @override
+  String get authEnterAPassword => 'Veuillez saisir un mot de passe';
+
+  @override
+  String get authPasswordTooShort =>
+      'Le mot de passe doit contenir au moins 6 caractères';
+
+  @override
+  String get authUsernameTaken =>
+      'Ce nom d\'utilisateur est déjà pris. Veuillez en choisir un autre.';
+
+  @override
+  String get authVerifyEmailTitle => 'Vérifier l\'e-mail';
+
+  @override
+  String get authEnterVerificationCode => 'Saisissez le code de vérification';
+
+  @override
+  String authCodeSentTo(String email) {
+    return 'Nous avons envoyé un code à 6 chiffres à\n$email';
+  }
+
+  @override
+  String get authEnterSixDigitCodeHint => 'Saisissez le code à 6 chiffres';
+
+  @override
+  String get authVerify => 'Vérifier';
+
+  @override
+  String get authEnterSixDigitCode => 'Veuillez saisir le code à 6 chiffres.';
+
+  @override
+  String get authDidntReceiveCode => 'Vous n\'avez pas reçu le code ? ';
+
+  @override
+  String get authResend => 'Renvoyer';
+
+  @override
+  String get authVerifyAndContinue => 'Vérifier et continuer';
+
+  @override
+  String get authForgotPasswordHeading => 'Mot de passe oublié';
+
+  @override
+  String get authFillRequiredFields =>
+      'Veuillez remplir tous les champs obligatoires.';
+
+  @override
+  String get authVerificationCodeSent =>
+      'Un code de vérification a été envoyé à votre adresse e-mail.';
+
+  @override
+  String get authAccountVerified => 'Compte vérifié avec succès !';
+
+  @override
+  String get authAccountVerifiedPleaseLogin =>
+      'Compte vérifié. Veuillez vous connecter.';
+
+  @override
+  String get authOtpVerificationFailed =>
+      'Échec de la vérification du code. Veuillez réessayer.';
+
+  @override
+  String get authNewCodeSent =>
+      'Un nouveau code a été envoyé à votre adresse e-mail.';
+
+  @override
+  String get authResendCodeFailed =>
+      'Impossible de renvoyer le code. Veuillez réessayer.';
+
+  @override
+  String get authAppleSignInNoFirebaseToken =>
+      'Échec de la connexion Apple : impossible d\'obtenir le jeton Firebase. Veuillez réessayer.';
+
+  @override
+  String get authAppleSignInNoAccessToken =>
+      'Échec de la connexion Apple : aucun jeton d\'accès reçu du serveur. Veuillez réessayer.';
+
+  @override
+  String get authAppleSignInSimulator =>
+      'La connexion Apple nécessite un véritable iPhone — non prise en charge sur le simulateur iOS.';
+
+  @override
+  String authAuthenticationError(String details) {
+    return 'Erreur d\'authentification : $details';
+  }
+
+  @override
+  String get authPleaseTryAgain => 'Veuillez réessayer.';
+
+  @override
+  String get authGoogleSignInNoAccessToken =>
+      'Échec de la connexion Google : aucun jeton d\'accès reçu du serveur.';
+
+  @override
+  String get authEnterEmailAndPassword =>
+      'Veuillez saisir votre adresse e-mail et votre mot de passe.';
+
+  @override
+  String get authSendResetCodeFailed =>
+      'Impossible d\'envoyer le code de réinitialisation. Veuillez réessayer.';
+
+  @override
+  String get authFillAllFields => 'Veuillez remplir tous les champs.';
+
+  @override
+  String get authPasswordResetSuccess =>
+      'Votre mot de passe a été réinitialisé avec succès.';
+
+  @override
+  String get authHapperCreatorContract => 'Contrat Happer Creator';
+
+  @override
+  String get authCreatorInfoRequired =>
+      'Ces informations sont requises pour établir votre contrat Creator.';
+
+  @override
+  String get authAddressLabel => 'Adresse';
+
+  @override
+  String get authNextUpper => 'SUIVANT';
+
+  @override
+  String get authContractNoticePrefix =>
+      'Cette collaboration est encadrée par le ';
+
+  @override
+  String get authEditMyInfo => 'Modifier mes informations';
+
+  @override
+  String get authUsernameExampleHint => 'ex: jean.dupont_12';
+
+  @override
+  String get authRequired => 'Requis';
+
+  @override
+  String get authUsernameRules =>
+      '3–20 caractères : lettres minuscules, chiffres, _ ou .';
+
+  @override
+  String get authUsernameAlreadyTaken => 'Ce nom d\'utilisateur est déjà pris';
+
+  @override
+  String authStepOf(int step, int total) {
+    return 'Étape $step sur $total';
+  }
+
+  @override
+  String get cartPaymentMethodCard => 'Carte';
+
+  @override
+  String get cartRemoveItemTitle => 'Retirer l\'article';
+
+  @override
+  String get cartRemoveButton => 'Retirer';
+
+  @override
+  String get cartPaymentDataMissing =>
+      'Erreur : données de paiement manquantes';
+
+  @override
+  String get cartGooglePayUnavailable =>
+      'Google Pay n\'est pas disponible sur cet appareil';
+
+  @override
+  String get cartPaymentSuccess => 'Paiement effectué avec succès !';
+
+  @override
+  String get cartChoosePaymentMethod => 'Choisir un moyen de paiement';
+
+  @override
+  String get cartMyCartTitle => 'MON PANIER';
+
+  @override
+  String cartProductsAddedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Produits Ajoutés',
+      one: '$count Produit Ajouté',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cartDeliveryTo => 'Livraison à';
+
+  @override
+  String get cartSelectAddress => 'Sélectionner une adresse';
+
+  @override
+  String get cartChange => 'Changer';
+
+  @override
+  String get cartChoose => 'Choisir';
+
+  @override
+  String get cartPayWith => 'PAY AVEC';
+
+  @override
+  String get cartSecure => 'Sécurisé';
+
+  @override
+  String get cartTotalInclVatUpper => 'TOTAL TTC';
+
+  @override
+  String get cartOrderButton => 'Commander';
+
+  @override
+  String get cartPayByCard => 'Payer par carte';
+
+  @override
+  String cartPayAmount(String amount) {
+    return 'Payer $amount';
+  }
+
+  @override
+  String get cartAddProductsToStart => 'Ajoutez des produits pour commencer';
+
+  @override
+  String get cartDeliveredIn2To5Days => 'Livré dans 2-5 jours';
+
+  @override
+  String get cartPaymentTitle => 'Paiement';
+
+  @override
+  String get cartAddToOrderComingSoon =>
+      'Ajout à la commande bientôt disponible';
+
+  @override
+  String get cartThankYouTitle => 'MERCI';
+
+  @override
+  String get cartThankYouForOrder => 'Merci pour votre commande !';
+
+  @override
+  String get cartPaymentConfirmedPreparing =>
+      'Votre paiement a été confirmé et votre commande\nest en cours de préparation.';
+
+  @override
+  String get cartOrderConfirmed => 'Commande confirmée';
+
+  @override
+  String cartOrderReference(String reference) {
+    return 'Commande #$reference';
+  }
+
+  @override
+  String get cartConfirmationEmailSent =>
+      'Un email de confirmation vous a été envoyé.';
+
+  @override
+  String get cartFreeDelivery => 'Livraison offerte';
+
+  @override
+  String get cartFreeDeliveryDescription =>
+      'Votre commande bénéficie de la livraison offerte.\nDélai estimé : 3 à 5 jours ouvrés.';
+
+  @override
+  String get cartTrackMyOrder => 'Suivre ma commande';
+
+  @override
+  String get cartTrackMyOrderDescription =>
+      'Suivez l\'expédition et la livraison de votre commande en temps réel.';
+
+  @override
+  String get cartViewMyOrder => 'Voir ma commande';
+
+  @override
+  String get cartBackToHome => 'Retourner à l\'accueil';
+
+  @override
+  String get cartNeedHelp => 'Besoin d\'aide ?';
+
+  @override
+  String get cartNeedHelpDescription =>
+      'Notre équipe est disponible pour vous aider.\nContactez-nous à tout moment.';
+
+  @override
+  String get cartCompleteYourLook => 'Complétez votre look';
+
+  @override
+  String get cartCompleteYourLookDescription =>
+      'Ajoutez 1 ou 2 pièces à votre commande en un clic.';
+
+  @override
+  String get cartNoExtraPayment =>
+      'Aucun paiement supplémentaire. Vous ne payez que la différence.';
+
+  @override
+  String get cartConfirmAndAddToOrder => 'Confirmer et ajouter à ma commande';
+
+  @override
+  String get cartNoThanksGoToOrder => 'Non merci, aller à ma commande';
+
+  @override
+  String get cartAdded => 'Ajouté';
+
+  @override
+  String get cartAddToMyOrder => 'Ajouter à ma commande';
+
+  @override
+  String get cartLoadDetailsFailed =>
+      'Impossible de charger les détails du panier. Veuillez réessayer.';
+
+  @override
+  String get cartUseProfileAddress => 'Utiliser l\'adresse de mon profil';
+
+  @override
+  String get cartBillingAddressTitle => 'ADRESSE DE FACTURATION';
+
+  @override
+  String get cartUseAddressFromMyProfile =>
+      'Utiliser l\'adresse saisie dans Mon Profil';
+
+  @override
+  String get cartAddressLabel => 'Adresse';
+
+  @override
+  String get cartEnterLastName => 'Saisissez votre nom';
+
+  @override
+  String get cartEnterFirstName => 'Saisissez votre prénom';
+
+  @override
+  String get cartEnterStreetAddress => 'Saisissez votre adresse';
+
+  @override
+  String get cartEnterPostalCode => 'Saisissez le code postal';
+
+  @override
+  String get cartEnterCityName => 'Saisissez la ville';
+
+  @override
+  String get cartEnterEmailAddress => 'Saisissez l\'adresse e-mail';
+
+  @override
+  String get cartEnterPhoneNumber => 'Saisissez le numéro de téléphone';
+
+  @override
+  String get cartMinTwoCharacters => '2 caractères minimum';
+
+  @override
+  String get cartEnterValidAddress => 'Veuillez saisir une adresse valide';
+
+  @override
+  String get cartEnterValidPostalCode =>
+      'Veuillez saisir un code postal valide';
+
+  @override
+  String get cartEnterValidCityName => 'Veuillez saisir une ville valide';
+
+  @override
+  String get cartEnterValidPhoneNumber =>
+      'Veuillez saisir un numéro de téléphone valide';
+
+  @override
+  String get cartAdd => 'Ajouter';
+
+  @override
+  String get cartDefault => 'Par défaut';
+
+  @override
+  String get cartAddAddressToContinue =>
+      'Ajoutez une adresse pour continuer votre commande';
+
+  @override
+  String get cartLoginToAccessCart =>
+      'Connectez-vous pour accéder à votre panier.';
+
+  @override
+  String get cartViewCart => 'Voir le panier';
+
+  @override
+  String cartItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count articles',
+      one: '$count article',
+      zero: '$count article',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String cartInCartCount(int count) {
+    return 'Au panier ($count)';
+  }
+
+  @override
+  String get cartColorUpper => 'COULEUR';
+
+  @override
+  String get cartSizeUpper => 'TAILLE';
+
+  @override
+  String get cartQuantityUpper => 'QUANTITÉ';
+
+  @override
+  String get cartOutOfStock => 'Rupture de stock';
+
+  @override
+  String get cartOutOfStockUpper => 'RUPTURE DE STOCK';
+
+  @override
+  String get cartSelectASize => 'Sélectionnez une taille';
+
+  @override
+  String get cartSelectYourOptions => 'Sélectionnez vos options';
+
+  @override
+  String cartInStockCount(int count) {
+    return '$count en stock';
+  }
+
+  @override
+  String get cartStateActiveBidding => 'Enchères en cours';
+
+  @override
+  String get cartStateStartingSoon => 'Bientôt disponible';
+
+  @override
+  String get cartStateBiddingEnded => 'Enchères terminées';
+
+  @override
+  String get cartStateContestExpired => 'Concours expiré';
+
+  @override
+  String get cartStatePlaceBidNow => 'Enchérissez maintenant !';
+
+  @override
+  String get cartNoDescription => 'Aucune description';
+
+  @override
+  String get cartUnknownBrand => 'Marque inconnue';
+
+  @override
+  String get cartNoUser => 'Aucun utilisateur';
+
+  @override
+  String get creatorTheCollection => 'LA COLLECTION';
+
+  @override
+  String get creatorNoMoreProducts => 'Plus aucun produit';
+
+  @override
+  String get creatorCheckBackLaterNewArrivals =>
+      'Revenez plus tard pour découvrir les nouveautés';
+
+  @override
+  String creatorBrandInspirations(String brand) {
+    return 'INSPIRATIONS $brand';
+  }
+
+  @override
+  String get creatorNoInspiration => 'Aucune inspiration';
+
+  @override
+  String get creatorAllCaughtUp => 'Vous êtes à jour.';
+
+  @override
+  String get creatorNewLooksComingSoon => 'De nouveaux looks arrivent bientôt.';
+
+  @override
+  String get creatorProductAddedToCart => 'Produit ajouté au panier';
+
+  @override
+  String get creatorProductDetailsTitle => 'DÉTAILS PRODUIT';
+
+  @override
+  String get creatorOutOfStockUpper => 'RUPTURE DE STOCK';
+
+  @override
+  String get creatorSelectColor => 'SÉLECTION COULEUR';
+
+  @override
+  String get creatorSelectSize => 'SÉLECTION TAILLE';
+
+  @override
+  String get creatorOutOfStock => 'Rupture de stock';
+
+  @override
+  String creatorSoldBy(String brand) {
+    return 'Vendu par $brand';
+  }
+
+  @override
+  String get creatorNoDescriptionAvailable => 'Aucune description disponible';
+
+  @override
+  String get creatorSeeMore => 'Voir plus';
+
+  @override
+  String get creatorLoginToAddLookToCart =>
+      'Connectez-vous pour ajouter ce look à votre panier.';
+
+  @override
+  String get creatorNoItemAvailable => 'Aucun article disponible';
+
+  @override
+  String creatorItemsAddedToCart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count articles ajoutés au panier',
+      one: '1 article ajouté au panier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creatorFailedAddItemsToCart =>
+      'Impossible d\'ajouter les articles au panier';
+
+  @override
+  String get creatorSelectionOf => 'La Sélection de ';
+
+  @override
+  String get creatorAroundTheLook => 'Autour du look';
+
+  @override
+  String get creatorCollectionPrefix => 'Collection ';
+
+  @override
+  String get creatorExploreCollection => 'Explorer la collection';
+
+  @override
+  String get creatorShopTheLook => 'SHOP LE LOOK';
+
+  @override
+  String get creatorShareUnavailable => 'Partage indisponible pour le moment';
+
+  @override
+  String get creatorLookComposedWith => 'Look composé avec ';
+
+  @override
+  String get creatorHapperExclusivePrice => 'Prix Exclusif Happer';
+
+  @override
+  String get creatorFreeDeliveryTitle => 'Livraison Offerte';
+
+  @override
+  String creatorAddLookToCartWithPrice(int price) {
+    return 'AJOUTER LE LOOK AU PANIER - $price€';
+  }
+
+  @override
+  String get creatorAddLookToCart => 'AJOUTER LE LOOK AU PANIER';
+
+  @override
+  String creatorLookSavings(int amount) {
+    return ' - Economie $amount€ - ';
+  }
+
+  @override
+  String get creatorFreeDelivery => 'Livraison offerte';
+
+  @override
+  String get creatorCompleteTheLook => 'Compléter le look';
+
+  @override
+  String get creatorChooseSizeForEachPiece =>
+      'Choisissez votre taille pour chaque pièce';
+
+  @override
+  String get creatorRequired => '· requise';
+
+  @override
+  String get creatorQuantity => 'Quantité';
+
+  @override
+  String creatorTotalWithCount(int count) {
+    return 'Total ($count)';
+  }
+
+  @override
+  String creatorSavingsAmount(String amount) {
+    return 'Économie $amount €';
+  }
+
+  @override
+  String get creatorAddToCartButton => 'Ajouter au panier';
+
+  @override
+  String get creatorChooseSizes => 'Choisir les tailles';
+
+  @override
+  String get creatorSessionExpired =>
+      'Session expirée. Veuillez vous reconnecter.';
+
+  @override
+  String get creatorFailedLoadSelfies => 'Impossible de charger les selfies.';
+
+  @override
+  String get creatorFailedLoadSelfiesRetry =>
+      'Impossible de charger les selfies. Veuillez réessayer.';
+
+  @override
+  String get creatorFailedDeleteRetry =>
+      'Échec de la suppression. Veuillez réessayer.';
+
+  @override
+  String get creatorRemovedFromLikes => 'Retiré de vos j\'aime';
+
+  @override
+  String get creatorAddedToLikes => 'Ajouté à vos j\'aime';
+
+  @override
+  String get creatorFailedUpdateLikeRetry =>
+      'Impossible de mettre à jour le j\'aime. Veuillez réessayer.';
+
+  @override
+  String get creatorSelfiePublishedSuccess => 'Selfie publié avec succès !';
+
+  @override
+  String get creatorSelfieSentPendingValidation =>
+      'Selfie envoyé ! Il sera visible après validation.';
+
+  @override
+  String get creatorFailedPostSelfieRetry =>
+      'Échec de la publication du selfie. Veuillez réessayer.';
+
+  @override
+  String get creatorInspirationTitle => 'INSPIRATION';
+
+  @override
+  String creatorShareProfileMessage(String creatorName, String link) {
+    return 'J\'ai découvert la boutique de mode de $creatorName sur Happer et j\'adore son style ✨\n\nJe te partage son profil !\n\n$link';
+  }
+
+  @override
+  String creatorShareOutfitMessage(String creatorName, String link) {
+    return 'J\'ai trouvé l\'outfit de $creatorName sur Happer, je pense qu\'il pourrait te plaire ✨\n\n$link';
+  }
+
+  @override
+  String get creatorShareFailed => 'Le partage a échoué. Veuillez réessayer.';
+
+  @override
+  String creatorCouldNotOpenUrl(String url) {
+    return 'Impossible d\'ouvrir $url';
+  }
+
+  @override
+  String creatorErrorOpeningLink(String error) {
+    return 'Erreur lors de l\'ouverture du lien : $error';
+  }
+
+  @override
+  String get creatorSearchCreatorBrandHint => 'Rechercher créateur, marque...';
+
+  @override
+  String get creatorCreatorLabel => 'Créateur';
+
+  @override
+  String get dashLoginToAccessCommunity =>
+      'Veuillez vous connecter pour accéder à la communauté';
+
+  @override
+  String get dashLoginToAccessProfile =>
+      'Veuillez vous connecter pour accéder au profil';
+
+  @override
+  String get dashLoginToAccessFavorites =>
+      'Veuillez vous connecter pour accéder aux favoris';
+
+  @override
+  String get dashLoginToPublishPhoto =>
+      'Veuillez vous connecter pour publier une photo';
+
+  @override
+  String get dashLoginToSearch => 'Veuillez vous connecter pour rechercher';
+
+  @override
+  String dashSearchingForCreator(String query) {
+    return 'Recherche du créateur : $query';
+  }
+
+  @override
+  String dashCropProgress(int current, int total) {
+    return 'Recadrez ($current/$total)';
+  }
+
+  @override
+  String get dashCropYourPhoto => 'Recadrez votre photo';
+
+  @override
+  String get dashImageEditingCanceled => 'Modification de l\'image annulée';
+
+  @override
+  String get dashDragToReorder => 'Glissez une photo pour changer l\'ordre';
+
+  @override
+  String get dashMessageTitle => 'MESSAGE';
+
+  @override
+  String get dashImageFailedToLoad => 'Impossible de charger l\'image';
+
+  @override
+  String get dashComingSoon => 'Bientôt disponible';
+
+  @override
+  String get dashCountdownComplete => 'Compte à rebours terminé !';
+
+  @override
+  String get dashWebSocketConnectionFailed => 'Échec de la connexion WebSocket';
+
+  @override
+  String get dashWebSocketConnectError => 'Erreur de connexion WebSocket';
+
+  @override
+  String get dashGetHapperPlusUnlimited =>
+      'Obtenez Happer Plus pour un accès illimité';
+
+  @override
+  String get dashPremiumOffersSoon => 'Les offres Premium arrivent bientôt !';
+
+  @override
+  String get dashCreditAdsSoon =>
+      'Les pubs pour gagner des crédits arrivent bientôt !';
+
+  @override
+  String get dashPrizeTitle => 'LOT';
+
+  @override
+  String get dashStartDate => 'Date de début';
+
+  @override
+  String get dashHappDate => 'Date du Happ';
+
+  @override
+  String get dashNoImageAvailable => 'Aucune image disponible';
+
+  @override
+  String dashContestDateTooltip(String label, String date) {
+    return 'Concours - $label : $date';
+  }
+
+  @override
+  String get dashAddedToWishlistUpper => 'AJOUTÉ À LA LISTE DE SOUHAITS';
+
+  @override
+  String get dashYouAlreadyHaveTheHand => 'Vous avez déjà la main';
+
+  @override
+  String get dashFeatureComingSoon => 'Fonctionnalité bientôt disponible';
+
+  @override
+  String get dashIHaveTheHand => 'J\'ai la main';
+
+  @override
+  String get dashContestExpired => 'Concours expiré';
+
+  @override
+  String get dashNoParticipants => 'Aucun participant à ce concours';
+
+  @override
+  String get dashExpiredUpper => 'EXPIRÉ';
+
+  @override
+  String get dashConnectingToServer => 'Connexion au serveur...';
+
+  @override
+  String get dashGettingLatestProducts => 'Récupération des derniers produits';
+
+  @override
+  String get dashCheckBackLater =>
+      'Revenez plus tard pour découvrir de nouveaux articles';
+
+  @override
+  String get dashRefreshUpper => 'ACTUALISER';
+
+  @override
+  String get dashNoImage => 'Pas d\'image';
+
+  @override
+  String get dashServerProblemLocalData =>
+      'Problème de connexion au serveur. Utilisation des données locales.';
+
+  @override
+  String get dashServerUnreachableCachedData =>
+      'Impossible de se connecter au serveur. Utilisation des données en cache.';
+
+  @override
+  String get dashStartingSoonUpper => 'BIENTÔT';
+
+  @override
+  String get dashSoonUpper => 'BIENTÔT';
+
+  @override
+  String get dashImageUnavailable => 'Image indisponible';
+
+  @override
+  String get dashContestStartingSoon => 'Le concours commence bientôt !';
+
+  @override
+  String get dashContestEnded => 'Le concours est terminé';
+
+  @override
+  String get dashContestNotAvailable => 'Concours indisponible';
+
+  @override
+  String get dashOpeningProductPage => 'Ouverture de la page produit...';
+
+  @override
+  String get dashProductAddedToCart => 'Produit ajouté au panier !';
+
+  @override
+  String get dashPreparingShare => 'Préparation du partage...';
+
+  @override
+  String dashShareProductText(
+      String title, String brand, String price, String promoPrice) {
+    return '$title\n$brand\nPrix: $price €\nPrix Promo: $promoPrice €\n\nDécouvrez ce produit sur Happer!\n';
+  }
+
+  @override
+  String get dashShareProductSubject => 'Regardez ce produit sur Happer!';
+
+  @override
+  String get dashShareError => 'Erreur lors du partage';
+
+  @override
+  String get dashLoadingLatestUsers =>
+      'Chargement des derniers utilisateurs...';
+
+  @override
+  String get dashTapToRefreshUsers =>
+      'Appuyez pour actualiser la liste des utilisateurs';
+
+  @override
+  String get dashNoUsersYet => 'Pas encore d\'utilisateurs.';
+
+  @override
+  String get dashRefresh => 'Actualiser';
+
+  @override
+  String get dashLoadingProductInfo => 'Chargement des informations produit...';
+
+  @override
+  String get dashStatus => 'Statut';
+
+  @override
+  String get dashTotalUsers => 'Nombre total d\'utilisateurs';
+
+  @override
+  String get orderCancelled => 'Commande annulée';
+
+  @override
+  String orderCancelledOn(String date) {
+    return 'Annulée le $date';
+  }
+
+  @override
+  String orderShippedOn(String date) {
+    return 'Expédié le $date';
+  }
+
+  @override
+  String orderConfirmedOn(String date) {
+    return 'Confirmée le $date';
+  }
+
+  @override
+  String get orderNotShippedYet => 'Pas encore expédié';
+
+  @override
+  String get orderCancelOrder => 'Annuler la commande';
+
+  @override
+  String get orderCancelThisItem => 'Annuler cet article';
+
+  @override
+  String get orderCancelConfirmTitle => 'Annuler la commande ?';
+
+  @override
+  String get orderCancelConfirmMessage =>
+      'Cet article sera annulé. Cette action est définitive.';
+
+  @override
+  String get orderCancelConfirmYes => 'Oui, annuler';
+
+  @override
+  String get orderTrackingLinkUnavailable =>
+      'Lien de suivi indisponible pour le moment';
+
+  @override
+  String get orderDeliveryTracking => 'Suivi de livraison';
+
+  @override
+  String get orderLookUnavailable => 'Look indisponible pour cette commande';
+
+  @override
+  String get orderLinkUnavailable => 'Lien indisponible';
+
+  @override
+  String get orderInvoice => 'Facture';
+
+  @override
+  String get orderInvoiceTitle => 'FACTURE';
+
+  @override
+  String get orderLoadingInvoice => 'Chargement de la facture...';
+
+  @override
+  String orderCouldNotLoadPage(String title) {
+    return 'Impossible de charger « $title ».';
+  }
+
+  @override
+  String get orderCancelButton => 'ANNULER';
+
+  @override
+  String get orderReturnButton => 'RETOURNER';
+
+  @override
+  String get orderShippedBadge => 'EXPÉDIÉE';
+
+  @override
+  String get orderReturnWindowPrefix => 'Vous disposez de ';
+
+  @override
+  String get orderReturnWindowDays => '14 jours';
+
+  @override
+  String get orderReturnWindowSuffix =>
+      ' après réception pour effectuer une demande de retour';
+
+  @override
+  String get orderYourCommentHint => 'Votre commentaire…';
+
+  @override
+  String get orderReturnConditionsSoon =>
+      'Conditions de retour bientôt disponibles';
+
+  @override
+  String orderTimeHourMinute(String hour, String minute) {
+    return '${hour}h$minute';
+  }
+
+  @override
+  String orderDateAtTime(String date, String time) {
+    return '$date à $time';
+  }
+
+  @override
+  String orderReturnAddressValue(String brand) {
+    return 'Happer - Retours $brand\n25 rue d\'Uzès, 75002 Paris, France';
+  }
+
+  @override
+  String get orderSupportEmailSubject => 'Demande de support';
+
+  @override
+  String get orderFaqUnavailable => 'FAQ indisponible';
+
+  @override
+  String get orderFaqLoadError =>
+      'Impossible de charger la FAQ pour le moment. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get orderRetryButton => 'RÉESSAYER';
+
+  @override
+  String orderSizeLabel(String size) {
+    return 'Taille $size';
+  }
+
+  @override
+  String orderQuantityLabel(int quantity) {
+    return 'Quantité $quantity';
+  }
+
+  @override
+  String get orderWinnerYou => 'Vous';
+
+  @override
+  String get profileMySelections => 'Mes Sélections';
+
+  @override
+  String get profileGameContestComingSoon => 'Le jeu concours arrive bientôt';
+
+  @override
+  String get profileInvalidCodeTryAgain => 'Code invalide. Veuillez réessayer.';
+
+  @override
+  String get profileUpdatedSuccess => 'Profil mis à jour avec succès';
+
+  @override
+  String get profilePleaseEnterCurrentPassword =>
+      'Veuillez saisir votre mot de passe actuel';
+
+  @override
+  String get profilePleaseEnterNewPassword =>
+      'Veuillez saisir un nouveau mot de passe';
+
+  @override
+  String profilePasswordMinLength(int count) {
+    return 'Le mot de passe doit contenir au moins $count caractères';
+  }
+
+  @override
+  String get profilePleaseConfirmNewPassword =>
+      'Veuillez confirmer votre nouveau mot de passe';
+
+  @override
+  String get profileMyShares => 'Mes Partages';
+
+  @override
+  String get profileWonProducts => 'Produits gagnés';
+
+  @override
+  String get profileWishlist => 'Liste de souhaits';
+
+  @override
+  String get profileMyPurchases => 'Mes achats';
+
+  @override
+  String get profileYourPromoCode => 'VOTRE CODE PROMO';
+
+  @override
+  String get profileYourPromoCodes => 'VOS CODES PROMO';
+
+  @override
+  String get profileNoPromoCodes => 'Aucun code promo disponible';
+
+  @override
+  String profileCreditsCount(int count) {
+    return '$count Crédits';
+  }
+
+  @override
+  String get profileTapToApply => 'Appuyez pour appliquer';
+
+  @override
+  String get profileDeleteAccountWarning =>
+      'Cette action est définitive. Toutes vos données seront supprimées et ne pourront pas être récupérées.';
+
+  @override
+  String get profileLogoutConfirm => 'Voulez-vous vraiment vous déconnecter ?';
+
+  @override
+  String get profileCouldNotOpenInstagram => 'Impossible d\'ouvrir Instagram';
+
+  @override
+  String get profileShare => 'Partager';
+
+  @override
+  String get profileLookTab => 'Look';
+
+  @override
+  String get profileAdd => 'Ajouter';
+
+  @override
+  String get profileNoAddress => 'Aucune adresse';
+
+  @override
+  String get profileDefault => 'Par défaut';
+
+  @override
+  String get profileDefaultAddress => 'Adresse par défaut';
+
+  @override
+  String get profileDefaultAddressDesc =>
+      'Utilisée automatiquement lors du paiement';
+
+  @override
+  String get profileGenderOther => 'Autre';
+
+  @override
+  String get profileGender => 'Genre';
+
+  @override
+  String get profileBio => 'Bio';
+
+  @override
+  String get profileStreetAddress => 'Adresse';
+
+  @override
+  String get profileErrorLoadingWishlist =>
+      'Erreur lors du chargement de la liste de souhaits';
+
+  @override
+  String get profileWishlistEmpty => 'Votre liste de souhaits est vide';
+
+  @override
+  String get profileWishlistEmptyDesc =>
+      'Les articles que vous ajoutez à votre liste de souhaits apparaîtront ici';
+
+  @override
+  String get profileAlreadyInWishlist =>
+      'L\'article est déjà dans votre liste de souhaits';
+
+  @override
+  String get profileNoWonProducts => 'Vous n\'avez encore gagné aucun produit';
+
+  @override
+  String get profileNoWonProductsDesc =>
+      'Participez aux jeux concours pour gagner des produits incroyables';
+
+  @override
+  String get profileCollected => 'RÉCUPÉRÉ';
+
+  @override
+  String get networkNoInternet =>
+      'Pas de connexion internet. Veuillez vérifier votre réseau.';
+
+  @override
+  String get networkTimeout => 'La requête a expiré. Veuillez réessayer.';
 }

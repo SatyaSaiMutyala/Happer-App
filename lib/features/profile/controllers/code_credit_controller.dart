@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:happer_app/core/network/api_exceptions.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/profile/data/repositories/code_credit_repository.dart';
 import 'package:happer_app/features/profile/models/promo_code_model.dart';
@@ -30,7 +31,7 @@ class CodeCreditController extends GetxController {
       credits.value = result.credits;
       myPromoCode.value = result.code;
     } catch (e) {
-      errorMessage.value = 'Failed to load credits.';
+      errorMessage.value = appL10n.errorLoadingCredits;
     } finally {
       isLoading.value = false;
     }
@@ -56,20 +57,20 @@ class CodeCreditController extends GetxController {
 
   Future<bool> verifyCode(String code) async {
     if (code.trim().isEmpty) {
-      showAppSnackBar('Please enter a code.', isSuccess: false);
+      showAppSnackBar(appL10n.pleaseEnterCode, isSuccess: false);
       return false;
     }
     isVerifying.value = true;
     try {
       await _repo.verifyCode(code.trim());
-      showAppSnackBar('Code verified successfully!', isSuccess: true);
+      showAppSnackBar(appL10n.codeVerifiedSuccess, isSuccess: true);
       await loadAll();
       return true;
     } on AppException catch (e) {
       showAppSnackBar(e.message, isSuccess: false);
       return false;
     } catch (_) {
-      showAppSnackBar('Invalid code. Please try again.', isSuccess: false);
+      showAppSnackBar(appL10n.profileInvalidCodeTryAgain, isSuccess: false);
       return false;
     } finally {
       isVerifying.value = false;

@@ -307,7 +307,8 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
         }
         Get.find<CartController>().fetchCartItemCount();
       } catch (_) {}
-      showAppSnackBar('Produit ajouté au panier', isSuccess: true);
+      showAppSnackBar(AppLocalizations.of(context).itemAddedToCart,
+          isSuccess: true);
       Navigator.pop(
         context,
         ProductSheetResult(
@@ -366,6 +367,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
 
   // ── Content ───────────────────────────────────────────────────────────
   Widget _buildContent() {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -455,7 +457,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
 
         // Colors
         if (_hasColors) ...[
-          _sectionTitle('COULEUR'),
+          _sectionTitle(l.cartColorUpper),
           const SizedBox(height: 12),
           _buildColorSelector(),
           const SizedBox(height: 22),
@@ -463,7 +465,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
 
         // Sizes (only if any variant carries a size value)
         if (_variantsForSelection.any((v) => v.size.isNotEmpty)) ...[
-          _sectionTitle('TAILLE'),
+          _sectionTitle(l.cartSizeUpper),
           const SizedBox(height: 12),
           Wrap(
             spacing: 10,
@@ -483,7 +485,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
                     size: 15, color: Color(0xFFB00020)),
                 const SizedBox(width: 6),
                 Text(
-                  'Rupture de stock',
+                  l.cartOutOfStock,
                   style: const TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
@@ -498,7 +500,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
         ],
 
         // Quantity
-        _sectionTitle('QUANTITÉ'),
+        _sectionTitle(l.cartQuantityUpper),
         const SizedBox(height: 12),
         _buildQuantityStepper(),
         const SizedBox(height: 10),
@@ -722,6 +724,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
   }
 
   Widget _buildStockHint() {
+    final l = AppLocalizations.of(context);
     if (!_canAdd) {
       // "Rupture de stock" used to be unreachable here: an out-of-stock size
       // chip is disabled, so it could never become the selected variant. Check
@@ -730,10 +733,8 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
           _selectedSize == null;
       return Text(
         _allSizesOutOfStock || _selectedVariant?.isOutOfStock == true
-            ? 'Rupture de stock'
-            : (needsSize
-                ? 'Sélectionnez une taille'
-                : 'Sélectionnez vos options'),
+            ? l.cartOutOfStock
+            : (needsSize ? l.cartSelectASize : l.cartSelectYourOptions),
         style: const TextStyle(
           fontFamily: 'Lato',
           fontSize: 12,
@@ -742,7 +743,7 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
       );
     }
     return Text(
-      '$_maxQuantity en stock',
+      l.cartInStockCount(_maxQuantity),
       style: const TextStyle(
         fontFamily: 'Lato',
         fontSize: 12,
@@ -786,7 +787,9 @@ class _ProductOptionsSheetState extends State<_ProductOptionsSheet> {
                           color: _canAdd ? Colors.white : Colors.white70),
                       const SizedBox(width: 8),
                       Text(
-                        _outOfStock ? 'RUPTURE DE STOCK' : 'AJOUTER AU PANIER',
+                        _outOfStock
+                            ? AppLocalizations.of(context).cartOutOfStockUpper
+                            : AppLocalizations.of(context).addToCart,
                         style: TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w800,

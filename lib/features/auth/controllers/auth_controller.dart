@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:happer_app/app/routes/app_routes.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/core/network/api_exceptions.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:happer_app/features/auth/data/models/auth_models.dart';
@@ -49,7 +50,7 @@ class AuthController extends GetxController {
         firstName.isEmpty ||
         username.isEmpty ||
         password.isEmpty) {
-      _showError('Please fill in all required fields.');
+      _showError(appL10n.authFillRequiredFields);
       return;
     }
     isLoading.value = true;
@@ -66,7 +67,7 @@ class AuthController extends GetxController {
       );
       final message =
           response['message'] as String? ??
-          'A verification code has been sent to your email.';
+          appL10n.authVerificationCodeSent;
       _showSuccess(message);
       Get.toNamed(
         AppRoutes.signupOtp,
@@ -75,7 +76,7 @@ class AuthController extends GetxController {
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('Something went wrong. Please try again.');
+      _showError(appL10n.errorOccurred);
     } finally {
       isLoading.value = false;
     }
@@ -87,7 +88,7 @@ class AuthController extends GetxController {
     String? password,
   }) async {
     if (otp.length < 6) {
-      _showError('Please enter the 6-digit OTP.');
+      _showError(appL10n.authEnterSixDigitCode);
       return;
     }
     isLoading.value = true;
@@ -104,7 +105,7 @@ class AuthController extends GetxController {
           }
           await StorageService.saveUserId(user.id);
           await StorageService.setGuestLogin(false);
-          _showSuccess('Compte vérifié avec succès !');
+          _showSuccess(appL10n.authAccountVerified);
           Get.offAllNamed(AppRoutes.dashboard);
           return;
         } catch (_) {
@@ -112,12 +113,12 @@ class AuthController extends GetxController {
         }
       }
 
-      _showSuccess('Compte vérifié. Veuillez vous connecter.');
+      _showSuccess(appL10n.authAccountVerifiedPleaseLogin);
       Get.offAllNamed(AppRoutes.login);
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('OTP verification failed. Please try again.');
+      _showError(appL10n.authOtpVerificationFailed);
     } finally {
       isLoading.value = false;
     }
@@ -129,12 +130,12 @@ class AuthController extends GetxController {
       final response = await _repo.resendSignupOtp(email);
       final message =
           response['message'] as String? ??
-          'A new OTP has been sent to your email.';
+          appL10n.authNewCodeSent;
       _showSuccess(message);
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('Failed to resend OTP. Please try again.');
+      _showError(appL10n.authResendCodeFailed);
     } finally {
       isLoading.value = false;
     }
@@ -237,9 +238,7 @@ class AuthController extends GetxController {
 
       if (firebaseIdToken == null) {
         _appleLog('[2/3 FIREBASE] ✖ Firebase ID token is NULL');
-        _showError(
-          'Apple Sign In failed: could not get Firebase token. Please try again.',
-        );
+        _showError(appL10n.authAppleSignInNoFirebaseToken);
         return;
       }
 
@@ -260,9 +259,7 @@ class AuthController extends GetxController {
       final accessToken = user.accessToken;
       if (accessToken == null || accessToken.isEmpty) {
         _appleLog('[3/3 BACKEND] ✖ Backend returned null/empty access token');
-        _showError(
-          'Apple Sign In failed: no access token from server. Please try again.',
-        );
+        _showError(appL10n.authAppleSignInNoAccessToken);
         return;
       }
 
@@ -309,16 +306,16 @@ class AuthController extends GetxController {
       );
       if (e.code == 'invalid-credential' &&
           (e.message ?? '').contains('OAuth response from apple')) {
-        _showError(
-          'Apple Sign In requires a real iPhone — not supported on iOS Simulator.',
-        );
+        _showError(appL10n.authAppleSignInSimulator);
       } else {
-        _showError('Authentication error: ${e.message ?? "Please try again."}');
+        _showError(
+          appL10n.authAuthenticationError(e.message ?? appL10n.authPleaseTryAgain),
+        );
       }
     } catch (e, st) {
       _appleLog('✖ [stage=$stage] Unexpected error: $e');
       dev.log('stack trace', name: 'AppleLogin', error: e, stackTrace: st);
-      _showError('Apple Sign In failed. Please try again.');
+      _showError(appL10n.appleLoginFailed);
     } finally {
       isLoading.value = false;
       _appleLog('━━━━━━━━ APPLE LOGIN END ━━━━━━━━');
@@ -360,7 +357,7 @@ class AuthController extends GetxController {
 
       if (firebaseIdToken == null) {
         dev.log('✖ Firebase ID token is null', name: 'GoogleLogin');
-        _showError('Google Sign In failed. Please try again.');
+        _showError(appL10n.googleLoginFailed);
         return;
       }
 
@@ -378,7 +375,7 @@ class AuthController extends GetxController {
           '✖ Backend returned null/empty access token',
           name: 'GoogleLogin',
         );
-        _showError('Google Sign In failed: no access token from server.');
+        _showError(appL10n.authGoogleSignInNoAccessToken);
         return;
       }
 
@@ -402,7 +399,9 @@ class AuthController extends GetxController {
         '✖ FirebaseAuthException: code=${e.code} msg=${e.message}',
         name: 'GoogleLogin',
       );
-      _showError('Authentication error: ${e.message ?? "Please try again."}');
+      _showError(
+        appL10n.authAuthenticationError(e.message ?? appL10n.authPleaseTryAgain),
+      );
     } catch (e, st) {
       dev.log(
         '✖ Unexpected error: $e',
@@ -410,7 +409,7 @@ class AuthController extends GetxController {
         error: e,
         stackTrace: st,
       );
-      _showError('Google Sign In failed. Please try again.');
+      _showError(appL10n.googleLoginFailed);
     } finally {
       isLoading.value = false;
     }
@@ -431,7 +430,7 @@ class AuthController extends GetxController {
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('Guest login failed. Please try again.');
+      _showError(appL10n.guestLoginFailed);
     } finally {
       isLoading.value = false;
     }
@@ -439,7 +438,7 @@ class AuthController extends GetxController {
 
   Future<void> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      _showError('Please enter your email and password.');
+      _showError(appL10n.authEnterEmailAndPassword);
       return;
     }
     isLoading.value = true;
@@ -458,7 +457,7 @@ class AuthController extends GetxController {
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('Login failed. Please check your credentials.');
+      _showError(appL10n.loginFailedCredentials);
     } finally {
       isLoading.value = false;
     }
@@ -514,7 +513,7 @@ class AuthController extends GetxController {
 
   Future<void> forgotPassword(String email) async {
     if (email.isEmpty) {
-      _showError('Please enter your email address.');
+      _showError(appL10n.authEnterEmail);
       return;
     }
     isLoading.value = true;
@@ -522,7 +521,7 @@ class AuthController extends GetxController {
       final response = await _repo.forgotPassword(email.trim().toLowerCase());
       final message =
           response['message'] as String? ??
-          'A verification code has been sent to your email.';
+          appL10n.authVerificationCodeSent;
       _showSuccess(message);
       Get.toNamed(
         AppRoutes.forgotPasswordOtp,
@@ -531,7 +530,7 @@ class AuthController extends GetxController {
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('Failed to send reset code. Please try again.');
+      _showError(appL10n.authSendResetCodeFailed);
     } finally {
       isLoading.value = false;
     }
@@ -539,18 +538,18 @@ class AuthController extends GetxController {
 
   Future<void> verifyForgotPasswordOtp(String email, String otp) async {
     if (otp.length < 6) {
-      _showError('Please enter the 6-digit OTP.');
+      _showError(appL10n.authEnterSixDigitCode);
       return;
     }
     isLoading.value = true;
     try {
       await _repo.verifyForgotPasswordOtp(email, otp.trim());
-      _showSuccess('OTP verified successfully.');
+      _showSuccess(appL10n.codeVerifiedSuccess);
       Get.toNamed(AppRoutes.resetPassword, arguments: {'email': email});
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('OTP verification failed. Please try again.');
+      _showError(appL10n.authOtpVerificationFailed);
     } finally {
       isLoading.value = false;
     }
@@ -562,11 +561,11 @@ class AuthController extends GetxController {
     String confirmPassword,
   ) async {
     if (password.isEmpty || confirmPassword.isEmpty) {
-      _showError('Please fill in all fields.');
+      _showError(appL10n.authFillAllFields);
       return;
     }
     if (password != confirmPassword) {
-      _showError('Passwords do not match.');
+      _showError(appL10n.passwordMustBeTheSame);
       return;
     }
     isLoading.value = true;
@@ -574,13 +573,13 @@ class AuthController extends GetxController {
       final response = await _repo.resetPassword(email, password);
       final message =
           response['message'] as String? ??
-          'Password has been reset successfully.';
+          appL10n.authPasswordResetSuccess;
       _showSuccess(message);
       Get.offAllNamed(AppRoutes.login);
     } on AppException catch (e) {
       _showError(e.message);
     } catch (_) {
-      _showError('Password reset failed. Please try again.');
+      _showError(appL10n.resetPasswordFailed);
     } finally {
       isLoading.value = false;
     }

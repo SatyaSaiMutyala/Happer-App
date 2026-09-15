@@ -24,7 +24,7 @@ class _GameContestProfileScreenState extends State<GameContestProfileScreen> {
           children: [
             const Divider(height: 1),
             _buildListTile(
-              title: 'Won Products',
+              title: AppLocalizations.of(context).profileWonProducts,
               icon: Image.asset('assets/images/wonproducts.png', width: 24, height: 24),
               onTap: () {
                 Navigator.of(context).push(
@@ -37,7 +37,7 @@ class _GameContestProfileScreenState extends State<GameContestProfileScreen> {
               child: const Divider(height: 1),
             ),
             _buildListTile(
-              title: 'Wishlist',
+              title: AppLocalizations.of(context).profileWishlist,
               icon: Image.asset('assets/images/wishlist.png', width: 24, height: 24),
               onTap: () {
                 Navigator.of(context).push(
@@ -50,7 +50,7 @@ class _GameContestProfileScreenState extends State<GameContestProfileScreen> {
               child: const Divider(height: 1),
             ),
             _buildListTile(
-              title: 'Referral Code',
+              title: AppLocalizations.of(context).referralCode,
               icon: SvgPicture.asset('assets/images/code_svg.svg', width: 24, height: 24),
               onTap: () {
                 Navigator.of(context).push(

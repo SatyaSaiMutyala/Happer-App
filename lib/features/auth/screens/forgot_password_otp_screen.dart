@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:happer_app/core/constants/app_colors.dart';
 import 'package:happer_app/core/constants/app_dimensions.dart';
 import 'package:happer_app/features/auth/controllers/auth_controller.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/app_button.dart';
 import 'package:happer_app/shared/widgets/app_input_field.dart';
 import 'package:happer_app/shared/widgets/app_loader.dart';
@@ -37,9 +38,10 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: HapperAppBar(title: 'Reset Password'),
+      appBar: HapperAppBar(title: l10n.resetPasswordHeading),
       body: Obx(() {
         return Stack(
           children: [
@@ -50,9 +52,9 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: AppDimensions.p40),
-                    const Text(
-                      'Enter Verification Code',
-                      style: TextStyle(
+                    Text(
+                      l10n.authEnterVerificationCode,
+                      style: const TextStyle(
                         fontSize: AppDimensions.fontXXL,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
@@ -60,7 +62,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                     ),
                     const SizedBox(height: AppDimensions.p8),
                     Text(
-                      'We sent a 6-digit code to\n$_email',
+                      l10n.authCodeSentTo(_email),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: AppDimensions.fontM,
@@ -70,14 +72,14 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
                     const SizedBox(height: AppDimensions.p40),
                     AppInputField(
                       controller: _otpController,
-                      hintText: 'Enter 6-digit code',
+                      hintText: l10n.authEnterSixDigitCodeHint,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppDimensions.p24),
                     AppButton(
-                      text: 'Verify & Continue',
+                      text: l10n.authVerifyAndContinue,
                       isLoading: _auth.isLoading.value,
                       onPressed: () => _auth.verifyForgotPasswordOtp(
                           _email, _otpController.text),

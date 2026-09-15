@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/features/creator/screens/product_details_screen.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/product_options_sheet.dart';
 import 'package:shimmer/shimmer.dart';
@@ -379,7 +380,8 @@ class _ProductCardState extends State<ProductCard> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Au panier ($_quantity)',
+                                  AppLocalizations.of(context)
+                                      .cartInCartCount(_quantity),
                                   maxLines: 1,
                                   softWrap: false,
                                   textAlign: TextAlign.center,
@@ -407,19 +409,20 @@ class _ProductCardState extends State<ProductCard> {
                   : GestureDetector(
                       onTap: canAdd ? _handleAdd : null,
                       child: _buttonShell(
-                        child: const FittedBox(
+                        child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.add, size: 14, color: Colors.black),
-                              SizedBox(width: 4),
+                              const Icon(Icons.add,
+                                  size: 14, color: Colors.black),
+                              const SizedBox(width: 4),
                               Text(
-                                'Ajouter',
+                                AppLocalizations.of(context).cartAdd,
                                 maxLines: 1,
                                 softWrap: false,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w600,
                                     fontSize: 12,

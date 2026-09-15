@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/app_manager.dart';
 import 'package:happer_app/features/dashboard/screens/cart_screen.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/controllers/cart_controller.dart';
 import 'package:happer_app/shared/widgets/login_required_dialog.dart';
 
@@ -29,7 +30,7 @@ class CartPreviewPill extends StatelessWidget {
           if (AppManager.isLoginAsGuest) {
             showLoginRequiredDialog(
               context,
-              message: 'Connectez-vous pour accéder à votre panier.',
+              message: AppLocalizations.of(context).cartLoginToAccessCart,
             );
             return;
           }
@@ -106,9 +107,9 @@ class CartPreviewPill extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Voir le panier',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context).cartViewCart,
+                            style: const TextStyle(
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w800,
                               fontSize: 13,
@@ -118,7 +119,8 @@ class CartPreviewPill extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${cart.cartItemCount.value} article${cart.cartItemCount.value > 1 ? 's' : ''}',
+                            AppLocalizations.of(context)
+                                .cartItemsCount(cart.cartItemCount.value),
                             style: const TextStyle(
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w500,

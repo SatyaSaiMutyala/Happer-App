@@ -134,7 +134,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
 
                     if (userId == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('User ID not found')),
+                        SnackBar(content: Text(l.userIdNotFound)),
                       );
                       return;
                     }
@@ -142,8 +142,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                     final confirmed = await showConfirmDialog(
                       context,
                       title: l.deleteMyAccount,
-                      message:
-                          'Cette action est définitive. Toutes vos données seront supprimées et ne pourront pas être récupérées.',
+                      message: l.profileDeleteAccountWarning,
                       confirmLabel: l.delete,
                       cancelLabel: l.cancel,
                       icon: Icons.delete_outline_rounded,
@@ -210,7 +209,7 @@ class _MyAccountScreenState extends State<MyAccountScreen> {
                 final confirmed = await showConfirmDialog(
                   context,
                   title: l.logout,
-                  message: 'Voulez-vous vraiment vous déconnecter ?',
+                  message: l.profileLogoutConfirm,
                   confirmLabel: l.logout,
                   cancelLabel: l.cancel,
                   icon: Icons.logout_rounded,

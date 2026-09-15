@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class ContractWebViewScreen extends StatefulWidget {
   const ContractWebViewScreen({Key? key}) : super(key: key);
@@ -56,9 +57,9 @@ class _ContractWebViewScreenState extends State<ContractWebViewScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Contrat Happer Creator',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context).authHapperCreatorContract,
+          style: const TextStyle(
             fontFamily: 'Lato',
             fontWeight: FontWeight.w700,
             fontSize: 16,

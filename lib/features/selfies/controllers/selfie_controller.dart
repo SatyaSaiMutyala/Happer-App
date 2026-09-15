@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:happer_app/core/network/api_exceptions.dart';
+import 'package:happer_app/core/utils/app_l10n.dart';
 import 'package:happer_app/core/utils/snackbar.dart';
 import 'package:happer_app/features/selfies/data/models/selfie_model.dart';
 import 'package:happer_app/features/selfies/data/repositories/selfie_repository.dart';
@@ -136,9 +137,9 @@ class SelfieController extends GetxController {
       }
       _feedPage++;
     } on UnauthorizedException {
-      _showError('Session expired. Please log in again.');
+      _showError(appL10n.creatorSessionExpired);
     } catch (e) {
-      _showError('Failed to load selfies.');
+      _showError(appL10n.creatorFailedLoadSelfies);
     } finally {
       isFeedLoading.value = false;
     }
@@ -179,9 +180,9 @@ class SelfieController extends GetxController {
       }
       _myPage++;
     } on UnauthorizedException {
-      myError.value = 'Session expired. Please log in again.';
+      myError.value = appL10n.creatorSessionExpired;
     } catch (e) {
-      myError.value = 'Failed to load selfies. Please try again.';
+      myError.value = appL10n.creatorFailedLoadSelfiesRetry;
     } finally {
       isMyLoading.value = false;
       _myFetching = false;
@@ -243,9 +244,9 @@ class SelfieController extends GetxController {
       }
       _discoverPage++;
     } on UnauthorizedException {
-      discoverError.value = 'Session expired. Please log in again.';
+      discoverError.value = appL10n.creatorSessionExpired;
     } catch (e) {
-      discoverError.value = 'Failed to load selfies. Please try again.';
+      discoverError.value = appL10n.creatorFailedLoadSelfiesRetry;
     } finally {
       isDiscoverLoading.value = false;
       _discoverFetching = false;
@@ -304,7 +305,7 @@ class SelfieController extends GetxController {
       if (detailSelfie.value?.id == id) detailSelfie.value = null;
       return true;
     } catch (e) {
-      _showError('Failed to delete. Please try again.');
+      _showError(appL10n.creatorFailedDeleteRetry);
       return false;
     }
   }
@@ -339,10 +340,10 @@ class SelfieController extends GetxController {
     try {
       if (wasLiked) {
         await _repo.unlikeSelfie(selfieId);
-        showAppSnackBar('Removed from your likes');
+        showAppSnackBar(appL10n.creatorRemovedFromLikes);
       } else {
         await _repo.likeSelfie(selfieId);
-        showAppSnackBar('Added to your likes');
+        showAppSnackBar(appL10n.creatorAddedToLikes);
       }
     } catch (_) {
       // Revert on failure
@@ -350,7 +351,7 @@ class SelfieController extends GetxController {
       if (myIdx != -1) mySelfies[myIdx] = current;
       if (discoverIdx != -1) discoverSelfies[discoverIdx] = current;
       if (detailSelfie.value?.id == selfieId) detailSelfie.value = current;
-      showAppSnackBar('Failed to update like. Please try again.', isSuccess: false);
+      showAppSnackBar(appL10n.creatorFailedUpdateLikeRetry, isSuccess: false);
     }
   }
 
@@ -410,13 +411,13 @@ class SelfieController extends GetxController {
       // app restart.
       await fetchDiscoverSelfies(refresh: true);
       _showSuccess(isApproved
-          ? 'Selfie publié avec succès !'
-          : 'Selfie envoyé ! Il sera visible après validation.');
+          ? appL10n.creatorSelfiePublishedSuccess
+          : appL10n.creatorSelfieSentPendingValidation);
       return true;
     } on UnauthorizedException {
-      _showError('Session expired. Please log in again.');
+      _showError(appL10n.creatorSessionExpired);
     } catch (e) {
-      _showError('Failed to post selfie. Please try again.');
+      _showError(appL10n.creatorFailedPostSelfieRetry);
     } finally {
       isSubmitting.value = false;
     }
@@ -428,12 +429,12 @@ class SelfieController extends GetxController {
     try {
       await _repo.submitSelfie(urls);
       await fetchMySelfies(refresh: true);
-      _showSuccess('Selfie posted successfully!');
+      _showSuccess(appL10n.creatorSelfiePublishedSuccess);
       return true;
     } on UnauthorizedException {
-      _showError('Session expired. Please log in again.');
+      _showError(appL10n.creatorSessionExpired);
     } catch (e) {
-      _showError('Failed to post selfie. Please try again.');
+      _showError(appL10n.creatorFailedPostSelfieRetry);
     } finally {
       isSubmitting.value = false;
     }

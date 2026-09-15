@@ -236,7 +236,7 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: _controller.refresh,
-                child: const Text('Réessayer'),
+                child: Text(l.retry),
               ),
             ],
           ),
@@ -263,24 +263,24 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
                     );
                   }
                   if (!_controller.hasMore.value) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
                       child: Center(
                         child: Column(
                           children: [
                             Text(
-                              'Vous êtes à jour.',
-                              style: TextStyle(
+                              l.creatorAllCaughtUp,
+                              style: const TextStyle(
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
-                              'De nouveaux looks arrivent bientôt.',
-                              style: TextStyle(
+                              l.creatorNewLooksComingSoon,
+                              style: const TextStyle(
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w400,
                                 fontSize: 14,
@@ -315,7 +315,7 @@ class CreatorTabScreenState extends State<CreatorTabScreen> {
                             GestureDetector(
                               onTap: () {
                                 if (AppManager.isLoginAsGuest) {
-                                  showAppSnackBar('Please login first',
+                                  showAppSnackBar(l.pleaseLoginFirst,
                                       isSuccess: false);
                                   return;
                                 }

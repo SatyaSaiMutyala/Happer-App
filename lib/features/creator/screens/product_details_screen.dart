@@ -345,7 +345,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       );
       if (!mounted) return;
       Get.find<CartController>().fetchCartItemCount();
-      showAppSnackBar('Produit ajouté au panier', isSuccess: true);
+      showAppSnackBar(AppLocalizations.of(context).creatorProductAddedToCart,
+          isSuccess: true);
       Navigator.push(
           context, MaterialPageRoute(builder: (_) => const CartScreen()));
     } catch (e) {
@@ -382,10 +383,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
-      appBar: HapperAppBar(title: 'DÉTAILS PRODUIT', actions: const []),
+      appBar: HapperAppBar(title: l.creatorProductDetailsTitle, actions: const []),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -426,7 +428,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   : Icon(Icons.shopping_bag_outlined,
                       color: _canAddToCart ? Colors.white : Colors.black),
               label: Text(
-                _outOfStock ? 'RUPTURE DE STOCK' : 'AJOUTER AU PANIER',
+                _outOfStock ? l.creatorOutOfStockUpper : l.addToCart,
                 style: TextStyle(
                     color: _canAddToCart ? Colors.white : Colors.black),
               ),
@@ -503,9 +505,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           ),
                         const SizedBox(height: 20),
                         if (_distinctColors.any((c) => c.isNotEmpty)) ...[
-                          const Text(
-                            'SELECTION COULEUR',
-                            style: TextStyle(
+                          Text(
+                            l.creatorSelectColor,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 10),
@@ -518,9 +520,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         // because every variant was mapped even when its size
                         // was an empty string.
                         if (_hasRealSizes) ...[
-                          const Text(
-                            'SELECTION TAILLE',
-                            style: TextStyle(
+                          Text(
+                            l.creatorSelectSize,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 10),
@@ -542,9 +544,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               const Icon(Icons.info_outline,
                                   size: 16, color: Color(0xFFB00020)),
                               const SizedBox(width: 6),
-                              const Text(
-                                'Rupture de stock',
-                                style: TextStyle(
+                              Text(
+                                l.creatorOutOfStock,
+                                style: const TextStyle(
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
@@ -557,7 +559,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ],
                         if (_brandName.isNotEmpty)
                           Text(
-                            'Vendu par $_brandName',
+                            l.creatorSoldBy(_brandName),
                             style: const TextStyle(
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w400,
@@ -1036,9 +1038,9 @@ class ExpandableDescription extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Description',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(sheetContext).description,
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -1076,7 +1078,7 @@ class ExpandableDescription extends StatelessWidget {
   Widget build(BuildContext context) {
     final String displayText = text?.trim().isNotEmpty == true
         ? text!
-        : 'No description available';
+        : AppLocalizations.of(context).creatorNoDescriptionAvailable;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1096,19 +1098,19 @@ class ExpandableDescription extends StatelessWidget {
               const SizedBox(height: 4),
               GestureDetector(
                 onTap: () => _showDescriptionSheet(context, displayText),
-                child: const Row(
+                child: Row(
                   children: [
                     Text(
-                      'Voir plus',
-                      style: TextStyle(
+                      AppLocalizations.of(context).creatorSeeMore,
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         decoration: TextDecoration.underline,
                       ),
                     ),
-                    SizedBox(width: 4),
-                    Icon(
+                    const SizedBox(width: 4),
+                    const Icon(
                       Icons.keyboard_arrow_down,
                       color: Colors.black,
                       size: 18,

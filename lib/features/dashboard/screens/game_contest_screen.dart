@@ -9,6 +9,7 @@ import 'package:happer_app/shared/models/happer_product.dart';
 import 'package:happer_app/core/utils/storage_service.dart';
 import 'package:happer_app/core/network/websocket_service.dart';
 import 'package:slide_countdown/slide_countdown.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 
 class GameContestScreen extends StatefulWidget {
   @override
@@ -108,7 +109,8 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
   void onComplete() {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Countdown Complete!')));
+    ).showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(context).dashCountdownComplete)));
   }
 
   Color getColor() {
@@ -287,7 +289,9 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
         onError: (error) {
           print("WebSocket error: $error");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("WebSocket connection failed")),
+            SnackBar(
+                content: Text(
+                    AppLocalizations.of(context).dashWebSocketConnectionFailed)),
           );
           if (mounted) {
             setState(() {
@@ -324,7 +328,9 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
     } catch (e) {
       print("Error connecting to WebSocket: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error connecting to WebSocket")),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context).dashWebSocketConnectError)),
       );
       if (mounted) {
         setState(() {
@@ -648,27 +654,28 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
 
   // Helper method to check if user should see credit warning (matches iOS logic)
   void _checkAndShowCreditWarnings() {
+    final l = AppLocalizations.of(context);
     // iOS logic: if user has few credits left, show promotional messages
     if (_userCredits == 2) {
       // Show premium offer dialog
       _showCreditWarningDialog(
-        title: "One Credit Left",
-        message: "Get Happer Plus for unlimited access",
-        actionText: "See Offers",
+        title: l.oneCreditLeft,
+        message: l.dashGetHapperPlusUnlimited,
+        actionText: l.seeOffers,
         onAction: () {
           // Navigate to premium screen (placeholder)
-          _showTooltip("Info", "Premium offers coming soon!");
+          _showTooltip(l.information, l.dashPremiumOffersSoon);
         },
       );
     } else if (_userCredits == 4) {
       // Show ads for credits
       _showCreditWarningDialog(
-        title: "Three Credits Left",
-        message: "Watch ads to earn more credits",
-        actionText: "Go to Ads",
+        title: l.threeCreditLeft,
+        message: l.showAds,
+        actionText: l.goToAds,
         onAction: () {
           // Navigate to ads screen (placeholder)
-          _showTooltip("Info", "Credit ads coming soon!");
+          _showTooltip(l.information, l.dashCreditAdsSoon);
         },
       );
     }
@@ -697,7 +704,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text("Cancel"),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
           ],
         );
@@ -710,7 +717,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
     return Scaffold(
       // Match the grey background from screenshot
       appBar: HapperAppBar(
-        title: 'PRIZE',
+        title: AppLocalizations.of(context).dashPrizeTitle,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -771,6 +778,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
 
   // Redesigned to match the screenshot exactly
   Widget _buildProductCard(HapperProduct product) {
+    final l = AppLocalizations.of(context);
     final productId = product.id;
     
     // Check if pictures array exists and is not empty
@@ -792,20 +800,20 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
       if (now.isBefore(product.startDate!)) {
         // Contest hasn't started yet, show start date
         dateToShow = product.startDate;
-        dateLabel = "Start Date";
+        dateLabel = l.dashStartDate;
       } else if (product.happDate != null) {
         // Contest has started, show happ date
         dateToShow = product.happDate;
-        dateLabel = "Happ Date";
+        dateLabel = l.dashHappDate;
       } else {
         // Fallback to start date if no happ date available
         dateToShow = product.startDate;
-        dateLabel = "Start Date";
+        dateLabel = l.dashStartDate;
       }
     } else if (product.happDate != null) {
       // No start date but has happ date
       dateToShow = product.happDate;
-      dateLabel = "Happ Date";
+      dateLabel = l.dashHappDate;
     }
 
     if (dateToShow != null) {
@@ -878,7 +886,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
         ),
       );
     } else {
-      imageWidget = _buildPlaceholderImage("No image available");
+      imageWidget = _buildPlaceholderImage(l.dashNoImageAvailable);
     }
 
     return Padding(
@@ -982,8 +990,8 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                                       5, // Moved more to the right from center
                                   child: GestureDetector(
                                     onTap: () => _showTooltip(
-        "Reserve period not reached",
-        "Minimum date and time before you can win the item",
+        l.titleInfoStartDate,
+        l.contentInfoStartDate,
       ),
                                     child: Container(
                                       width: 50,
@@ -1072,7 +1080,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                             Row(
                               children: [
                                 Text(
-                                  "Real price ",
+                                  "${l.realPrice} ",
                                   style: TextStyle(
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w400,
@@ -1149,6 +1157,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
     String formattedDate,
     String dateLabel,
   ) {
+    final l = AppLocalizations.of(context);
     final productId = product.id;
     bool isWished =
         _wishedProducts[productId] ?? false; // iOS: selectedProduct.isWished
@@ -1163,7 +1172,10 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
               onTap:
                   () => _showTooltip(
                     dateLabel,
-                    "Contest ${dateLabel.toLowerCase()}: ${formattedDate.replaceAll('\n', ' ')}",
+                    l.dashContestDateTooltip(
+                      dateLabel.toLowerCase(),
+                      formattedDate.replaceAll('\n', ' '),
+                    ),
                   ), // Dynamic tooltip
               child: Container(
                 width: 60,
@@ -1222,7 +1234,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                   SizedBox(width: 8),
                 ],
                 Text(
-                  isWished ? 'ADDED TO WISHLIST' : 'WISHLIST',
+                  isWished ? l.dashAddedToWishlistUpper : l.wishlistTitle,
                   style: TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700, // iOS: Lato-Bold
@@ -1244,6 +1256,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
     String productId,
     String userName,
   ) {
+    final l = AppLocalizations.of(context);
     bool userHasCurrentBid = _checkUserHasCurrentBid(product);
     
     // If this product has a timerstamp, make sure we have an animation controller
@@ -1327,7 +1340,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
             ),
             SizedBox(width: 6),
             Text(
-              "secondes",
+              l.seconds,
               style: TextStyle(
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w400,
@@ -1358,15 +1371,15 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
 
                         // Check if user already has the current bid (iOS logic)
                         if (userHasCurrentBid) {
-                          _showTooltip("Information", "Vous avez déjà la main");
+                          _showTooltip(l.information, l.dashYouAlreadyHaveTheHand);
                           return;
                         }
 
                         // Check if user has sufficient credits
                         if (_userCredits <= 0) {
                           _showTooltip(
-                            "Erreur",
-                            "Vous n'avez pas assez de crédits pour Happer!",
+                            l.error,
+                            l.vousNavezPasAssezDeCredits,
                           );
                           return;
                         }
@@ -1380,9 +1393,9 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                           // Happ product — feature coming soon
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Fonctionnalité bientôt disponible'),
-                                duration: Duration(seconds: 2),
+                              SnackBar(
+                                content: Text(l.dashFeatureComingSoon),
+                                duration: const Duration(seconds: 2),
                               ),
                             );
                           }
@@ -1430,7 +1443,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                   ),
                   child: Center(
                     child: Text(
-                      _checkUserHasCurrentBid(product) ? "J'ai la main" : "HAPPER",
+                      _checkUserHasCurrentBid(product) ? l.dashIHaveTheHand : "HAPPER",
                       style: TextStyle(
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w700,
@@ -1460,6 +1473,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
   ) {
     // For WIN state, we need to override the entire card layout to match the screenshot
     // This creates a horizontal layout: image left, details right
+    final l = AppLocalizations.of(context);
     final bool hasPicture = product.pictures.isNotEmpty;
     final imageUrl =
         hasPicture ? product.pictures[0] : 'https://via.placeholder.com/150';
@@ -1572,7 +1586,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                     Row(
                       children: [
                         Text(
-                          'Real Price ',
+                          '${l.realPrice} ',
                           style: TextStyle(
                             fontFamily: 'Lato',
                             fontSize: 14,
@@ -1597,7 +1611,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
                     Row(
                       children: [
                         Text(
-                          'Discount Price ', // Using 20% discount as example
+                          '${l.discountPrice} ', // Using 20% discount as example
                           style: TextStyle(
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w400,
@@ -1628,6 +1642,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
 
   // UI for EXPIRED state (state 3) - Contest ended without bids
   Widget _buildExpiredStateUI(HapperProduct product, String productId) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1649,12 +1664,12 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
               ),
               SizedBox(height: 4),
               Text(
-                'Contest Expired',
+                l.dashContestExpired,
                 
               ),
               SizedBox(height: 2),
               Text(
-                'No participants in this contest',
+                l.dashNoParticipants,
                 style: TextStyle(
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
@@ -1680,7 +1695,7 @@ class _GameContestScreenState extends State<GameContestScreen> with TickerProvid
             ),
             child: Center(
               child: Text(
-                'EXPIRED',
+                l.dashExpiredUpper,
                 style: TextStyle(
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,
@@ -1719,12 +1734,12 @@ class _GameLoadingView extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Connecting to server...',
+            AppLocalizations.of(context).dashConnectingToServer,
             style: TextStyle(fontFamily: 'Lato', fontSize: 16, color: Colors.grey[700]),
           ),
           const SizedBox(height: 8),
           Text(
-            'Getting the latest products',
+            AppLocalizations.of(context).dashGettingLatestProducts,
             style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey[500]),
           ),
         ],
@@ -1746,12 +1761,12 @@ class _GameEmptyView extends StatelessWidget {
           Icon(Icons.shopping_bag_outlined, size: 70, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'No products available',
+            AppLocalizations.of(context).noProductAvailable,
             style: TextStyle(fontFamily: 'Lato', fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
           ),
           const SizedBox(height: 8),
           Text(
-            'Check back later for new items',
+            AppLocalizations.of(context).dashCheckBackLater,
             style: TextStyle(fontFamily: 'Lato', fontSize: 14, color: Colors.grey[500]),
           ),
           const SizedBox(height: 24),
@@ -1764,7 +1779,7 @@ class _GameEmptyView extends StatelessWidget {
             ),
             onPressed: onRefresh,
             icon: const Icon(Icons.refresh),
-            label: const Text('REFRESH'),
+            label: Text(AppLocalizations.of(context).dashRefreshUpper),
           ),
         ],
       ),
@@ -1795,7 +1810,7 @@ class _GamePlaceholderImage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                message ?? 'No Image',
+                message ?? AppLocalizations.of(context).dashNoImage,
                 style: TextStyle(fontSize: 11, color: Colors.grey[500], fontFamily: 'Lato'),
                 textAlign: TextAlign.center,
                 maxLines: 2,

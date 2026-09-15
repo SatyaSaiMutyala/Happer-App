@@ -57,12 +57,12 @@ class MyAddressScreen extends StatelessWidget {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.add, color: Colors.white, size: 15),
-                  SizedBox(width: 4),
+                children: [
+                  const Icon(Icons.add, color: Colors.white, size: 15),
+                  const SizedBox(width: 4),
                   Text(
-                    'Ajouter',
-                    style: TextStyle(
+                    l.profileAdd,
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -172,9 +172,9 @@ class MyAddressScreen extends StatelessWidget {
                         size: 40, color: Colors.black38),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Aucune adresse',
-                    style: TextStyle(
+                  Text(
+                    l.profileNoAddress,
+                    style: const TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -325,9 +325,9 @@ class _AddressItem extends StatelessWidget {
                       border: Border.all(
                           color: Colors.white.withValues(alpha: 0.4)),
                     ),
-                    child: const Text(
-                      'Par défaut',
-                      style: TextStyle(
+                    child: Text(
+                      l.profileDefault,
+                      style: const TextStyle(
                         fontFamily: 'Lato',
                         fontSize: 10,
                         fontWeight: FontWeight.w600,

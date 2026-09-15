@@ -5,6 +5,7 @@ import 'package:happer_app/features/profile/models/purchase_model.dart';
 import 'package:happer_app/features/profile/screens/return_refund_screen_new.dart';
 import 'package:happer_app/features/profile/screens/return_request_screen.dart';
 import 'package:happer_app/features/profile/widgets/order_product_header.dart';
+import 'package:happer_app/l10n/app_localizations.dart';
 import 'package:happer_app/shared/widgets/happer_app_bar.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,13 +21,16 @@ class ReturnArticleScreen extends StatefulWidget {
 }
 
 class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
-  static const _reasons = [
-    (Icons.straighten, 'Taille incorrecte'),
-    (Icons.dangerous_outlined, 'Article endommagé'),
-    (Icons.inventory_2_outlined, 'Article non conforme à la description'),
-    (Icons.sentiment_dissatisfied_outlined, 'L\'article ne me convient pas'),
-    (Icons.chat_bubble_outline, 'Autre motif'),
-  ];
+  List<(IconData, String)> get _reasons {
+    final l = AppLocalizations.of(context);
+    return [
+      (Icons.straighten, l.incorrectSize),
+      (Icons.dangerous_outlined, l.damagedItem),
+      (Icons.inventory_2_outlined, l.itemNotAsDescribed),
+      (Icons.sentiment_dissatisfied_outlined, l.itemDoesNotSuitMe),
+      (Icons.chat_bubble_outline, l.otherReason),
+    ];
+  }
 
   int _selected = 0;
   bool _commentExpanded = false;
@@ -64,7 +68,7 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: HapperAppBar(
-        title: 'RETOURNER CET ARTICLE',
+        title: AppLocalizations.of(context).returnThisItem,
         actions: [
           IconButton(
             icon: const Icon(Icons.headset_mic_outlined,
@@ -121,6 +125,7 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
       );
 
   Widget _infoBanner() {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -134,21 +139,19 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: RichText(
-              text: const TextSpan(
-                style: TextStyle(
+              text: TextSpan(
+                style: const TextStyle(
                   fontFamily: 'Lato',
                   fontSize: 14,
                   height: 1.4,
                   color: Color(0xFF1A1A1A),
                 ),
                 children: [
-                  TextSpan(text: 'Vous disposez de '),
+                  TextSpan(text: l.orderReturnWindowPrefix),
                   TextSpan(
-                      text: '14 jours',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  TextSpan(
-                      text:
-                          ' après réception pour effectuer une demande de retour'),
+                      text: l.orderReturnWindowDays,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  TextSpan(text: l.orderReturnWindowSuffix),
                 ],
               ),
             ),
@@ -159,10 +162,11 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
   }
 
   Widget _reasonsCard() {
+    final reasons = _reasons;
     return _card(
       child: Column(
         children: [
-          for (int i = 0; i < _reasons.length; i++) ...[
+          for (int i = 0; i < reasons.length; i++) ...[
             if (i > 0) _divider(),
             InkWell(
               onTap: () => setState(() => _selected = i),
@@ -173,11 +177,11 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
                   children: [
                     _radio(_selected == i),
                     const SizedBox(width: 16),
-                    Icon(_reasons[i].$1, size: 26, color: Colors.black),
+                    Icon(reasons[i].$1, size: 26, color: Colors.black),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        _reasons[i].$2,
+                        reasons[i].$2,
                         style: const TextStyle(
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w600,
@@ -221,12 +225,13 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
   }
 
   Widget _extrasCard() {
+    final l = AppLocalizations.of(context);
     return _card(
       child: Column(
         children: [
           _expandableRow(
             icon: Icons.add_comment_outlined,
-            title: 'Ajouter un commentaire',
+            title: l.addComment,
             expanded: _commentExpanded,
             onTap: () => setState(() => _commentExpanded = !_commentExpanded),
           ),
@@ -238,7 +243,7 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
                 maxLines: 3,
                 style: const TextStyle(fontFamily: 'Lato', fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'Votre commentaire…',
+                  hintText: l.orderYourCommentHint,
                   contentPadding: const EdgeInsets.all(12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -254,7 +259,7 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
           _divider(),
           _expandableRow(
             icon: Icons.add_a_photo_outlined,
-            title: 'Ajouter des photos de l\'article',
+            title: l.addItemPhotos,
             expanded: _photosExpanded,
             onTap: () => setState(() => _photosExpanded = !_photosExpanded),
           ),
@@ -303,8 +308,7 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
             onTap: () {
               // Opens the return policy — wire to the policy URL when available.
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Conditions de retour bientôt disponibles')),
+                SnackBar(content: Text(l.orderReturnConditionsSoon)),
               );
             },
             child: Padding(
@@ -315,10 +319,10 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
                   const Icon(Icons.assignment_outlined,
                       size: 26, color: Colors.black),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Consulter les conditions de retour',
-                      style: TextStyle(
+                      l.viewReturnConditions,
+                      style: const TextStyle(
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -409,9 +413,9 @@ class _ReturnArticleScreenState extends State<ReturnArticleScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text(
-              'ENVOYER LA DEMANDE DE RETOUR',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context).submitReturnRequest,
+              style: const TextStyle(
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
