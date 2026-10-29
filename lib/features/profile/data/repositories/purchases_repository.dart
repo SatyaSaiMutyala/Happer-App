@@ -29,11 +29,11 @@ class PurchasesRepository {
   /// the backend started writing them carry none, and the tracker has to fall
   /// back to the item's plain status in that case.
   Future<List<OrderLog>> getOrderLogs({
-    required String orderId,
+    required String cartId,
     required String cartItemId,
   }) async {
     final response = await _client.get(
-      ApiEndpoints.orderLogs(orderId, cartItemId),
+      ApiEndpoints.orderLogs(cartId, cartItemId),
       requiresAuth: true,
     );
     return (response['data'] as List<dynamic>? ?? [])
@@ -42,13 +42,13 @@ class PurchasesRepository {
         .toList();
   }
 
-  /// Cancels a single line item. [orderId] is the purchase's `order_id` (the
-  /// cart id) and [cartItemId] its `cart_item_id`.
+  /// Cancels a single line item. [cartId] is the Cart document's MongoDB `_id`
+  /// (`cart_id` in the purchases response) and [cartItemId] is the item's `_id`.
   ///
   /// Only call this for an item whose [PurchasedProduct.isCancellable] is true —
   /// the backend re-checks and rejects anything already delivered or cancelled.
   Future<void> cancelOrder({
-    required String orderId,
+    required String cartId,
     required String cartItemId,
     String? reason,
   }) async {
@@ -56,7 +56,7 @@ class PurchasesRepository {
       ApiEndpoints.cancelOrder,
       requiresAuth: true,
       body: {
-        'cart_id': orderId,
+        'cart_id': cartId,
         'item_id': cartItemId,
         if (reason != null && reason.trim().isNotEmpty)
           'cancel_reason': reason.trim(),

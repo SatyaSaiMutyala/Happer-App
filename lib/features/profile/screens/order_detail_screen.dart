@@ -46,7 +46,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Future<void> _fetchLogs() async {
     try {
       final logs = await _repository.getOrderLogs(
-        orderId: order.orderId,
+        cartId: order.cartId,
         cartItemId: order.cartItemId,
       );
       if (!mounted) return;
@@ -608,7 +608,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     try {
       await PurchasesRepository().cancelOrder(
-        orderId: order.orderId,
+        cartId: order.cartId,
         cartItemId: order.cartItemId,
       );
       showAppSnackBar(l.orderCancelled);

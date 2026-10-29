@@ -92,6 +92,12 @@ class ApiEndpoints {
   // Change password
   static const String changePassword = '/user/auth/change-password';
 
+  // Tickets / Support
+  static const String raiseTicket = '/user/tickets/raise-ticket';
+  static const String getMyTickets = '/user/tickets/get-my-tickets';
+  static String getTicketById(String ticketId) => '/user/tickets/get-ticket/$ticketId';
+  static String replyTicket(String ticketId) => '/user/tickets/reply-ticket/$ticketId';
+
   // Notifications
   static const String getNotifications = '/user/notifications/fetch-list';
   static String getNotification(String id) => '/user/notifications/fetch/$id';

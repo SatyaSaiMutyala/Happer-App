@@ -8,6 +8,10 @@ class PurchasedProduct {
   final PurchasedAffiliate? affiliate;
   final PurchasedBrand? brand;
   final String orderId;
+  /// The Cart document's MongoDB `_id` — what the cancel/return endpoints
+  /// expect as `cart_id`. Distinct from [orderId] (`order_id`), which is a
+  /// human-readable order reference on the Cart doc.
+  final String cartId;
   final String cartItemId;
   final int quantity;
   final double unitPrice;
@@ -47,6 +51,7 @@ class PurchasedProduct {
     this.affiliate,
     this.brand,
     required this.orderId,
+    required this.cartId,
     required this.cartItemId,
     required this.quantity,
     required this.unitPrice,
@@ -97,6 +102,7 @@ class PurchasedProduct {
           ? PurchasedBrand.fromJson(json['brand_id'] as Map<String, dynamic>)
           : null,
       orderId: json['order_id'] as String? ?? '',
+      cartId: json['cart_id'] as String? ?? '',
       cartItemId: json['cart_item_id'] as String? ?? '',
       quantity: json['quantity'] as int? ?? 1,
       unitPrice: ((json['unit_price'] as num?) ?? 0).toDouble(),
@@ -217,7 +223,12 @@ class PurchasedVariant {
     return PurchasedVariant(
       id: json['_id'] as String? ?? '',
       price: ((json['price'] as num?) ?? 0).toDouble(),
-      images: (json['images'] as List<dynamic>? ?? []).cast<String>(),
+      // Use whereType instead of cast — cast is lazy and throws when a null
+      // or non-String element is accessed. whereType filters them out eagerly.
+      images: (json['images'] as List<dynamic>? ?? [])
+          .whereType<String>()
+          .where((s) => s.isNotEmpty)
+          .toList(),
       size: (json['size'] ?? json['variant_size'] ?? json['option']) as String?,
     );
   }

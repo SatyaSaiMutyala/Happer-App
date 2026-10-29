@@ -14,8 +14,11 @@ class ApiConfig {
   //
   // Build/run against dev without touching this file:
   //   flutter run --dart-define=USE_DEV_API=true
+  // static const bool useDevApi =
+  //     bool.fromEnvironment('USE_DEV_API', defaultValue: false);
+
   static const bool useDevApi =
-      bool.fromEnvironment('USE_DEV_API', defaultValue: false);
+      bool.fromEnvironment('USE_DEV_API', defaultValue: true);
 
   static const String prodBaseUrl = 'https://api.happer.fr/api/v1';
   static const String devBaseUrl = 'https://api.dev.happer.fr/api/v1';

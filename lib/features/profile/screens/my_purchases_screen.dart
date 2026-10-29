@@ -212,7 +212,7 @@ class _MyPurchasesScreenState extends State<MyPurchasesScreen> {
     setState(() => _cancellingItemId = p.cartItemId);
     try {
       await _repository.cancelOrder(
-        orderId: p.orderId,
+        cartId: p.cartId,
         cartItemId: p.cartItemId,
       );
       showAppSnackBar(l.orderCancelled);
