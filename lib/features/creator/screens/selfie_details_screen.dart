@@ -259,6 +259,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
     CartBinding().dependencies();
     final cartRepo = Get.find<CartRepository>();
     final affiliateId = _selfie?.user?.sId ?? '';
+    final selfieId = _selfie?.sId ?? widget.selfieId;
     int added = 0;
     for (final item in items) {
       // Sold-out products are shown in the sheet but never sent — the backend
@@ -272,6 +273,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
           productId: item.productId,
           variantId: variantId,
           affiliateId: affiliateId,
+          selfieId: selfieId,
           quantity: item.quantity,
         );
         added++;
@@ -292,6 +294,7 @@ class _SelfieDetailsScreenState extends State<SelfieDetailsScreen>
         productId: productId,
         variantId: variantId,
         affiliateId: affiliateId,
+        selfieId: _selfie?.sId ?? widget.selfieId,
         quantity: 1,
       );
       if (!mounted) return null;

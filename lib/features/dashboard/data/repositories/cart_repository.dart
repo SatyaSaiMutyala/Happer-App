@@ -11,6 +11,7 @@ class CartRepository {
     required String productId,
     required String variantId,
     required String affiliateId,
+    String? selfieId,
     int quantity = 1,
   }) async {
     final response = await _client.post(
@@ -20,6 +21,7 @@ class CartRepository {
         'product_id': productId,
         'variant_id': variantId,
         'affiliate_id': affiliateId,
+        if (selfieId != null && selfieId.isNotEmpty) 'selfie_id': selfieId,
         'quantity': quantity,
       },
     );
